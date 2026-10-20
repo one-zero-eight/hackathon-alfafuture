@@ -6,9 +6,9 @@ ALL DEVELOPMENT FOLLOWS THE PONYTAIL PRINCIPLES (SEE "Ponytail" SECTION BELOW). 
 
 UNLESS ASKED OR APPROVED, NO DESTRUCTIVE ACTION IS TO BE TAKEN. CODE/GIT INCLUDED. SUGGESTIONS ARE ALLOWED.
 A TEAMMATE'S WORK IS ONLY TO BE CHANGED ON USER APPROVAL AND IF NECESSARY.
-CLAUDE GIT CONTRIBUTION IS PROHIBITED
-ANY CHANGE TO THE ALGORITHMS AT ALL HAS TO BE DISCUSSED WITH THE USER AND REFLECTED IN APPROPRIATE docs/ FILE
-ALONG WITH THE SYSTEM PARTS DESCRIBED THAT WILL BE DESCRIBED IN DOCS ADD A SIMPLE-WORDED CONCISE STEP-BY-STEP WALKTHROUGH OF HOW THAT SYSTEM PART WORKS
+CLAUDE GIT CONTRIBUTION IS PROHIBITED.
+ANY CHANGE TO THE ALGORITHMS AT ALL HAS TO BE DISCUSSED WITH THE USER AND REFLECTED IN APPROPRIATE `docs/` FILE
+ALONG WITH THE SYSTEM PARTS DESCRIBED THAT WILL BE DESCRIBED IN DOCS ADD A SIMPLE-WORDED CONCISE STEP-BY-STEP WALKTHROUGH OF HOW THAT SYSTEM PART WORKS.
 
 BIG CHANGES (NEW MODULES, CONTRACTS, MULTI-FILE CHANGES) NEED AN APPROVED PLAN BEFORE ANY FILE IS WRITTEN.
 NEVER GUESS OR ASSUME. IF A FACT, REQUIREMENT OR DECISION IS NOT STATED, ASK.
@@ -82,9 +82,9 @@ companies, client products) and a handful of Alfa-Bank analytics PDFs. **No news
 collect news ourselves.
 
 Hard constraints from the brief:
-- **Only LLMs from the organizer-approved list** (open-source: GLM, Kimi, …), budget 500 ₽/day.
-  No external LLMs, no external autonomous agents as the core of the solution. Using local
-  non-generative models (classifiers) is unconfirmed — do not add one without user approval.
+- **Only LLMs from the organizer-approved list** (Gemma 4 26B A4B, GLM-5.3-Flash, Qwen3.6 35B A3B, 
+  DeepSeek-V4.1-Flash, Qwen3-VL-30B-A3B-Instruct, Kimi-K2.6), budget 500 ₽/day.
+  No other LLM allowed at all.
 - Decisions must be **traceable**: every ranking/conclusion can be traced back to its sources.
 - User can ask follow-up questions, view data in another cut, and open the original source.
 - Native advertising of bank products in the output is allowed.
@@ -101,20 +101,29 @@ Alfa-Bank PDFs: separate higher-weight graph layer, reproducible parsing pipelin
 
 ### Team & modules
 
-| Person | Module | Branch prefix |
-|---|---|---|
-| Тимофей | Graph construction | `graph/` |
-| Саша | Tag vocabulary & LLM tagging | `tags/` |
-| Лев | Ranking, user profile, graph traversal | `ranking/` |
-| Арсен | Alfa PDF parsing, news sources research | `sources/` |
-| Арсентий | UI: Figma, frontend skeleton, mock endpoints | `ui/` |
+| Person   | Module                                       | Branch prefix |
+|----------|----------------------------------------------|---------------|
+| Тимофей  | Graph construction                           | `graph/`      |
+| Саша     | Tag vocabulary & LLM tagging                 | `tags/`       |
+| Лев      | Ranking, user profile, graph traversal       | `ranking/`    |
+| Арсен    | Alfa PDF parsing, news sources research      | `sources/`    |
+| Арсентий | UI: Figma, frontend skeleton, mock endpoints | `ui/`         |
 
 Modules talk through agreed input/output contracts (HTTP / JSON); each owner documents their
 module's contract in `docs/`.
 
+### Computational resources
+
+We as a team have compute server with the following specs which can be used for resource intensive computations:
+- GPU: Tesla V100, 32 GB VRAM
+- CPU: 60 cores, Intel Xeon E5-2698, 2.2GHz
+- RAM: 190 GB
+- Disk: 3 TB
+
+About resources for local development ask user, as each team member has different hardware
+
 ### Open questions (do not assume answers)
 
-- Is there a vision-capable model in the approved list (needed for PDF charts)?
 - Final tag vocabulary and graph weight format.
 - Format of the risk assessment in the output.
 - Stack and build tooling.
@@ -291,13 +300,13 @@ working state.
 
 ## Key Files
 
-| File | Purpose |
-|---|---|
-| `AGENTS.md` | This file |
-| `CHANGELOG.md` | Append-only team changelog, read only the tail |
-| `docs/` | Team-facing contracts and decisions (Russian) |
-| `backlog/` | Personal, gitignored planning |
-| `agents_memory/` | Personal, gitignored durable facts |
+| File             | Purpose                                                        |
+|------------------|----------------------------------------------------------------|
+| `AGENTS.md`      | This file                                                      |
+| `CHANGELOG.md`   | Append-only team changelog, read only the tail                 |
+| `docs/`          | Team-facing contracts and decisions (Russian)                  |
+| `backlog/`       | Personal, gitignored planning                                  |
+| `agents_memory/` | Personal, gitignored durable facts                             |
 | `external-docs/` | Case brief PDF, meeting transcripts and summaries (gitignored) |
 
 ---
