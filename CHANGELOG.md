@@ -1,0 +1,1 @@
+- 2026-10-20 repo: добавлены .gitignore, AGENTS.md и CHANGELOG.md.
