@@ -201,6 +201,9 @@ func TestRejectInvalidConfigAndModelBypasses(t *testing.T) {
 		if _, err := client.Chat(t.Context(), params); err == nil {
 			t.Fatal("accepted invalid request or override")
 		}
+		if _, err := client.ChatStream(t.Context(), params); err == nil {
+			t.Fatal("stream accepted invalid request or override")
+		}
 	}
 }
 

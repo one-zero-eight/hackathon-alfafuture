@@ -10,6 +10,7 @@ import (
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
+	"github.com/openai/openai-go/v3/packages/ssestream"
 )
 
 const (
@@ -65,27 +66,51 @@ func (c *Client) Model() string { return c.model }
 // Chat makes one request; tools, retries and conversation history belong to the caller.
 // Usage presence is exposed by the SDK's JSON.Usage and per-counter JSON metadata.
 func (c *Client) Chat(ctx context.Context, params openai.ChatCompletionNewParams) (*openai.ChatCompletion, error) {
-	if err := ctx.Err(); err != nil {
+	params, err := c.prepare(ctx, params)
+	if err != nil {
 		return nil, err
 	}
+	return c.chat.New(ctx, params)
+}
+
+// ChatStream starts one request; the caller reads Next/Current, checks Err and closes it.
+// Request usage through params.StreamOptions; missing usage must remain unknown.
+func (c *Client) ChatStream(ctx context.Context, params openai.ChatCompletionNewParams) (*ssestream.Stream[openai.ChatCompletionChunk], error) {
+	params, err := c.prepare(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	stream := c.chat.NewStreaming(ctx, params)
+	if err := stream.Err(); err != nil {
+		_ = stream.Close()
+		return nil, err
+	}
+	// shortcut: SDK accepts EOF without [DONE], add strict termination checks if callers need proof beyond finish_reason.
+	return stream, nil
+}
+
+func (c *Client) prepare(ctx context.Context, params openai.ChatCompletionNewParams) (openai.ChatCompletionNewParams, error) {
+	if err := ctx.Err(); err != nil {
+		return params, err
+	}
 	if _, overridden := params.Overrides(); overridden {
-		return nil, errors.New("raw request overrides cannot bypass model validation")
+		return params, errors.New("raw request overrides cannot bypass model validation")
 	}
 	for _, name := range []string{"model", "stream"} {
 		if _, exists := params.ExtraFields()[name]; exists {
-			return nil, errors.New("model and stream must not be overridden through extra fields")
+			return params, errors.New("model and stream must not be overridden through extra fields")
 		}
 	}
 	if params.Model == "" {
 		params.Model = c.model
 	}
 	if !allowedModel(params.Model) {
-		return nil, errors.New("request model must be an organizer-approved model ID")
+		return params, errors.New("request model must be an organizer-approved model ID")
 	}
 	if len(params.Messages) == 0 {
-		return nil, errors.New("chat requires at least one message")
+		return params, errors.New("chat requires at least one message")
 	}
-	return c.chat.New(ctx, params)
+	return params, nil
 }
 
 func allowedModel(model string) bool {
