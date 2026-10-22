@@ -61,7 +61,7 @@ func Open(ctx context.Context, databaseURL string) (*gorm.DB, error) {
 	return db, nil
 }
 
-// Bootstrap initializes the schema and inserts the fixed vocabulary atomically.
+// Bootstrap initializes the news schema and inserts the fixed vocabulary atomically.
 func Bootstrap(ctx context.Context, db *gorm.DB) error {
 	v, err := vocabulary.Load()
 	if err != nil {
@@ -80,8 +80,8 @@ func Bootstrap(ctx context.Context, db *gorm.DB) error {
 	version := vocabularyVersion{Version: v.Version, Checksum: checksum, Metadata: v}
 	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// shortcut: initial-schema bootstrap; use versioned migrations before evolving persistent schemas.
-		if err := tx.AutoMigrate(&vocabularyVersion{}, &tag{}); err != nil {
-			return fmt.Errorf("initialize vocabulary schema: %w", err)
+		if err := tx.AutoMigrate(&vocabularyVersion{}, &tag{}, &Source{}, &Article{}); err != nil {
+			return fmt.Errorf("initialize news schema: %w", err)
 		}
 		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&version).Error; err != nil {
 			return fmt.Errorf("insert vocabulary version: %w", err)
