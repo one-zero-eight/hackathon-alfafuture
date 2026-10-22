@@ -1,1 +1,2 @@
 - 2026-10-20 repo: добавлены .gitignore, AGENTS.md и CHANGELOG.md.
+- 2026-10-22 ranking: предложение конвейера отбора новостей под профиль пользователя (docs/proposal-ranking-pipeline.md).
