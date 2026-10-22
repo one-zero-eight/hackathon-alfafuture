@@ -1,0 +1,4 @@
+{"M1": {"nuggets": [0.5,1,0.5,0,1,0,0], "decisions": 5, "correct": 5, "claims_checked": 7, "unsupported": 0, "overall": 7, "note": "Covers rates, deposits, CNY and FX with concrete triggers; misses bonds, ports and sanctions freeze."},
+"M2": {"nuggets": [0.5,1,0.5,0.5,1,0,0], "decisions": 6, "correct": 5, "claims_checked": 6, "unsupported": 1, "overall": 6, "note": "Good deposit and CNY decisions, but advises against pre-buying FX and misattributes sanctions status to A0057."},
+"M3": {"nuggets": [0.5,0.5,0,0,1,0,0], "decisions": 5, "correct": 4, "claims_checked": 5, "unsupported": 0, "overall": 5, "note": "Short deposits and CNY channel ok; do-not-pre-buy FX contradicts the window and rate-hold implication is missing."},
+"M4": {"nuggets": [0.5,0.5,0,0,1,0,0], "decisions": 6, "correct": 6, "claims_checked": 6, "unsupported": 0, "overall": 6, "note": "Sound, cautious treasury decisions with CNY and bank-licence checks; misses rate-hold nugget, bonds and sanctions."}}

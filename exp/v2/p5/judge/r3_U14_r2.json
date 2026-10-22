@@ -1,0 +1,7 @@
+{"M1": {"nuggets": [0,0.5,0,1,0,0], "decisions": 4, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 3, "note": "Handles hosting and Yandex outage risk but misses the PHP vulnerabilities entirely."},
+"M2": {"nuggets": [1,1,0.5,0,0,0], "decisions": 5, "correct": 3, "claims_checked": 5, "unsupported": 0, "overall": 6, "note": "Leads with PHP patching, VMmanager and agent access limits; misses Yandex outage and has weak DeepSeek and telecom items."},
+"M3": {"nuggets": [1,0,0,1,0.5,0], "decisions": 4, "correct": 3, "claims_checked": 4, "unsupported": 0, "overall": 5, "note": "PHP patch and data-centre dependency are right; omits Astra hack and credential hardening."},
+"M4": {"nuggets": [0,0.5,1,0,0.5,0], "decisions": 3, "correct": 3, "claims_checked": 5, "unsupported": 0, "overall": 4, "note": "Good security hardening but dismisses the PHP story as not our market."},
+"M5": {"nuggets": [0,0,0,0,0.5,0], "decisions": 3, "correct": 0, "claims_checked": 5, "unsupported": 0, "overall": 1, "note": "Focuses on Lukoil and sanctions, misses every security nugget."},
+"M6": {"nuggets": [1,0,0.5,0.5,0.5,0], "decisions": 4, "correct": 3, "claims_checked": 8, "unsupported": 0, "overall": 6, "note": "Patches PHP and sets cloud fallback but treats the Astra hack as market noise."},
+"M7": {"nuggets": [1,0,0.5,0.5,0.5,0], "decisions": 4, "correct": 3, "claims_checked": 8, "unsupported": 0, "overall": 6, "note": "Strong PHP and cloud recovery decisions, awareness training, but no Astra or Yandex-specific action."}}

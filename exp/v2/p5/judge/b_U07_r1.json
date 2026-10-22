@@ -1,0 +1,4 @@
+{"M1": {"nuggets": [1,0.5,0.5,0.5,1,0,0,0,0,0,0], "decisions": 6, "correct": 5, "claims_checked": 7, "unsupported": 0, "overall": 6, "note": "Solid rate-fixing, lease and fuel budget decisions for a CFO, but misses retail, paper VAT and regional items."},
+"M2": {"nuggets": [1,0.5,0,0.5,0.5,0,0,0,0,0,0], "decisions": 6, "correct": 5, "claims_checked": 6, "unsupported": 1, "overall": 5, "note": "Good rate and fuel handling, but dismisses ports and does not use leasing programme news."},
+"M3": {"nuggets": [1,0,0,0.5,0.5,0,0,0,0,0,0], "decisions": 6, "correct": 4, "claims_checked": 6, "unsupported": 1, "overall": 4, "note": "Misreads higher oil as a revenue gain for a carrier and dismisses the demand surge."},
+"M4": {"nuggets": [1,0.5,0.5,0.5,1,0,0,0,0,0,0], "decisions": 5, "correct": 4, "claims_checked": 7, "unsupported": 0, "overall": 6, "note": "Good rates, FX and fuel scenarios, but the driver-licence audit is off target and the retail change is missed."}}

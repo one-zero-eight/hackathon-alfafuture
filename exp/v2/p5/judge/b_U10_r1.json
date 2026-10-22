@@ -1,0 +1,4 @@
+{"M1": {"nuggets": [1,1,0,1,0,0], "decisions": 6, "correct": 6, "claims_checked": 6, "unsupported": 0, "overall": 7, "note": "Role-appropriate, covers paper VAT, 1 Nov and labour code; misses budget reading and APK support."},
+"M2": {"nuggets": [1,1,0,1,0,0], "decisions": 6, "correct": 5, "claims_checked": 5, "unsupported": 0, "overall": 6, "note": "Covers the three main nuggets with dated actions; sales-return item is only weakly relevant."},
+"M3": {"nuggets": [0,1,0,0,0,0], "decisions": 4, "correct": 3, "claims_checked": 4, "unsupported": 1, "overall": 3, "note": "Misses paper VAT and labour code; one decision is a non-decision citing an irrelevant item."},
+"M4": {"nuggets": [1,1,0,1,0.5,0], "decisions": 5, "correct": 5, "claims_checked": 6, "unsupported": 0, "overall": 7, "note": "Specific thresholds and deadlines on paper VAT, 1 Nov and labour code; misses budget reading and APK."}}
