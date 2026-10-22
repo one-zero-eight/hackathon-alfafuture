@@ -4,7 +4,9 @@ go 1.27.3
 
 require (
 	github.com/joho/godotenv v1.5.1
+	github.com/mmcdole/gofeed v1.5.0
 	github.com/openai/openai-go/v3 v3.85.1
+	golang.org/x/net v0.60.0
 	gorm.io/driver/postgres v1.6.3
 	gorm.io/gorm v1.31.2
 )
@@ -17,6 +19,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/mmcdole/goxpp/v2 v2.0.0 // indirect
 	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
