@@ -124,9 +124,8 @@ About resources for local development ask user, as each team member has differen
 
 ### Open questions (do not assume answers)
 
-- Final tag vocabulary and graph weight format.
+- Graph weight format.
 - Format of the risk assessment in the output.
-- Stack and build tooling.
 
 ---
 
@@ -206,8 +205,19 @@ These rules are to be followed strictly.
 
 ## Build & Test Commands
 
-Stack not decided yet. Do not invent tooling — confirm with the user and record the commands here
-once chosen.
+Approved backend stack: Go, Gin + Huma, PostgreSQL + GORM, gofeed, godotenv and the official
+OpenAI Go SDK against the organizer endpoint. Dependencies are added only with their working module.
+
+The vocabulary package currently uses only the standard library (Go 1.27.3):
+
+```sh
+cd backend
+go test ./...
+go vet ./...
+go build ./...
+```
+
+The HTTP service, database and Docker entrypoints are not implemented yet.
 
 ---
 
