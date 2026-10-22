@@ -205,19 +205,7 @@ These rules are to be followed strictly.
 
 ## Build & Test Commands
 
-Approved backend stack: Go, Gin + Huma, PostgreSQL + GORM, gofeed, godotenv and the official
-OpenAI Go SDK against the organizer endpoint. Dependencies are added only with their working module.
-
-The vocabulary package currently uses only the standard library (Go 1.27.3):
-
-```sh
-cd backend
-go test ./...
-go vet ./...
-go build ./...
-```
-
-The HTTP service, database and Docker entrypoints are not implemented yet.
+Backend (Go 1.27.3), from `backend/` run: `go test ./...`, `go vet ./...`, `go build ./...`.
 
 ---
 
