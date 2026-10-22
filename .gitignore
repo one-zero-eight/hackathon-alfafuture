@@ -74,3 +74,6 @@ build/
 *.log
 data/
 *.db
+.idea
+.vscode
+.zed

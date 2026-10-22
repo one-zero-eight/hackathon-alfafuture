@@ -1,0 +1,4 @@
+{"M1": {"nuggets": [1, 1, 0.5, 1, 1, 0.5, 0], "decisions": 4, "correct": 4, "claims_checked": 5, "unsupported": 0, "overall": 7, "note": "Covers five of seven nuggets with sensible accountant-level actions; misses bank malware rule."},
+"M2": {"nuggets": [0, 1, 0, 1, 0, 0, 0], "decisions": 5, "correct": 3, "claims_checked": 5, "unsupported": 1, "overall": 3.5, "note": "Misses paper VAT and outstaffing; Ozon fee and utility-arrears decisions are weakly tied to cited stories."},
+"M3": {"nuggets": [1, 1, 0.5, 1, 1, 0, 0], "decisions": 6, "correct": 6, "claims_checked": 6, "unsupported": 0, "overall": 7.5, "note": "Most complete and actionable memo; includes paper VAT, outstaffing, Nov 1 and TK changes."},
+"M4": {"nuggets": [0, 1, 0, 1, 0, 0, 0], "decisions": 6, "correct": 5, "claims_checked": 5, "unsupported": 0, "overall": 4, "note": "Narrow coverage, misses paper VAT and outstaffing, with duplicated returns decisions."}}

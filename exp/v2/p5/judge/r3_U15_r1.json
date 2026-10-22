@@ -1,0 +1,7 @@
+{"M1": {"nuggets": [0,1,0,1,0,0], "decisions": 4, "correct": 2, "claims_checked": 8, "unsupported": 1, "overall": 4, "note": "Solid on hosting and outage planning but misses PHP; legal data-collection review and licence check are weak."},
+"M2": {"nuggets": [1,0,0.5,0,0.5,0], "decisions": 5, "correct": 3, "claims_checked": 8, "unsupported": 0, "overall": 6, "note": "PHP patch and multi-region fallback are right; misses Astra and Yandex, with two low-value items."},
+"M3": {"nuggets": [1,1,0.5,1,0,0], "decisions": 6, "correct": 4, "claims_checked": 8, "unsupported": 0, "overall": 8, "note": "Covers PHP, VMmanager, Yandex diversification and AI agents with owners and deadlines."},
+"M4": {"nuggets": [1,0,0.5,1,0,0], "decisions": 4, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 7, "note": "Accurate PHP and concentration-risk actions; misses Astra and the DDoS point."},
+"M5": {"nuggets": [0,0.5,0,1,0,0], "decisions": 3, "correct": 2, "claims_checked": 6, "unsupported": 0, "overall": 4, "note": "Failover check is good but PHP is absent and the oil-and-gas compliance decision is speculative."},
+"M6": {"nuggets": [1,0,0,1,0,0], "decisions": 5, "correct": 4, "claims_checked": 8, "unsupported": 0, "overall": 7, "note": "PHP patch and a dated DR test are concrete; no Astra or AI-agent coverage."},
+"M7": {"nuggets": [0,0,0,0,0,0.5], "decisions": 4, "correct": 0, "claims_checked": 8, "unsupported": 0, "overall": 1, "note": "Built on Lukoil and sanctions items and misses every vital cyber and outage risk."}}

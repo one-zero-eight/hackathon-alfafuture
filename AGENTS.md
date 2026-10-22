@@ -217,7 +217,7 @@ once chosen.
 - [ ] Linter/formatter clean (once chosen)
 - [ ] Module contract in `docs/` updated if inputs/outputs changed
 - [ ] Tested against the real LLM API if integration changed, or explicitly flagged unverified
-- [ ] One line appended to `CHANGELOG.md`
+- [ ] One line appended to `CHANGELOG.md` for actual shared repository changes; local-only work needs no entry
 
 ---
 
@@ -225,6 +225,9 @@ once chosen.
 
 `CHANGELOG.md` in the repo root is an append-only log shared by the whole team.
 
+- Record only actual changes to shared repository files, including new files intended for tracking.
+  Do not log planned but unimplemented work, backlog progress, agent memory, or other gitignored
+  personal changes. Changes to shared documentation count when the files have actually changed.
 - **Never read the whole file.** Read only the last 5–10 lines (`tail -n 10 CHANGELOG.md`).
 - **Append only**, at the bottom. Never edit, reorder or delete existing lines.
 - Written in **Russian**, like commit messages.
@@ -237,8 +240,10 @@ once chosen.
 
 ## Local Backlog
 
-**Location**: `backlog/BACKLOG.md` + `backlog/phase-*.md`. Personal and gitignored — team-facing
-planning (contracts, tag vocabulary, graph format) lives in `docs/`.
+**Location**: `backlog/BACKLOG.md` + `backlog/phase-*.md`. Store all agent implementation plans,
+including approved plans, in this gitignored directory. Plan approval does not make a plan shared
+documentation. `docs/` is for team-facing planning (contracts, tag vocabulary, graph format, system
+documentation, etc.), not agent plans or task breakdowns.
 
 **If `backlog/` doesn't exist**: create `BACKLOG.md` as an index plus one `phase-N-<name>.md` per
 phase, each starting with a `Status:` line (`planning` / `in progress` / `done`).

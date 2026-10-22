@@ -1,0 +1,7 @@
+{"M1": {"nuggets": [1,0,0,0,1,0,0,0], "decisions": 3, "correct": 2, "claims_checked": 8, "unsupported": 0, "overall": 4, "note": "Marking and credit-cost capex delay are right; price hold is weakly grounded; misses wheat and logistics."},
+"M2": {"nuggets": [0,1,0,0,1,0,0,0], "decisions": 4, "correct": 3, "claims_checked": 8, "unsupported": 0, "overall": 5, "note": "Good marking and wheat decisions with triggers; misses rates and subsidies."},
+"M3": {"nuggets": [0,1,0,0,1,0,0,0], "decisions": 5, "correct": 2, "claims_checked": 7, "unsupported": 0, "overall": 3, "note": "Marking and wheat covered but gas and diesel-exchange decisions are stretched and one is just a question."},
+"M4": {"nuggets": [0,0,0,0,0,0,0,0], "decisions": 3, "correct": 2, "claims_checked": 6, "unsupported": 0, "overall": 2, "note": "Misses all vital nuggets; FX and robotisation items are tangential."},
+"M5": {"nuggets": [0.5,1,0,0,1,0,0,0], "decisions": 5, "correct": 3, "claims_checked": 5, "unsupported": 0, "overall": 5, "note": "Covers marking, wheat and rate trigger; oyster VAT decision irrelevant."},
+"M6": {"nuggets": [0,0,0,0,0.5,0,0,0], "decisions": 5, "correct": 2, "claims_checked": 8, "unsupported": 0, "overall": 2, "note": "Mostly off-target items (Italian pasta, steel, plastic, pesticides)."},
+"M7": {"nuggets": [0.5,0,0,0,1,0,0,0], "decisions": 4, "correct": 2, "claims_checked": 8, "unsupported": 1, "overall": 4, "note": "Marking owner is good; FX renegotiation plausible; Rummo detail unverified."}}

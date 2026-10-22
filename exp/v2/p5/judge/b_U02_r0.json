@@ -1,0 +1,4 @@
+{"M1": {"nuggets": [1,0.5,0,0,0.5,0,0.5,0,0], "decisions": 6, "correct": 5, "claims_checked": 8, "unsupported": 1, "overall": 5, "note": "Correct FX conversion and CNY test but keeps deposits short ignoring the high-for-long rate signal."},
+"M2": {"nuggets": [1,0,1,0.5,1,0,0,0,0], "decisions": 7, "correct": 6, "claims_checked": 8, "unsupported": 1, "overall": 6.5, "note": "Sensible deposit, FX conversion, CNY and cash decisions; A0057 cited for sanctions is doubtful."},
+"M3": {"nuggets": [1,0.5,0,0,0.5,0,0.5,0,0], "decisions": 6, "correct": 5, "claims_checked": 8, "unsupported": 1, "overall": 5, "note": "Good FX and receipts forecast but declines to lengthen deposits and misstates A0606 and A0057."},
+"M4": {"nuggets": [1,0,1,0,1,0,0,0,0], "decisions": 5, "correct": 5, "claims_checked": 7, "unsupported": 0, "overall": 6.5, "note": "Balanced partial deposit lock, 70% FX conversion with trigger, CNY test; misses sanctions and bond-market items."}}

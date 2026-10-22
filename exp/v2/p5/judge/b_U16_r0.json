@@ -1,0 +1,4 @@
+{"M1": {"nuggets": [1,0,1,1,0,0,0], "decisions": 6, "correct": 5, "claims_checked": 7, "unsupported": 0, "overall": 6, "note": "Covers paper VAT, 1 Nov and labour code well; misses bank device rule, budget and Astra."},
+"M2": {"nuggets": [1,0,1,1,0.5,0,0], "decisions": 5, "correct": 4, "claims_checked": 7, "unsupported": 0, "overall": 7, "note": "Dated, role-appropriate accounting actions and device-rule monitor; misses budget, self-employed and Astra."},
+"M3": {"nuggets": [1,0.5,1,1,1,0,0], "decisions": 5, "correct": 4, "claims_checked": 8, "unsupported": 0, "overall": 7, "note": "Broadest nugget coverage with thresholds and deadlines; misses self-employed limit and Astra."},
+"M4": {"nuggets": [1,0,1,1,0,0,0], "decisions": 4, "correct": 3, "claims_checked": 5, "unsupported": 1, "overall": 5, "note": "Core tax and labour items present but vague, with a weak utility accrual item and an uncertain A0575 claim."}}

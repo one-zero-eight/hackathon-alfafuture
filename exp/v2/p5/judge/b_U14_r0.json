@@ -1,0 +1,4 @@
+{"M1": {"nuggets": [1,1,0,0.5,0,0], "decisions": 5, "correct": 3, "claims_checked": 8, "unsupported": 0, "overall": 6, "note": "Concrete PHP patch and Astra screening; adds single-cloud point but misses AI-hack MFA and TK internships."},
+"M2": {"nuggets": [1,0,0,0.5,0.5,0], "decisions": 6, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 4, "note": "PHP patch is right but Astra missing and several decisions are speculative sales offers."},
+"M3": {"nuggets": [1,0,0,0.5,0,0], "decisions": 4, "correct": 3, "claims_checked": 8, "unsupported": 0, "overall": 5, "note": "Solid PHP and cloud-recovery items; misses Astra and AI-hack hardening."},
+"M4": {"nuggets": [1,0,0,0.5,0.5,0], "decisions": 5, "correct": 3, "claims_checked": 7, "unsupported": 1, "overall": 4, "note": "PHP and continuity covered, but holding IT capex for telecom reform is weak and Astra is missed."}}

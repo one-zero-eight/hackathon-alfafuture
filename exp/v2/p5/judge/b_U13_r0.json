@@ -1,0 +1,4 @@
+{"M1": {"nuggets": [0.5,0,0,0,0.5,0,0], "decisions": 4, "correct": 2, "claims_checked": 8, "unsupported": 0, "overall": 3, "note": "Misses rate-hold implication (floating funding), FX window and compliance; speculative pilot and off-topic office/app items."},
+"M2": {"nuggets": [0.5,0,0,0,0.5,0,0], "decisions": 4, "correct": 2, "claims_checked": 6, "unsupported": 0, "overall": 3, "note": "Sensible pricing hold and subsidy check but misses FX, bonds, regulation and tax nuggets."},
+"M3": {"nuggets": [1,0,0.5,0.5,0,0,0], "decisions": 6, "correct": 4, "claims_checked": 8, "unsupported": 0, "overall": 4, "note": "Covers rate hold and deposit ceiling but the FX advice (sell FX into strong ruble) is the wrong direction."},
+"M4": {"nuggets": [0,0,0,0,1,0,0], "decisions": 6, "correct": 4, "claims_checked": 6, "unsupported": 0, "overall": 4, "note": "Good leasing-subsidy preparation but ignores rates, FX, funding and regulation."}}
