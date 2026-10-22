@@ -80,7 +80,7 @@ func Bootstrap(ctx context.Context, db *gorm.DB) error {
 	version := vocabularyVersion{Version: v.Version, Checksum: checksum, Metadata: v}
 	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// shortcut: initial-schema bootstrap; use versioned migrations before evolving persistent schemas.
-		if err := tx.AutoMigrate(&vocabularyVersion{}, &tag{}, &Source{}, &Article{}); err != nil {
+		if err := tx.AutoMigrate(&vocabularyVersion{}, &tag{}, &Source{}, &Article{}, &TaggingAttempt{}, &TagAssignment{}, &EventInstance{}, &BudgetPause{}); err != nil {
 			return fmt.Errorf("initialize news schema: %w", err)
 		}
 		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&version).Error; err != nil {
