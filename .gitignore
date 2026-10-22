@@ -65,7 +65,6 @@ agents_memory/
 .DS_Store
 .env
 tmp/
-exp/
 node_modules/
 .venv/
 venv/

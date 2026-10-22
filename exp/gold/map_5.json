@@ -1,0 +1,289 @@
+{
+ "P1": [
+  {
+   "id": "A1342",
+   "rel": 3,
+   "why": "Ruble firming, dollar below 82 and yuan 12.28: affects timing of yuan purchases and hedging decisions."
+  },
+  {
+   "id": "A1327",
+   "rel": 2,
+   "why": "CBR cuts official dollar rate; yuan around 12.23 on MOEX; informs yuan purchase timing."
+  },
+  {
+   "id": "A1395",
+   "rel": 2,
+   "why": "Official euro and dollar cut by CBR; ruble strength signal for import cost and pricing."
+  },
+  {
+   "id": "A1263",
+   "rel": 2,
+   "why": "Customs revaluation dispute over Chinese-sourced goods; precedent for customs value risk on imported electronics."
+  },
+  {
+   "id": "A1496",
+   "rel": 2,
+   "why": "Russia-China premiers meet; trade, payments and settlement channel outlook for yuan supplier payments."
+  },
+  {
+   "id": "A1409",
+   "rel": 2,
+   "why": "Peace-talk progress drove ruble strength; sanctions and rate outlook relevant to hedging."
+  },
+  {
+   "id": "A1349",
+   "rel": 1,
+   "why": "US pauses 100% tariff bill on buyers of Russian energy; reduces secondary-sanction risk for China trade and banks."
+  },
+  {
+   "id": "A1356",
+   "rel": 1,
+   "why": "Lukoil sanctions in US-Russia talks; signals possible sanctions easing affecting payment channels."
+  },
+  {
+   "id": "A1284",
+   "rel": 1,
+   "why": "Trilateral talks resume in November; sentiment driver for ruble and rates."
+  },
+  {
+   "id": "A1337",
+   "rel": 1,
+   "why": "French 10y yield at 5%: global risk sentiment and euro volatility background."
+  },
+  {
+   "id": "A1345",
+   "rel": 1,
+   "why": "Retail volumes falling on weaker purchasing power; demand background for budget and pricing."
+  },
+  {
+   "id": "A1261",
+   "rel": 1,
+   "why": "Marketplace browsing behaviour; weak demand context for Ozon/Wildberries sales."
+  }
+ ],
+ "P2": [
+  {
+   "id": "A1271",
+   "rel": 2,
+   "why": "Novak: diesel exports only of surplus, US deal; domestic diesel supply and price outlook for transport and energy costs."
+  },
+  {
+   "id": "A1408",
+   "rel": 2,
+   "why": "Kazakhstan QazETA entry authorisation rules affect drivers and crews on export trucks to Kazakhstan."
+  },
+  {
+   "id": "A1342",
+   "rel": 2,
+   "why": "Ruble strengthening affects cost of imported packaging film and export price competitiveness."
+  },
+  {
+   "id": "A1364",
+   "rel": 1,
+   "why": "US diesel reserve release signals tight global diesel market; fuel cost pressure."
+  },
+  {
+   "id": "A1403",
+   "rel": 1,
+   "why": "US-Iran deadlock and Hormuz energy crisis keep energy and freight prices high."
+  },
+  {
+   "id": "A1469",
+   "rel": 1,
+   "why": "Domestic gasoline prices falling slightly; fuel cost background."
+  },
+  {
+   "id": "A1450",
+   "rel": 1,
+   "why": "Truck queue at Verkhny Lars Georgian border; Caucasus route congestion background."
+  },
+  {
+   "id": "A1327",
+   "rel": 1,
+   "why": "Official ruble rate moves; minor effect on import and export pricing."
+  },
+  {
+   "id": "A1409",
+   "rel": 1,
+   "why": "Peace-talk progress could ease sanctions and logistics risks."
+  }
+ ],
+ "P3": [
+  {
+   "id": "A1449",
+   "rel": 2,
+   "why": "Critical PHP vulnerabilities forcing site shutdowns in Germany; marketplace platform and customer data protection check."
+  },
+  {
+   "id": "A1495",
+   "rel": 2,
+   "why": "BBC: governments disabling sites ahead of PHP patch; need to confirm patching and personal data safeguards."
+  },
+  {
+   "id": "A1460",
+   "rel": 1,
+   "why": "Netherlands and Finland shutting sites over PHP flaws; data-protection and incident-readiness background."
+  },
+  {
+   "id": "A1261",
+   "rel": 1,
+   "why": "Marketplace usage trend; background for platform regulation and advertising."
+  },
+  {
+   "id": "A1471",
+   "rel": 1,
+   "why": "Proposal to index self-employed income limit; affects marketplace seller contract and compliance base."
+  },
+  {
+   "id": "A1386",
+   "rel": 1,
+   "why": "Court upheld ICC award, no counter-sanction circumvention; contract and litigation precedent."
+  },
+  {
+   "id": "A1276",
+   "rel": 1,
+   "why": "Deepfake of defence minister; disinformation and platform content liability background."
+  }
+ ],
+ "P4": [
+  {
+   "id": "A1449",
+   "rel": 3,
+   "why": "Two critical PHP vulnerabilities; German institutions pulling sites offline. Check PHP exposure and patch priority immediately."
+  },
+  {
+   "id": "A1495",
+   "rel": 3,
+   "why": "PHP Foundation patch due Wednesday; European governments taking sites down. Prepare emergency patching and incident readiness."
+  },
+  {
+   "id": "A1460",
+   "rel": 3,
+   "why": "Dutch and Finnish government and port sites offline over PHP flaws; confirms active threat level, align alert posture."
+  },
+  {
+   "id": "A1413",
+   "rel": 3,
+   "why": "Belgian foreign ministry warns of cyberattacks and disables sites; European threat-level signal for KRITIS bank."
+  },
+  {
+   "id": "A1276",
+   "rel": 1,
+   "why": "Deepfake video of defence minister; awareness training and impersonation fraud background."
+  }
+ ],
+ "P5": [
+  {
+   "id": "A1271",
+   "rel": 2,
+   "why": "Russian diesel export limits and US deal affect diesel availability and fuel contract pricing for trucks."
+  },
+  {
+   "id": "A1364",
+   "rel": 2,
+   "why": "US emergency diesel release shows tight diesel market; fuel cost pressure on trucking."
+  },
+  {
+   "id": "A1403",
+   "rel": 2,
+   "why": "US-Iran talks stalled, Hormuz energy crisis; fuel and freight price drivers."
+  },
+  {
+   "id": "A1408",
+   "rel": 2,
+   "why": "Kazakhstan QazETA entry permits for foreigners; crew and driver compliance on China-KZ-Russia routes."
+  },
+  {
+   "id": "A1450",
+   "rel": 2,
+   "why": "133-truck queue at Verkhny Lars Georgia border; route congestion on Caucasus and Middle Corridor links."
+  },
+  {
+   "id": "A1349",
+   "rel": 2,
+   "why": "US pauses bill with 100% tariffs on buyers of Russian energy; secondary-sanction risk for China-Russia flows."
+  },
+  {
+   "id": "A1496",
+   "rel": 2,
+   "why": "Russia-China premiers meeting; trade volume and transit policy outlook on China-Russia routes."
+  },
+  {
+   "id": "A1485",
+   "rel": 1,
+   "why": "Record tanker freight rates for Russian oil; shipping risk and Caspian/Black Sea route cost background."
+  },
+  {
+   "id": "A1469",
+   "rel": 1,
+   "why": "Russian gasoline prices falling; fuel cost background."
+  },
+  {
+   "id": "A1356",
+   "rel": 1,
+   "why": "Lukoil sanctions in US-Russia talks; cargo and client sanctions screening context."
+  },
+  {
+   "id": "A1386",
+   "rel": 1,
+   "why": "Court recognises ICC award, no counter-sanction circumvention; trade contract compliance precedent."
+  },
+  {
+   "id": "A1374",
+   "rel": 1,
+   "why": "Putin-Trump-Xi possible APEC meeting; sanctions and China trade outlook."
+  },
+  {
+   "id": "A1409",
+   "rel": 1,
+   "why": "Peace-talk progress could ease sanctions and routing constraints for Russia-bound cargo."
+  },
+  {
+   "id": "A1391",
+   "rel": 1,
+   "why": "Russian strikes on Black Sea ship traffic; regional logistics risk context."
+  },
+  {
+   "id": "A1369",
+   "rel": 1,
+   "why": "Italy protests and truckers' strikes causing shortages; European inland haulage disruption for clients' deliveries."
+  }
+ ],
+ "P6": [
+  {
+   "id": "A1272",
+   "rel": 3,
+   "why": "Paris curfew extended after 17 Oct riots; direct impact on store opening hours, staff safety and commuting in Paris region."
+  },
+  {
+   "id": "A1504",
+   "rel": 3,
+   "why": "Third night of Paris curfew around Place de la Republique; adjust store closures, shift schedules and staff communication."
+  },
+  {
+   "id": "A1339",
+   "rel": 2,
+   "why": "CRS police vans guarding shop in Amiens during protests; shows riot security posture around retail in French cities."
+  },
+  {
+   "id": "A1369",
+   "rel": 2,
+   "why": "Italian riots with looting in several cities and shortages; contagion and supply disruption signal for French retail."
+  },
+  {
+   "id": "A1357",
+   "rel": 1,
+   "why": "Italy protests planned Saturday and trucker strikes; possible European unrest and supply spillover."
+  },
+  {
+   "id": "A1331",
+   "rel": 1,
+   "why": "Italian crackdown law after riots; European unrest background."
+  },
+  {
+   "id": "A1337",
+   "rel": 1,
+   "why": "French 10y yield at 5% amid protests and budget delay; possible austerity and labour-relations pressure."
+  }
+ ]
+}

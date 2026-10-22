@@ -1,0 +1,56 @@
+{"P1":[
+{"id":"A1999","rel":2,"why":"Trump will not tighten Russia sanctions amid Ukraine talks; lowers risk of new payment/bank restrictions affecting yuan settlement and ruble outlook."},
+{"id":"A1848","rel":2,"why":"Putin-Witkoff talks and planned trilateral talks in November move sanctions/ruble expectations, relevant to hedging timing and financing."},
+{"id":"A1975","rel":2,"why":"Apple iPhone Duo arriving via Russian retailers with prices; signals consumer electronics demand, pricing and import channels."},
+{"id":"A1763","rel":1,"why":"Kushner reports progress on Ukraine talks; sentiment driver for ruble and key-rate expectations."},
+{"id":"A1925","rel":1,"why":"Drone attack on Saudi Aramco field; oil price/ruble risk-off background for yuan purchase timing."},
+{"id":"A1882","rel":1,"why":"Putin meets Chinese premier Li Qiang; background for Russia-China payment and trade conditions."},
+{"id":"A1815","rel":1,"why":"Federal budget 2027-29 spending signals; background for fiscal stance and key-rate expectations."},
+{"id":"A1842","rel":1,"why":"Fuel price rise linked to refinery strikes; inflation/key-rate background for financing costs."}
+],
+"P2":[
+{"id":"A1922","rel":2,"why":"Italian pasta output disrupted by trucker blockades; opportunity for export orders and signal on durum and packaging supply tightness."},
+{"id":"A1842","rel":2,"why":"Ukrainian refinery strikes and fuel prices; affects diesel costs for trucking and energy budget in procurement and logistics."},
+{"id":"A1760","rel":2,"why":"Gasoline sale limits in Voronezh region show fuel shortages; risk to Volga-region trucking and carrier costs."},
+{"id":"A1925","rel":1,"why":"Attack on Saudi oil field; oil price risk feeding energy and packaging film costs."},
+{"id":"A1807","rel":1,"why":"Italian trucker fuel protests and jet fuel shortages; background on European fuel price pressure and competitor logistics."},
+{"id":"A1801","rel":1,"why":"Marking system expands from 1 Nov to vegetable oils, dairy and fertilizers; possible supplier compliance and cost changes."},
+{"id":"A1909","rel":1,"why":"El Nino expected to hurt African agriculture; background on global grain price risk."}
+],
+"P3":[
+{"id":"A1801","rel":3,"why":"New rules effective 1 Nov expand Honest Mark marking and tax administration; requires compliance program and seller/platform rule updates."},
+{"id":"A1979","rel":2,"why":"Record 25bn USD privacy-deception fine on Meta signals enforcement risk; review data-protection and consent disclosures."},
+{"id":"A1913","rel":2,"why":"Court fines Meta for misleading users on data privacy; benchmark for personal-data compliance and litigation exposure."},
+{"id":"A1825","rel":1,"why":"Same Meta privacy fine; background on regulatory trend in consumer data handling and advertising."},
+{"id":"A1902","rel":2,"why":"Critical PHP vulnerabilities threaten millions of sites; data-protection measures and incident readiness for customer data on the marketplace."},
+{"id":"A1803","rel":1,"why":"Latvian media sites suspended over critical PHP vulnerabilities; confirms real exploitation risk for web platforms."},
+{"id":"A1999","rel":1,"why":"US no new sanctions on Russia; background for cross-border contracts and vendor compliance."}
+],
+"P4":[
+{"id":"A1803","rel":3,"why":"Sites taken offline over two critical PHP vulnerabilities; check PHP exposure in online banking and vendors, prioritize patching."},
+{"id":"A1902","rel":3,"why":"Kaspersky: critical PHP flaws leaked publicly, tens of millions of sites exposed; urgent patching and third-party review for online banking."},
+{"id":"A1759","rel":2,"why":"Chancellor Merz calls Russian destabilization and disinformation top concern; supports raised alert level, hybrid-threat and staff awareness."},
+{"id":"A1758","rel":1,"why":"Italy probes foreign role in European riots; hybrid-threat context for KRITIS and influence-operation risk."},
+{"id":"A1866","rel":1,"why":"Global Wikipedia outage; minor reminder of dependency and outage monitoring."}
+],
+"P5":[
+{"id":"A1842","rel":2,"why":"Ukrainian refinery strikes raise fuel prices; affects fuel contracts and route pricing for Russia-bound trucking."},
+{"id":"A1999","rel":2,"why":"No new US sanctions on Russia during talks; affects compliance screening of Russia-bound cargo and clients."},
+{"id":"A1925","rel":2,"why":"Drone strikes on Saudi Aramco field; oil price spike would hit fuel costs and service pricing."},
+{"id":"A1762","rel":2,"why":"OFAC sanctions on shipping and logistics firms; update client and counterparty screening for freight and shipping agents."},
+{"id":"A1848","rel":2,"why":"Planned trilateral Ukraine talks and possible sanctions easing affect Russia-bound cargo volumes and compliance planning."},
+{"id":"A1760","rel":1,"why":"Russian regional gasoline shortages; fuel availability risk for Russian leg of truck routes."},
+{"id":"A1807","rel":1,"why":"Italian trucker fuel-price protests; signals European fuel cost pressure and delays for European clients."},
+{"id":"A1906","rel":1,"why":"US plans embassy evacuations in Gulf over possible renewed fighting; oil and regional route risk."},
+{"id":"A1949","rel":1,"why":"Explosions on Iran Hormuz coast and talk of new strikes; oil and Middle Corridor risk."},
+{"id":"A1896","rel":1,"why":"US lifts sanctions on Belaruskali chief; affects potash cargo screening and rail flows."}
+],
+"P6":[
+{"id":"A1873","rel":3,"why":"Paris curfew extended third night after violence and looting; store closures, staff safety and shift scheduling in the Paris region."},
+{"id":"A1976","rel":3,"why":"Paris prefecture bans student protest citing terror threat and unrest risk; store safety and staff travel decisions."},
+{"id":"A1935","rel":3,"why":"New wave of riots expected Saturday 24 Oct in Paris; plan store closures, early staff release and crisis communication."},
+{"id":"A1843","rel":2,"why":"Newsweek ranks France top for protest potential; basis for ongoing security posture and labor relations planning."},
+{"id":"A1758","rel":2,"why":"Riots and looting across European cities including Milan; indicates unrest spreading, relevant to security readiness."},
+{"id":"A1939","rel":1,"why":"Student protests in France tied to anti-Macron sentiment; labor and unrest context."},
+{"id":"A1807","rel":1,"why":"Italian trucker protests disrupt fuel; possible spillover of fuel-price protests and supply delays."}
+]}
