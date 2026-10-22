@@ -1,4 +1,4 @@
-// Package feed discovers publisher RSS entries without fetching article pages or writing to a database.
+// Package feed separates RSS discovery from article text retrieval, without database writes.
 package feed
 
 import (
@@ -74,7 +74,7 @@ func New(sourceID, feedURL string, timeout time.Duration, maxBytes int64) (*Clie
 // Discover returns metadata and available RSS text; CBR entries require later page extraction.
 // Missing publication dates remain nil. The caller decides admission and checks stored identities.
 func (c *Client) Discover(ctx context.Context) (Discovery, error) {
-	data, err := c.read(ctx)
+	data, err := c.read(ctx, c.feedURL)
 	if err != nil {
 		return Discovery{}, err
 	}
@@ -126,13 +126,13 @@ func (c *Client) Discover(ctx context.Context) (Discovery, error) {
 	return result, nil
 }
 
-func (c *Client) read(ctx context.Context) ([]byte, error) {
+func (c *Client) read(ctx context.Context, rawURL string) ([]byte, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.feedURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 	if err != nil {
-		return nil, errors.New("cannot create RSS request")
+		return nil, errors.New("cannot create publisher request")
 	}
 	req.Header.Set("User-Agent", "AlfaFutureNews/0.1")
 	response, err := c.http.Do(req)
@@ -143,14 +143,14 @@ func (c *Client) read(ctx context.Context) ([]byte, error) {
 		if errors.Is(err, context.DeadlineExceeded) {
 			return nil, context.DeadlineExceeded
 		}
-		return nil, errors.New("RSS request failed")
+		return nil, errors.New("publisher request failed")
 	}
 	defer func() { _ = response.Body.Close() }()
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("RSS returned HTTP %d", response.StatusCode)
+		return nil, fmt.Errorf("publisher returned HTTP %d", response.StatusCode)
 	}
 	if response.ContentLength > c.maxBytes {
-		return nil, errors.New("RSS response exceeds fetch size limit")
+		return nil, errors.New("publisher response exceeds fetch size limit")
 	}
 	data, err := io.ReadAll(io.LimitReader(response.Body, c.maxBytes+1))
 	if err != nil {
@@ -160,10 +160,10 @@ func (c *Client) read(ctx context.Context) ([]byte, error) {
 		if errors.Is(err, context.DeadlineExceeded) {
 			return nil, context.DeadlineExceeded
 		}
-		return nil, errors.New("cannot read RSS response")
+		return nil, errors.New("cannot read publisher response")
 	}
 	if int64(len(data)) > c.maxBytes {
-		return nil, errors.New("RSS response exceeds fetch size limit")
+		return nil, errors.New("publisher response exceeds fetch size limit")
 	}
 	return data, nil
 }
@@ -184,6 +184,10 @@ func plainText(raw string) string {
 	if err != nil {
 		return ""
 	}
+	return nodeText(root)
+}
+
+func nodeText(root *html.Node) string {
 	var text strings.Builder
 	var visit func(*html.Node)
 	visit = func(n *html.Node) {
