@@ -1,2 +1,3 @@
 - 2026-10-20 repo: добавлены .gitignore, AGENTS.md и CHANGELOG.md.
+- 2026-10-21 ui: добавлен фронт на Vite + React + TS (ui/) с мок-данными для Газпрома, мок-сервер FastAPI (mock_server/), контракт эндпоинтов docs/ENDPOINTS.md и теги виджетов (уверенность, источник анализа, отрасль, срочность).
 - 2026-10-22 ranking: предложение конвейера отбора новостей под профиль пользователя (docs/proposal-ranking-pipeline.md).
