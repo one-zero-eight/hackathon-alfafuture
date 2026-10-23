@@ -77,3 +77,7 @@ data/
 .idea
 .vscode
 .zed
+
+# v1 pipeline: run results and caches
+v1/out/
+v1/cache/
