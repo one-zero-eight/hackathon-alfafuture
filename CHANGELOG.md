@@ -1,3 +1,6 @@
 - 2026-10-20 repo: добавлены .gitignore, AGENTS.md и CHANGELOG.md.
 - 2026-10-21 ui: добавлен фронт на Vite + React + TS (ui/) с мок-данными для Газпрома, мок-сервер FastAPI (mock_server/), контракт эндпоинтов docs/ENDPOINTS.md и теги виджетов (уверенность, источник анализа, отрасль, срочность).
 - 2026-10-22 ranking: предложение конвейера отбора новостей под профиль пользователя (docs/proposal-ranking-pipeline.md).
+- 2026-10-23 sources: в v1 добавлены копия сервиса новостей без тегирования (статус completed), ingest.py для 47 RSS-лент и бэкфилла Google News, поиск v1 переведён на корпус в PostgreSQL.
+- 2026-10-23 sources: v1 собран в Docker Compose (postgres, collector, scraper, api, web) с SETUP.md; api отдаёт контракт мок-сервера плюс свежие новости из корпуса, scraper по циклу пополняет БД из 129 лент и Google News.
+- 2026-10-23 sources: во фронт добавлены поля компании и роли, в контракт docs/ENDPOINTS.md эндпоинты профиля, в v1 воркер pipeline (поиск по корпусу, кэш на сутки) и analyze.py (ИИ-аналитика и решения) вместо мока.

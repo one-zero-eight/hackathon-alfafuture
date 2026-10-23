@@ -1,0 +1,4 @@
+.board { position:relative; max-width:1560px; margin:0 auto; padding:20px 28px 48px; display:grid; grid-template-columns:repeat(3,1fr); gap:0 96px; align-items:start; }
+.col { display:flex; flex-direction:column; gap:12px; min-width:0; }
+.col-head { background:var(--accent); color:#fff; border-radius:20px; padding:16px 20px; font-size:20px; font-weight:700; }
+.col-head small { display:block; font-weight:400; font-size:13px; opacity:.85; margin-top:2px; }

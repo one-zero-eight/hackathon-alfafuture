@@ -1,0 +1,8 @@
+/* Dark theme in the InNoHassle palette */
+:root {
+  --bg:#0e0c11; --card:#1b181f; --card2:#27232e; --line:#2d2933;
+  --ink:#fff; --muted:#a9a4b3; --accent:#8f4bf5; --accent-soft:rgba(143,75,245,.18); --accent-hi:#b78bff;
+  --red:#f0584b;
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 Inter, "Helvetica Neue", Arial, sans-serif; }
