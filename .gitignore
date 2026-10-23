@@ -18,6 +18,11 @@
 # license
 !LICENSE
 
+# Go backend
+!*.go
+!go.mod
+!go.sum
+
 # python (LLM / parsing / graph services)
 !*.py
 !pyproject.toml
@@ -73,6 +78,21 @@ dist/
 build/
 *.log
 data/
+
+# v1: copy of the Go service vocabulary, corpus topics, nginx config
+!v1/backend/internal/news/vocabulary/data/
+!v1/backend/internal/news/vocabulary/data/v1.json
+!v1/backend/internal/news/vocabulary/data/reference-data/
+!v1/backend/internal/news/vocabulary/data/reference-data/geography-2026-10-21.json
+!v1/topics_extra.txt
+!v1/web/nginx.conf
+
+# Fixed backend vocabulary
+!backend/internal/news/vocabulary/data/
+!backend/internal/news/vocabulary/data/v1.json
+!backend/internal/news/vocabulary/data/reference-data/
+!backend/internal/news/vocabulary/data/reference-data/geography-2026-10-21.json
+
 *.db
 .idea
 .vscode

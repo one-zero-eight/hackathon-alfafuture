@@ -1,0 +1,16 @@
+.ov { position:fixed; inset:0; z-index:30; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; padding:16px; }
+.ov.open { display:flex; }
+.modal { background:var(--card); border:1px solid var(--line); border-radius:24px; width:min(560px,100%); max-height:92vh; display:flex; flex-direction:column; overflow:hidden; }
+.modal.wide { width:min(980px,100%); }
+.mh { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; padding:18px 22px 10px; }
+.mh h2 { margin:0; font-size:19px; line-height:1.3; }
+.x { background:var(--card2); padding:6px 12px; }
+.msgs { flex:1; overflow:auto; padding:6px 22px; display:flex; flex-direction:column; gap:10px; min-height:220px; }
+.m { max-width:88%; padding:10px 14px; border-radius:16px; white-space:pre-wrap; }
+.m.ai { background:var(--card2); align-self:flex-start; } .m.me { background:var(--accent); align-self:flex-end; }
+.m.sys { align-self:center; background:transparent; color:var(--muted); font-size:12px; }
+.fu { display:flex; flex-wrap:wrap; gap:8px; padding:6px 22px; }
+.fu button { background:transparent; border:1.5px solid var(--accent); }
+.chatform { display:flex; gap:8px; padding:12px 22px 18px; }
+.chatform input { flex:1; font:inherit; padding:10px 14px; border:1.5px solid var(--line); background:var(--bg); color:var(--ink); border-radius:999px; }
+.chatform input:focus { outline:none; border-color:var(--accent); }

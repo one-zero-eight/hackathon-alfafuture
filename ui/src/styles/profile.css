@@ -1,0 +1,4 @@
+.profile { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding-bottom:16px; }
+.profile input { background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:999px; padding:8px 14px; font-size:14px; min-width:220px; }
+.profile button { border-radius:999px; padding:8px 18px; }
+.profile-msg { font-size:13px; opacity:.8; }
