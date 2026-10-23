@@ -1,0 +1,22 @@
+.overview { max-width:1560px; margin:0 auto; padding:24px 28px 48px; }
+.intro { background:var(--card); border-radius:20px; padding:18px 22px; margin-bottom:22px; display:flex; gap:28px; align-items:center; flex-wrap:wrap; }
+.intro p { flex:1 1 360px; margin:0; color:var(--muted); font-size:14px; }
+.flow { display:flex; align-items:center; gap:10px; }
+.flow-arrow { color:var(--accent-hi); font-size:22px; }
+.flow-step { text-align:left; background:var(--card2); border:1px solid var(--line); border-radius:16px; padding:10px 16px; transition:background .3s, border-color .3s; }
+.flow-step b { display:block; font-size:15px; } .flow-step small { display:block; font-weight:400; font-size:12px; color:var(--muted); }
+.flow-step.cur { background:var(--accent-soft); border-color:var(--accent); }
+.add-btn { background:transparent; border:2px dashed var(--line); color:var(--muted); border-radius:20px; padding:14px; animation:fade .35s ease both; }
+.add-btn:hover { border-color:var(--accent); color:#fff; filter:none; }
+.pick { display:flex; flex-direction:column; gap:8px; padding:6px 22px 20px; overflow:auto; }
+.pick-row { display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--card2); border-radius:14px; padding:10px 12px 10px 16px; }
+.pick-row button { flex:none; width:36px; height:36px; padding:0; font-size:22px; line-height:1; }
+.ring { position:relative; height:96px; margin-bottom:24px; }
+.ring-item { position:absolute; top:0; left:50%; width:min(46%,520px); text-align:left; background:var(--card2); border-radius:20px; padding:16px 20px; font-size:20px; font-weight:700;
+  transform:translateX(calc(-50% + var(--off) * 92%)) scale(.78); opacity:.45; transition:transform .45s ease, opacity .45s ease, background .45s; }
+.ring-item small { display:block; font-weight:400; font-size:13px; opacity:.85; margin-top:2px; }
+.ring-item.cur { background:var(--accent); transform:translateX(-50%) scale(1); opacity:1; z-index:2; cursor:default; filter:none; }
+.ring-item:not(.cur):hover { opacity:.8; }
+.grid2 { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.grid2 .w { padding:26px 28px; min-height:150px; }
+.grid2 .w h3 { font-size:22px; }

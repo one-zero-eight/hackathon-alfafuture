@@ -1,0 +1,13 @@
+.rbody { display:grid; grid-template-columns:1fr 1.15fr; gap:22px; padding:6px 22px 22px; overflow:auto; }
+.rbody h4 { margin:0 0 8px; font-size:14px; } .rbody ul { margin:0 0 14px; padding-left:18px; } .rbody li { margin-bottom:5px; }
+.ad { background:var(--accent-soft); border-radius:12px; padding:10px 12px; font-size:13px; }
+.mx { display:grid; grid-template-columns:86px repeat(4,1fr); grid-template-rows:repeat(4,64px) 30px; gap:3px; }
+.cell { border-radius:8px; display:flex; flex-wrap:wrap; gap:4px; align-items:center; justify-content:center; align-content:center; }
+.s1 { background:rgba(80,200,120,.35); } .s2 { background:rgba(240,200,60,.35); } .s3 { background:rgba(255,140,40,.45); } .s4 { background:rgba(240,70,70,.5); }
+.dot { width:24px; height:24px; border-radius:50%; background:#fff; color:#111; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:default; }
+.dot.on { background:var(--accent); color:#fff; transform:scale(1.25); }
+.ax { font-size:11px; color:var(--muted); display:flex; align-items:center; justify-content:center; text-align:center; }
+.ax.y { justify-content:flex-end; padding-right:4px; }
+.rl { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+.ri { display:flex; gap:10px; font-size:13px; padding:8px 10px; border-radius:12px; background:var(--card2); }
+.ri:hover { background:var(--accent-soft); } .ri .dot { flex:none; }

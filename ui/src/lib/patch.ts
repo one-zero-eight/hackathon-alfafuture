@@ -1,4 +1,4 @@
-import type { Page, Patch } from "./types";
+import type { Page, Patch } from "../api";
 
 // Applies a server patch to the page skeleton. Returns null when the patch does not
 // continue the current version: the caller must then reload /page.

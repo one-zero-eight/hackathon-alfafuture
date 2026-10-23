@@ -1,5 +1,5 @@
-import type { Entry } from "../cache";
-import type { WidgetDetails, WidgetSkeleton } from "../types";
+import type { Entry } from "../../lib/useCache";
+import type { WidgetDetails, WidgetSkeleton } from "../../api";
 import { Chart } from "./Chart";
 import { Tags } from "./Tags";
 

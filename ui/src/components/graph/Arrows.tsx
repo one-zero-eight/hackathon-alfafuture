@@ -1,6 +1,6 @@
 import { useLayoutEffect, useState } from "react";
 import type { RefObject } from "react";
-import type { LinkSkeleton } from "../types";
+import type { LinkSkeleton } from "../../api";
 
 interface Props {
   boardRef: RefObject<HTMLElement | null>;

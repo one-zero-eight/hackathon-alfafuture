@@ -8,6 +8,7 @@ export interface Tags { confidence?: Confidence; source?: Source; industry?: str
 export interface WidgetSkeleton { id: string; column: Column; title: string; url?: string; tags?: Tags }
 export interface LinkSkeleton { id: string; from: string; to: string }
 export interface Company { name: string; okved: string; role: string; date: string }
+export interface ProfileStatus { key: string; status: "queued" | "running" | "ready" | "failed"; error: string }
 export interface Page { version: number; company: Company; widgets: WidgetSkeleton[]; links: LinkSkeleton[] }
 
 export interface Series { name: string; color: string; values: number[] }

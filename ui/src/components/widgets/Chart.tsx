@@ -1,4 +1,4 @@
-import type { ChartData } from "../types";
+import type { ChartData } from "../../api";
 
 const W = 300, H = 130, PL = 30, PR = 8, PT = 16, PB = 22;
 

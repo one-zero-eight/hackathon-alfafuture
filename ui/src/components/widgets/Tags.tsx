@@ -1,4 +1,4 @@
-import type { Tags as TagsData } from "../types";
+import type { Tags as TagsData } from "../../api";
 
 // kind -> [value -> label]; labels are Russian, API values are English (docs/ENDPOINTS.md)
 const LABELS = {

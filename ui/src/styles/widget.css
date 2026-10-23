@@ -1,0 +1,18 @@
+.w { cursor:pointer; background:var(--card); border-radius:20px; padding:18px 20px; display:flex; flex-direction:column; gap:10px; position:relative; transition:box-shadow .15s, opacity .15s, background .15s; }
+.w:hover { background:var(--card2); }
+.w.hl { box-shadow:0 0 0 2px var(--accent-hi); }
+.w.open { background:var(--card2); box-shadow:0 0 0 2px var(--accent); }
+.w.open.hl { box-shadow:0 0 0 2px var(--accent-hi); }
+.board.dim .w:not(.hl):not(.open) { opacity:.5; }
+.w h3 { margin:0; font-size:17px; line-height:1.3; font-weight:700; }
+.body { display:none; flex-direction:column; gap:10px; }
+.w.open .body { display:flex; }
+.meta { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.srcbtn { font-weight:600; color:#fff; background:var(--accent); border-radius:999px; padding:3px 12px; text-decoration:none; }
+.srcbtn:hover { filter:brightness(1.15); }
+.w p { margin:0; color:#e6e3ec; }
+.btns { display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; }
+button { font:inherit; font-size:13px; font-weight:600; border:0; border-radius:999px; padding:8px 16px; cursor:pointer; background:var(--accent); color:#fff; }
+button.alt { background:var(--card2); border:1px solid var(--line); }
+button:hover { filter:brightness(1.15); }
+button:disabled { opacity:.5; cursor:default; }

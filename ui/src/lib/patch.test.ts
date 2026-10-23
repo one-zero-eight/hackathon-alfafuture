@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { applyPatch } from "./patch";
-import type { Page } from "./types";
+import type { Page } from "../api";
 
 const page: Page = {
   version: 1, company: { name: "X", okved: "", role: "", date: "" },

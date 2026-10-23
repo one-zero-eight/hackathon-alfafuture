@@ -1,5 +1,5 @@
-import type { Entry } from "../cache";
-import type { LinkDetails } from "../types";
+import type { Entry } from "../../lib/useCache";
+import type { LinkDetails } from "../../api";
 
 interface Props { title: string; entry?: Entry<LinkDetails>; onAsk: () => void; onClose: () => void }
 

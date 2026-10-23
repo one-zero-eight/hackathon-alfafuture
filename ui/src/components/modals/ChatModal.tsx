@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { api, ApiError } from "../api";
-import type { ChatContext, ChatReply, Patch } from "../types";
+import { api, ApiError } from "../../api";
+import type { ChatContext, ChatReply, Patch } from "../../api";
 
 interface Msg { role: "ai" | "me" | "sys"; text: string; basis?: string[] }
 

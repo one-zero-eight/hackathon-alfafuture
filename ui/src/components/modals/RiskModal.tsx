@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Entry } from "../cache";
-import type { RiskInfo } from "../types";
+import type { Entry } from "../../lib/useCache";
+import type { RiskInfo } from "../../api";
 
 const PL = ["Редкая", "Возможная", "Вероятная", "Почти неизбежная"];
 const IL = ["Незначительный", "Умеренный", "Существенный", "Критический"];
