@@ -81,3 +81,6 @@ data/
 # v1 pipeline: run results and caches
 v1/out/
 v1/cache/
+
+# reasoning pipeline: run results, call logs, parsed Alfa theses
+reasoning/out/
