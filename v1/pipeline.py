@@ -4,7 +4,7 @@
 
 Steps (each caches its result in out/<slug>/, delete the file to redo the step):
  1. DeepSeek turns prompt.md into search queries by blocks.
- 2. Collect: A = Google News RSS per query, B = 50 outlet RSS feeds matched to the queries by stemmed token overlap.
+ 2. Search the Postgres corpus (ingest.py + Go collector) with stemmed token overlap against the queries.
  3. Hybrid dedup, drop the company's own news.
  4. v3 retrieval: e5-large-instruct and bge-m3 score titles against queries + DeepSeek HyDE headlines, x freshness; top-50 each.
  5. Three LLMs (GLM, Qwen, DeepSeek) pick top-30 from the union; RRF fusion x freshness -> final top-30.
@@ -12,7 +12,7 @@ Steps (each caches its result in out/<slug>/, delete the file to redo the step):
 import collections, datetime, json, os, re, subprocess, sys, time, urllib.error, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
-from email.utils import parsedate_to_datetime
+from email.utils import format_datetime, parsedate_to_datetime
 
 import numpy as np
 
@@ -27,6 +27,8 @@ EMBEDDERS = {  # name: (hf id, query wrapper)
                           lambda q: "Instruct: Given a company profile or a news search query, retrieve relevant Russian news headlines\nQuery: " + q),
     "bge-m3": ("BAAI/bge-m3", lambda q: q),
 }
+PER_QUERY_CORPUS, CORPUS_DAYS = 30, 365  # matches per query, corpus window
+CACHE_TTL = 24 * 3600  # corpus snapshot and final result are reused for a day; queries and HyDE are kept
 PER_QUERY, TOP_EMB, MAX_CAND, TOP_OUT, RRF_K = 15, 50, 200, 30, 10
 TODAY = datetime.datetime.now(datetime.timezone.utc)
 UA = "Mozilla/5.0 (compatible; NewsResearchBot/0.1)"
@@ -92,7 +94,7 @@ def gen_queries(company, line):
 
 
 # ---------------- 2. collection ----------------
-def google_news(q):
+def google_news(q, limit=PER_QUERY):
     url = "https://news.google.com/rss/search?" + urllib.parse.urlencode({"q": q, "hl": "ru", "gl": "RU", "ceid": "RU:ru"})
     for attempt in range(5):
         try:
@@ -105,7 +107,7 @@ def google_news(q):
                 title = (it.findtext("title") or "").strip()
                 if name and title.endswith(" - " + name): title = title[: -len(name) - 3]
                 out.append({"title": title, "link": it.findtext("link") or "", "date": it.findtext("pubDate") or "", "outlet": name or "?"})
-                if len(out) >= PER_QUERY: break
+                if len(out) >= limit: break
             return out
         except urllib.error.HTTPError as e:
             if e.code not in (429, 503): return []
@@ -141,26 +143,24 @@ def pull_feed(o):
     return [{**it, "outlet": o["name"]} for it in items]
 
 
+def corpus_items(days=CORPUS_DAYS):
+    """All corpus rows of the last `days` days (undated ones too) as feed-like items; ~100-150k titles fit in memory."""
+    import psycopg
+    with psycopg.connect(CFG["DATABASE_URL"]) as conn:
+        rows = conn.execute("SELECT a.title, a.url, a.published_at, s.name, left(a.text, 400) FROM articles a JOIN sources s ON s.id = a.source_id "
+                            "WHERE a.published_at IS NULL OR a.published_at > now() - make_interval(days => %s)", (days,)).fetchall()
+    return [{"title": t, "link": u, "date": format_datetime(d) if d else "", "outlet": o, "summary": x} for t, u, d, o, x in rows]
+
+
 def collect(queries, d):
-    allq = sorted({q for qs in queries.values() for q in qs})
-    cache_f = os.path.join(HERE, "cache", "gn.json")  # Google answers are shared across companies and reruns
-    os.makedirs(os.path.dirname(cache_f), exist_ok=True)
-    gn = json.load(open(cache_f, encoding="utf-8")) if os.path.exists(cache_f) else {}
-    todo = [q for q in allq if q not in gn]
-    with ThreadPoolExecutor(4) as ex:
-        for q, items in zip(todo, ex.map(lambda q: (time.sleep(0.4), google_news(q))[1], todo)): gn[q] = items
-    json.dump(gn, open(cache_f, "w", encoding="utf-8"), ensure_ascii=False)
-    with ThreadPoolExecutor(12) as ex:
-        feeds = [it for items in ex.map(pull_feed, json.load(open(os.path.join(HERE, "outlets50.json"), encoding="utf-8"))) for it in items]
-    pool = [{**it, "method": "A", "queries": [q], "blocks": [b]} for b, qs in queries.items() for q in qs for it in gn.get(q, [])]
+    """Candidates come from the Postgres corpus (filled by ingest.py and the Go collector), not from live RSS/Google."""
+    items = corpus_items()
     blk = {q: b for b, qs in queries.items() for q in qs}
-    seen = {}
-    for q, lst in match_items(feeds, allq).items():
+    pool = []
+    # shortcut: lexical stem match like before; add embedding search over the whole corpus if recall is not enough
+    for q, lst in match_items(items, sorted(blk), per_query=PER_QUERY_CORPUS).items():
         for _, j in lst:
-            if j in seen:
-                pool[seen[j]]["queries"].append(q); pool[seen[j]]["blocks"].append(blk[q]); continue
-            seen[j] = len(pool)
-            pool.append({**{k: feeds[j][k] for k in ("title", "link", "date", "outlet")}, "method": "B", "queries": [q], "blocks": [blk[q]]})
+            pool.append({**{k: items[j][k] for k in ("title", "link", "date", "outlet")}, "method": "B", "queries": [q], "blocks": [blk[q]]})
     return pool
 
 
@@ -265,18 +265,20 @@ def fuse(lists, items):
     return sorted(sc, key=lambda i: -sc[i])[:TOP_OUT], sc
 
 
-def step(path, fn):
-    if os.path.exists(path): return json.load(open(path, encoding="utf-8"))
+def step(path, fn, ttl=None):
+    if os.path.exists(path) and (ttl is None or time.time() - os.path.getmtime(path) < ttl): return json.load(open(path, encoding="utf-8"))
     d = fn(); json.dump(d, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1); return d
 
 
 def run(company, line):
     slug = re.sub(r"\W+", "_", company.lower()) + "__" + re.sub(r"\W+", "_", line.lower())
     d = os.path.join(HERE, "out", slug); os.makedirs(d, exist_ok=True)
+    rf = f"{d}/result.json"
+    if os.path.exists(rf) and time.time() - os.path.getmtime(rf) < CACHE_TTL: return json.load(open(rf, encoding="utf-8"))  # whole run cached
     t0 = time.time(); log = lambda *a: print(f"[{time.time() - t0:5.0f}s]", *a, flush=True)
     queries = step(f"{d}/queries.json", lambda: gen_queries(company, line))
     log("queries:", sum(len(v) for v in queries.values()))
-    corpus = step(f"{d}/corpus.json", lambda: (lambda pool: (lambda r: {"raw": len(pool), "own_removed": r[1], "items": r[0]})(dedup_filter(pool, company)))(collect(queries, d)))
+    corpus = step(f"{d}/corpus.json", lambda: (lambda pool: (lambda r: {"raw": len(pool), "own_removed": r[1], "items": r[0]})(dedup_filter(pool, company)))(collect(queries, d)), CACHE_TTL)
     items = corpus["items"]
     log(f"news: raw {corpus['raw']}, unique {len(items)}, own removed {corpus['own_removed']}")
     if len(items) < TOP_OUT: raise SystemExit("too few news collected")
@@ -295,6 +297,7 @@ def run(company, line):
     md += [f"{n}. [{it['title']}]({it['link']}) — {', '.join(it['outlets'][:2])}, {it['date'][:16]}, голоса: {','.join(it['voted_by'])}" for n, it in enumerate(res["top"], 1)]
     open(f"{d}/digest.md", "w", encoding="utf-8").write("\n".join(md) + "\n")
     log(f"done -> {d}/digest.md, LLM cost {COST[0]:.2f}")
+    return res
 
 
 if __name__ == "__main__":
