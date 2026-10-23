@@ -87,6 +87,12 @@ data/
 !v1/topics_extra.txt
 !v1/web/nginx.conf
 
+# Fixed backend vocabulary
+!backend/internal/news/vocabulary/data/
+!backend/internal/news/vocabulary/data/v1.json
+!backend/internal/news/vocabulary/data/reference-data/
+!backend/internal/news/vocabulary/data/reference-data/geography-2026-10-21.json
+
 *.db
 .idea
 .vscode
