@@ -19,6 +19,7 @@ type Config struct {
 	HTTPAddr          string
 	PollInterval      time.Duration
 	FetchTimeout      time.Duration
+	LLMTimeout        time.Duration
 	FetchMaxBytes     int64
 	RBCFeedURL        string
 	KommersantFeedURL string
@@ -60,6 +61,9 @@ func Load() (Config, error) {
 		return Config{}, err
 	}
 	if c.FetchTimeout, err = duration("FETCH_TIMEOUT", "30s"); err != nil {
+		return Config{}, err
+	}
+	if c.LLMTimeout, err = duration("LLM_TIMEOUT", "2m"); err != nil {
 		return Config{}, err
 	}
 	const bytesPerMB = 1_000_000

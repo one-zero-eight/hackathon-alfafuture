@@ -2,17 +2,20 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/one-zero-eight/hackathon-alfafuture/backend/internal/news/store"
 	"github.com/one-zero-eight/hackathon-alfafuture/backend/internal/testdb"
+	"github.com/one-zero-eight/hackathon-alfafuture/backend/llm"
 )
 
 type fixtureTransport func(*http.Request) (*http.Response, error)
@@ -27,7 +30,7 @@ func isolatedEnvironment(t *testing.T) {
 	}
 	for key, value := range map[string]string{
 		"ENV_FILE": path, "HTTP_ADDR": "127.0.0.1:8080", "POLL_INTERVAL": "20ms",
-		"FETCH_TIMEOUT": "1s", "FETCH_MAX_MB": "1", "LLM_API_KEY": "",
+		"FETCH_TIMEOUT": "1s", "LLM_TIMEOUT": "1s", "FETCH_MAX_MB": "1", "LLM_API_KEY": "sk-fixture", "LLM_MODEL": llm.DefaultModel,
 		"RBC_FEED_URL":        "https://rssexport.rbc.ru/rbcnews/news/30/full.rss",
 		"KOMMERSANT_FEED_URL": "https://www.kommersant.ru/RSS/news.xml",
 		"CBR_FEED_URL":        "https://www.cbr.ru/rss/eventrss",
@@ -50,70 +53,141 @@ func TestRunRejectsMissingDatabaseAndHonorsCancellation(t *testing.T) {
 	}
 }
 
-func TestPostgresRunCollectsAndStopsWithoutLLMKey(t *testing.T) {
-	db, dsn := testdb.New(t)
+func TestRunRequiresLLMKey(t *testing.T) {
 	isolatedEnvironment(t)
-	t.Setenv("DATABASE_URL", dsn)
-	previous := http.DefaultTransport
-	http.DefaultTransport = fixtureTransport(func(r *http.Request) (*http.Response, error) {
-		status, body := http.StatusOK, ""
-		switch r.URL.String() {
-		case "https://rssexport.rbc.ru/rbcnews/news/30/full.rss":
-			body = `<rss version="2.0"><channel><title>Fixture</title><item><guid>rbc</guid><link>https://www.rbc.ru/fixture</link><description>RSS fixture text.</description></item></channel></rss>`
-		case "https://www.kommersant.ru/RSS/news.xml":
-			status = http.StatusServiceUnavailable
-		case "https://www.cbr.ru/rss/eventrss":
-			body = `<rss version="2.0"><channel><title>Fixture</title><item><guid>cbr</guid><link>https://www.cbr.ru/fixture</link></item></channel></rss>`
-		case "https://www.cbr.ru/fixture":
-			body = `<main id="content"><div class="lead-text">CBR fixture text.</div></main>`
-		default:
-			return nil, errors.New("unexpected external request")
+	t.Setenv("DATABASE_URL", "postgres://localhost/unused")
+	t.Setenv("LLM_API_KEY", "")
+	if err := run(t.Context()); err == nil || !strings.Contains(err.Error(), "LLM_API_KEY") {
+		t.Fatalf("missing key must fail before DB connection: %v", err)
+	}
+}
+
+func TestPostgresRunCollectsTagsAndKeepsCollectingDuringBudgetPause(t *testing.T) {
+	for _, paused := range []bool{false, true} {
+		name := "normal"
+		if paused {
+			name = "budget_pause"
 		}
-		return &http.Response{StatusCode: status, Header: make(http.Header), ContentLength: -1, Body: io.NopCloser(strings.NewReader(body))}, nil
-	})
-	t.Cleanup(func() { http.DefaultTransport = previous })
-	ctx, cancel := context.WithCancel(t.Context())
-	done := make(chan error, 1)
-	go func() { done <- run(ctx) }()
-	t.Cleanup(func() {
-		cancel()
-		select {
-		case err := <-done:
-			if err != nil {
-				t.Errorf("entrypoint returned an error: %v", err)
-			}
-		case <-time.After(5 * time.Second):
-			t.Error("entrypoint did not stop on cancellation")
-		}
-	})
-	deadline := time.NewTimer(5 * time.Second)
-	defer deadline.Stop()
-	ticks := time.NewTicker(10 * time.Millisecond)
-	defer ticks.Stop()
-	for {
-		var tables int64
-		if err := db.Raw("SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema() AND table_name IN ('sources','articles')").Scan(&tables).Error; err != nil {
-			t.Fatal(err)
-		}
-		if tables == 2 {
-			sources, err := store.ListSources(t.Context(), db)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if len(sources) == 3 && sources[0].LastSuccessAt != nil && sources[1].LastError == "publisher returned HTTP 503" && sources[2].LastSuccessAt != nil {
-				for _, id := range []string{"rbc", "cbr"} {
-					article, err := store.FindArticle(t.Context(), db, id, id, "")
-					if err != nil || article.Text == "" || article.PublishedAt != nil || article.ProcessingStatus != store.StatusPending {
-						t.Fatalf("entrypoint did not collect undated %s text: %+v %v", id, article, err)
+		t.Run(name, func(t *testing.T) {
+			db, dsn := testdb.New(t)
+			isolatedEnvironment(t)
+			t.Setenv("DATABASE_URL", dsn)
+			var calls atomic.Int32
+			var quota atomic.Bool
+			previous := http.DefaultTransport
+			http.DefaultTransport = fixtureTransport(func(r *http.Request) (*http.Response, error) {
+				status, body := http.StatusOK, ""
+				switch r.URL.String() {
+				case "https://rssexport.rbc.ru/rbcnews/news/30/full.rss":
+					id := "rbc"
+					if paused && quota.Load() {
+						id = "after-pause"
+					}
+					body = `<rss version="2.0"><channel><title>Fixture</title><item><guid>` + id + `</guid><link>https://www.rbc.ru/fixture</link><description>RSS fixture text.</description></item></channel></rss>`
+				case "https://www.kommersant.ru/RSS/news.xml":
+					status = http.StatusServiceUnavailable
+				case "https://www.cbr.ru/rss/eventrss":
+					body = `<rss version="2.0"><channel><title>Fixture</title><item><guid>cbr</guid><link>https://www.cbr.ru/fixture</link></item></channel></rss>`
+				case "https://www.cbr.ru/fixture":
+					body = `<main id="content"><div class="lead-text">CBR fixture text.</div></main>`
+				case llm.BaseURL + "chat/completions":
+					calls.Add(1)
+					if r.Method != http.MethodPost || r.Header.Get("Authorization") != "Bearer sk-fixture" {
+						return nil, errors.New("unexpected LLM request")
+					}
+					raw, err := io.ReadAll(r.Body)
+					var sent struct{ Messages []struct{ Content string } }
+					if err != nil || json.Unmarshal(raw, &sent) != nil || len(sent.Messages) != 2 {
+						return nil, errors.New("invalid tagging request body")
+					}
+					var claimed store.Article
+					if err := db.Where("text = ? AND processing_status = ?", sent.Messages[1].Content, store.StatusProcessing).First(&claimed).Error; err != nil {
+						return nil, errors.New("HTTP request sent before article claim")
+					}
+					trace, err := store.LoadAttempts(r.Context(), db, claimed.ID)
+					if err != nil || len(trace) != 1 || trace[0].Request != string(raw) {
+						t.Error("saved request differs from actual SDK HTTP body")
+						return nil, errors.New("tagging request trace mismatch")
+					}
+					if paused {
+						quota.Store(true)
+						status, body = http.StatusForbidden, `{"error":{"message":"Budget has been exceeded"}}`
+					} else {
+						body = `{"id":"fixture","object":"chat.completion","created":1,"model":"deepseek/deepseek-v4.1-flash","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","content":"{\"tags\":[],\"events\":[]}"}}],"usage":{"prompt_tokens":11,"completion_tokens":5,"total_tokens":16}}`
+					}
+				default:
+					return nil, errors.New("unexpected external request")
+				}
+				return &http.Response{StatusCode: status, Header: http.Header{"Content-Type": []string{"application/json"}}, ContentLength: -1, Body: io.NopCloser(strings.NewReader(body))}, nil
+			})
+			t.Cleanup(func() { http.DefaultTransport = previous })
+			ctx, cancel := context.WithCancel(t.Context())
+			done := make(chan error, 1)
+			go func() { done <- run(ctx) }()
+			t.Cleanup(func() {
+				cancel()
+				select {
+				case err := <-done:
+					if err != nil {
+						t.Errorf("entrypoint returned error: %v", err)
+					}
+				case <-time.After(5 * time.Second):
+					t.Error("entrypoint did not stop")
+				}
+			})
+			deadline := time.NewTimer(5 * time.Second)
+			defer deadline.Stop()
+			ticks := time.NewTicker(10 * time.Millisecond)
+			defer ticks.Stop()
+			for {
+				var tables int64
+				if err := db.Raw("SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema() AND table_name IN ('sources','articles')").Scan(&tables).Error; err != nil {
+					t.Fatal(err)
+				}
+				if tables == 2 {
+					sources, err := store.ListSources(t.Context(), db)
+					if err != nil {
+						t.Fatal(err)
+					}
+					if len(sources) == 3 && sources[0].LastSuccessAt != nil && sources[1].LastError == "publisher returned HTTP 503" && sources[2].LastSuccessAt != nil {
+						ready := true
+						want := store.StatusCompleted
+						if paused {
+							want = store.StatusPending
+						}
+						for _, id := range []string{"rbc", "cbr"} {
+							article, err := store.FindArticle(t.Context(), db, id, id, "")
+							if err != nil || article.Text == "" || article.PublishedAt != nil {
+								t.Fatalf("failed collection: %+v %v", article, err)
+							}
+							if article.ProcessingStatus != want {
+								ready = false
+							}
+						}
+						if paused {
+							_, err := store.FindArticle(t.Context(), db, "rbc", "after-pause", "")
+							ready = ready && err == nil
+							pause, err := store.LoadBudgetPause(t.Context(), db)
+							ready = ready && err == nil && pause != nil
+						}
+						if ready {
+							wantCalls := int32(2)
+							if paused {
+								wantCalls = 1
+							}
+							if calls.Load() != wantCalls {
+								t.Fatalf("unexpected LLM requests: %d want %d", calls.Load(), wantCalls)
+							}
+							return
+						}
 					}
 				}
-				return
+				select {
+				case <-ticks.C:
+				case <-deadline.C:
+					t.Fatal("full pipeline did not finish expected work")
+				}
 			}
-		}
-		select {
-		case <-ticks.C:
-		case <-deadline.C:
-			t.Fatal("entrypoint did not initialize and collect")
-		}
+		})
 	}
 }

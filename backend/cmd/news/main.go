@@ -11,6 +11,8 @@ import (
 	"github.com/one-zero-eight/hackathon-alfafuture/backend/internal/news/collect"
 	"github.com/one-zero-eight/hackathon-alfafuture/backend/internal/news/config"
 	"github.com/one-zero-eight/hackathon-alfafuture/backend/internal/news/store"
+	"github.com/one-zero-eight/hackathon-alfafuture/backend/internal/news/tagging"
+	"github.com/one-zero-eight/hackathon-alfafuture/backend/llm"
 )
 
 func main() {
@@ -25,6 +27,13 @@ func main() {
 
 func run(ctx context.Context) error {
 	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	client, err := llm.NewFromEnv()
 	if err != nil {
 		return err
 	}
@@ -44,8 +53,18 @@ func run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	slog.Info("news collection started", "poll_interval", cfg.PollInterval)
-	collector.Run(ctx)
-	slog.Info("news collection stopped")
-	return nil
+	worker, err := tagging.NewWorker(ctx, db, client, cfg.LLMTimeout)
+	if err != nil {
+		return err
+	}
+	runCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	collected := make(chan struct{})
+	go func() { collector.Run(runCtx); close(collected) }()
+	slog.Info("news service started", "poll_interval", cfg.PollInterval, "model", client.Model())
+	err = worker.Run(runCtx)
+	cancel()
+	<-collected
+	slog.Info("news service stopped")
+	return err
 }

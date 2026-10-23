@@ -15,7 +15,7 @@ func isolate(t *testing.T) {
 	t.Helper()
 	t.Chdir(t.TempDir())
 	for _, name := range []string{
-		"ENV_FILE", "DATABASE_URL", "HTTP_ADDR", "POLL_INTERVAL", "FETCH_TIMEOUT",
+		"ENV_FILE", "DATABASE_URL", "HTTP_ADDR", "POLL_INTERVAL", "FETCH_TIMEOUT", "LLM_TIMEOUT",
 		"FETCH_MAX_MB", "RBC_FEED_URL", "KOMMERSANT_FEED_URL", "CBR_FEED_URL",
 	} {
 		t.Setenv(name, "")
@@ -44,6 +44,7 @@ func TestLoadDefaultsWithoutDotenv(t *testing.T) {
 		HTTPAddr:          "127.0.0.1:8080",
 		PollInterval:      10 * time.Minute,
 		FetchTimeout:      30 * time.Second,
+		LLMTimeout:        2 * time.Minute,
 		FetchMaxBytes:     8_000_000,
 		RBCFeedURL:        "https://rssexport.rbc.ru/rbcnews/news/30/full.rss",
 		KommersantFeedURL: "https://www.kommersant.ru/RSS/news.xml",
@@ -77,6 +78,7 @@ func TestLoadExplicitFileAndEnvironmentPrecedence(t *testing.T) {
 HTTP_ADDR=[::1]:9001
 POLL_INTERVAL=5m
 FETCH_TIMEOUT=12s
+LLM_TIMEOUT=45s
 FETCH_MAX_MB=2
 RBC_FEED_URL=https://rssexport.rbc.ru:443/custom.rss
 KOMMERSANT_FEED_URL=https://www.kommersant.ru/custom.xml
@@ -93,6 +95,7 @@ CBR_FEED_URL=https://www.cbr.ru/custom.rss
 		HTTPAddr:          "[::1]:9001",
 		PollInterval:      2 * time.Minute,
 		FetchTimeout:      12 * time.Second,
+		LLMTimeout:        45 * time.Second,
 		FetchMaxBytes:     2_000_000,
 		RBCFeedURL:        "https://rssexport.rbc.ru:443/custom.rss",
 		KommersantFeedURL: "https://www.kommersant.ru/custom.xml",
@@ -135,6 +138,10 @@ func TestLoadInvalidSettings(t *testing.T) {
 		{"POLL_INTERVAL", "do-not-log"},
 		{"FETCH_TIMEOUT", "0s"},
 		{"FETCH_TIMEOUT", "999999999999999999999s"},
+		{"LLM_TIMEOUT", ""},
+		{"LLM_TIMEOUT", "0s"},
+		{"LLM_TIMEOUT", "-1s"},
+		{"LLM_TIMEOUT", "do-not-log"},
 		{"FETCH_MAX_MB", ""},
 		{"FETCH_MAX_MB", "0"},
 		{"FETCH_MAX_MB", "-1"},
