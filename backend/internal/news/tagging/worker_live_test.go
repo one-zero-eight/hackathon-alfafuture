@@ -16,9 +16,10 @@ import (
 )
 
 type oneRequestClient struct {
-	client *llm.Client
-	cancel context.CancelFunc
-	calls  atomic.Int32
+	client  *llm.Client
+	cancel  context.CancelFunc
+	calls   atomic.Int32
+	callErr error
 }
 
 func (c *oneRequestClient) Model() string { return c.client.Model() }
@@ -28,7 +29,9 @@ func (c *oneRequestClient) Chat(ctx context.Context, p openai.ChatCompletionNewP
 	}
 	// Cancel after the response so the worker saves it but cannot make a paid retry.
 	defer c.cancel()
-	return c.client.Chat(ctx, p)
+	reply, err := c.client.Chat(ctx, p)
+	c.callErr = err
+	return reply, err
 }
 
 func TestLiveWorker(t *testing.T) {
