@@ -237,7 +237,7 @@ func TestPostgresRunCollectsTagsAndKeepsCollectingDuringBudgetPause(t *testing.T
 							ready = ready && err == nil && pause != nil
 						}
 						if ready {
-							for _, path := range []string{"/healthz", "/readyz", "/v1/tags", "/v1/sources", "/openapi.json", "/docs"} {
+							for _, path := range []string{"/healthz", "/readyz", "/v1/tags", "/v1/sources", "/v1/status", "/openapi.json", "/docs"} {
 								response, err := client.Get("http://" + address + path)
 								if err != nil {
 									t.Fatal(err)

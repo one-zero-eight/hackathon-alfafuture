@@ -46,7 +46,7 @@ func TestOfflineContractHealthAndUnavailableDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/v1/tags", "/v1/sources", "/readyz"} {
+	for _, path := range []string{"/v1/tags", "/v1/sources", "/v1/status", "/readyz"} {
 		out := get(t, router, path, 503)
 		if !strings.HasPrefix(out.Header().Get("Content-Type"), "application/problem+json") || !strings.Contains(out.Body.String(), `"status":503`) {
 			t.Fatalf("missing documented problem response: %s", out.Body)
@@ -64,10 +64,10 @@ func TestOfflineContractHealthAndUnavailableDatabase(t *testing.T) {
 		OpenAPI string                                `json:"openapi"`
 		Paths   map[string]map[string]json.RawMessage `json:"paths"`
 	}
-	if err := json.Unmarshal(encoded, &exported); err != nil || exported.OpenAPI != "3.1.0" || len(exported.Paths) != 4 {
+	if err := json.Unmarshal(encoded, &exported); err != nil || exported.OpenAPI != "3.1.0" || len(exported.Paths) != 5 {
 		t.Fatalf("wrong offline contract: %v", err)
 	}
-	for _, path := range []string{"/v1/tags", "/v1/sources", "/healthz", "/readyz"} {
+	for _, path := range []string{"/v1/tags", "/v1/sources", "/v1/status", "/healthz", "/readyz"} {
 		if len(exported.Paths[path]) != 1 || exported.Paths[path]["get"] == nil {
 			t.Fatalf("missing read-only operation: %s", path)
 		}
@@ -157,7 +157,7 @@ func TestPostgresVocabularySourcesAndReadiness(t *testing.T) {
 	if err := pool.Close(); err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/v1/tags", "/v1/sources", "/readyz"} {
+	for _, path := range []string{"/v1/tags", "/v1/sources", "/v1/status", "/readyz"} {
 		out := get(t, router, path, 503)
 		for _, forbidden := range []string{"postgres://", "news_test", "sql:", "password", "closed"} {
 			if strings.Contains(out.Body.String(), forbidden) {
