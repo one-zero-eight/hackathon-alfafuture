@@ -33,6 +33,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
     volumes:
       - postgres_data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "news", "-d", "news"]
       interval: 5s
