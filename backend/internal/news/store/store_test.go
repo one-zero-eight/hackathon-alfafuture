@@ -2,19 +2,15 @@ package store
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"net/url"
-	"os"
 	"reflect"
 	"slices"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/one-zero-eight/hackathon-alfafuture/backend/internal/news/vocabulary"
+	"github.com/one-zero-eight/hackathon-alfafuture/backend/internal/testdb"
 	"gorm.io/gorm"
 )
 
@@ -35,60 +31,12 @@ func TestOpenHonorsCancellation(t *testing.T) {
 
 func integrationDatabase(t *testing.T) (*gorm.DB, string) {
 	t.Helper()
-	dsn := os.Getenv("TEST_DATABASE_URL")
-	if dsn == "" {
-		t.Skip("set TEST_DATABASE_URL to run real PostgreSQL tests")
-	}
-	u, err := url.Parse(dsn)
-	if err != nil || (u.Scheme != "postgres" && u.Scheme != "postgresql") || u.Hostname() == "" {
-		t.Fatal("TEST_DATABASE_URL must be a PostgreSQL URL with a host")
-	}
-	admin, err := Open(t.Context(), dsn)
-	if err != nil {
-		t.Fatal(err)
-	}
-	closeDatabase(t, admin)
-	var random [8]byte
-	if _, err := rand.Read(random[:]); err != nil {
-		t.Fatal(err)
-	}
-	schema := "news_test_" + hex.EncodeToString(random[:])
-	if err := admin.WithContext(t.Context()).Exec("CREATE SCHEMA " + schema).Error; err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		if err := admin.WithContext(ctx).Exec("DROP SCHEMA " + schema + " CASCADE").Error; err != nil {
-			t.Errorf("clean up owned test schema: %v", err)
-		}
-	})
-	query := u.Query()
-	query.Set("search_path", schema)
-	u.RawQuery = query.Encode()
-	db, err := Open(t.Context(), u.String())
-	if err != nil {
-		t.Fatal(err)
-	}
-	closeDatabase(t, db)
-	var activeSchema string
-	if err := db.Raw("SELECT current_schema()").Scan(&activeSchema).Error; err != nil || activeSchema != schema {
-		t.Fatal("refusing to migrate outside the owned test schema")
-	}
-	return db, u.String()
+	return testdb.New(t)
 }
 
 func closeDatabase(t *testing.T, db *gorm.DB) {
 	t.Helper()
-	pool, err := db.DB()
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() {
-		if err := pool.Close(); err != nil {
-			t.Errorf("close PostgreSQL pool: %v", err)
-		}
-	})
+	testdb.Close(t, db)
 }
 
 func assertCount(t *testing.T, db *gorm.DB, model any, want int64) {
