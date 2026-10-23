@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,6 +19,36 @@ import (
 	"github.com/one-zero-eight/hackathon-alfafuture/backend/internal/testdb"
 	"github.com/one-zero-eight/hackathon-alfafuture/backend/llm"
 )
+
+func TestOpenAPIExportNeedsNoConfigurationOrServices(t *testing.T) {
+	t.Setenv("ENV_FILE", "/does-not-exist")
+	t.Setenv("DATABASE_URL", "")
+	t.Setenv("LLM_API_KEY", "")
+	var first, second bytes.Buffer
+	if err := writeOpenAPI(&first); err != nil {
+		t.Fatal(err)
+	}
+	if err := writeOpenAPI(&second); err != nil || !bytes.Equal(first.Bytes(), second.Bytes()) {
+		t.Fatal("offline contract export is not deterministic")
+	}
+	var spec struct{ OpenAPI string }
+	if err := json.Unmarshal(first.Bytes(), &spec); err != nil || spec.OpenAPI != "3.1.0" {
+		t.Fatal("export is not OpenAPI JSON")
+	}
+}
+
+func availableAddress(t *testing.T) string {
+	t.Helper()
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	address := l.Addr().String()
+	if err := l.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return address
+}
 
 type fixtureTransport func(*http.Request) (*http.Response, error)
 
@@ -62,6 +94,31 @@ func TestRunRequiresLLMKey(t *testing.T) {
 	}
 }
 
+func TestPostgresRunRejectsOccupiedPortBeforeBackgroundRequests(t *testing.T) {
+	_, dsn := testdb.New(t)
+	isolatedEnvironment(t)
+	t.Setenv("DATABASE_URL", dsn)
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Close()
+	t.Setenv("HTTP_ADDR", listener.Addr().String())
+	previous := http.DefaultTransport
+	var calls atomic.Int32
+	http.DefaultTransport = fixtureTransport(func(*http.Request) (*http.Response, error) {
+		calls.Add(1)
+		return nil, errors.New("unexpected background request")
+	})
+	t.Cleanup(func() { http.DefaultTransport = previous })
+	if err := run(t.Context()); err == nil || err.Error() != "cannot listen on HTTP_ADDR" {
+		t.Fatalf("occupied HTTP port did not stop startup safely: %v", err)
+	}
+	if calls.Load() != 0 {
+		t.Fatal("background requests started before HTTP listener was available")
+	}
+}
+
 func TestPostgresRunCollectsTagsAndKeepsCollectingDuringBudgetPause(t *testing.T) {
 	for _, paused := range []bool{false, true} {
 		name := "normal"
@@ -72,6 +129,8 @@ func TestPostgresRunCollectsTagsAndKeepsCollectingDuringBudgetPause(t *testing.T
 			db, dsn := testdb.New(t)
 			isolatedEnvironment(t)
 			t.Setenv("DATABASE_URL", dsn)
+			address := availableAddress(t)
+			t.Setenv("HTTP_ADDR", address)
 			var calls atomic.Int32
 			var quota atomic.Bool
 			previous := http.DefaultTransport
@@ -122,6 +181,9 @@ func TestPostgresRunCollectsTagsAndKeepsCollectingDuringBudgetPause(t *testing.T
 			})
 			t.Cleanup(func() { http.DefaultTransport = previous })
 			ctx, cancel := context.WithCancel(t.Context())
+			transport := &http.Transport{Proxy: nil}
+			defer transport.CloseIdleConnections()
+			client := &http.Client{Transport: transport, Timeout: time.Second}
 			done := make(chan error, 1)
 			go func() { done <- run(ctx) }()
 			t.Cleanup(func() {
@@ -130,6 +192,10 @@ func TestPostgresRunCollectsTagsAndKeepsCollectingDuringBudgetPause(t *testing.T
 				case err := <-done:
 					if err != nil {
 						t.Errorf("entrypoint returned error: %v", err)
+					}
+					if conn, err := net.DialTimeout("tcp", address, 100*time.Millisecond); err == nil {
+						_ = conn.Close()
+						t.Error("HTTP listener remained open after shutdown")
 					}
 				case <-time.After(5 * time.Second):
 					t.Error("entrypoint did not stop")
@@ -171,6 +237,17 @@ func TestPostgresRunCollectsTagsAndKeepsCollectingDuringBudgetPause(t *testing.T
 							ready = ready && err == nil && pause != nil
 						}
 						if ready {
+							for _, path := range []string{"/healthz", "/readyz", "/v1/tags", "/v1/sources", "/openapi.json", "/docs"} {
+								response, err := client.Get("http://" + address + path)
+								if err != nil {
+									t.Fatal(err)
+								}
+								_, readErr := io.Copy(io.Discard, response.Body)
+								_ = response.Body.Close()
+								if response.StatusCode != http.StatusOK || readErr != nil {
+									t.Fatalf("HTTP endpoint %s failed: status=%d err=%v", path, response.StatusCode, readErr)
+								}
+							}
 							wantCalls := int32(2)
 							if paused {
 								wantCalls = 1
