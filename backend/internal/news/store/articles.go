@@ -110,12 +110,8 @@ func InsertArticle(ctx context.Context, db *gorm.DB, article Article) (Article, 
 	if article.ProcessingStatus != "" && article.ProcessingStatus != StatusPending {
 		return Article{}, false, errors.New("new article processing status must be pending")
 	}
-	if article.Text == "" {
-		if article.TextProvenance != "" {
-			return Article{}, false, errors.New("article without text must not claim text provenance")
-		}
-	} else if strings.TrimSpace(article.Text) == "" || (article.TextProvenance != TextFromRSSDescription && article.TextProvenance != TextFromRSSFullText && article.TextProvenance != TextFromArticlePage) || article.TextError != "" {
-		return Article{}, false, errors.New("article text requires known provenance and no extraction error")
+	if err := validateArticleText(article.Text, article.TextProvenance, article.TextError); err != nil {
+		return Article{}, false, err
 	}
 	article.DedupKey = articleKey(article.SourceItemID, article.URL)
 	article.ProcessingStatus = StatusPending
@@ -160,4 +156,15 @@ func articleKey(sourceItemID, articleURL string) string {
 		identity = "url:" + articleURL
 	}
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(identity)))
+}
+
+func validateArticleText(text, provenance, textError string) error {
+	if text == "" {
+		if provenance != "" {
+			return errors.New("article without text must not claim text provenance")
+		}
+	} else if strings.TrimSpace(text) == "" || (provenance != TextFromRSSDescription && provenance != TextFromRSSFullText && provenance != TextFromArticlePage) || textError != "" {
+		return errors.New("article text requires known provenance and no extraction error")
+	}
+	return nil
 }
