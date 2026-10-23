@@ -233,6 +233,16 @@ func ValidateTaggingResult(v vocabulary.Vocabulary, text string, result TaggingR
 	return nil
 }
 
+// LoadAttempt reads the immutable request and saved input for one attempt.
+func LoadAttempt(ctx context.Context, db *gorm.DB, id int64) (TaggingAttempt, error) {
+	if id <= 0 {
+		return TaggingAttempt{}, errors.New("attempt ID must be positive")
+	}
+	var attempt TaggingAttempt
+	err := db.WithContext(ctx).First(&attempt, id).Error
+	return attempt, err
+}
+
 // LoadAttempts returns complete traces, including failed/in-flight attempts, in attempt order.
 func LoadAttempts(ctx context.Context, db *gorm.DB, articleID int64) ([]TaggingAttempt, error) {
 	if articleID <= 0 {
