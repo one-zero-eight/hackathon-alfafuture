@@ -100,6 +100,40 @@ func TestChatStreamFragmentsAndTools(t *testing.T) {
 	}
 }
 
+func TestChatStreamFinishBeforeUsage(t *testing.T) {
+	client := fixtureClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		writeChunk(w, firstChoice, "")
+		writeChunk(w, `[{"index":0,"delta":{},"finish_reason":"stop"}]`, "")
+		writeChunk(w, `[{"index":0,"delta":{},"finish_reason":null}]`, `,"usage":{"prompt_tokens":1,"completion_tokens":1,"total_tokens":2}`)
+		_, _ = io.WriteString(w, "data: [DONE]\n\n")
+	})
+	stream, err := client.ChatStream(t.Context(), chatParams())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = stream.Close() }()
+	finishReason := ""
+	var accumulator openai.ChatCompletionAccumulator
+	for stream.Next() {
+		chunk := stream.Current()
+		if !accumulator.AddChunk(chunk) {
+			t.Fatal("chunk accumulation failed")
+		}
+		for _, choice := range chunk.Choices {
+			if choice.Index == 0 && choice.FinishReason != "" {
+				finishReason = choice.FinishReason
+			}
+		}
+	}
+	if stream.Err() != nil || finishReason != "stop" || len(accumulator.Choices) != 1 || accumulator.Choices[0].Message.Content != "partial" {
+		t.Fatal("finish reason must survive a subsequent empty usage choice", stream.Err())
+	}
+	if accumulator.Choices[0].FinishReason != "" {
+		t.Fatal("SDK accumulator no longer clears finish_reason; review the documented limitation")
+	}
+}
+
 func TestChatStreamUsagePresenceAndCleanEOF(t *testing.T) {
 	for _, tt := range []struct {
 		name, extra                      string
