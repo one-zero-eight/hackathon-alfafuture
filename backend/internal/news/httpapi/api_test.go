@@ -46,7 +46,7 @@ func TestOfflineContractHealthAndUnavailableDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/v1/tags", "/v1/sources", "/v1/status", "/readyz"} {
+	for _, path := range []string{"/v1/tags", "/v1/sources", "/v1/status", "/v1/news", "/v1/news/1", "/readyz"} {
 		out := get(t, router, path, 503)
 		if !strings.HasPrefix(out.Header().Get("Content-Type"), "application/problem+json") || !strings.Contains(out.Body.String(), `"status":503`) {
 			t.Fatalf("missing documented problem response: %s", out.Body)
@@ -64,14 +64,14 @@ func TestOfflineContractHealthAndUnavailableDatabase(t *testing.T) {
 		OpenAPI string                                `json:"openapi"`
 		Paths   map[string]map[string]json.RawMessage `json:"paths"`
 	}
-	if err := json.Unmarshal(encoded, &exported); err != nil || exported.OpenAPI != "3.1.0" || len(exported.Paths) != 5 {
+	if err := json.Unmarshal(encoded, &exported); err != nil || exported.OpenAPI != "3.1.0" || len(exported.Paths) != 7 {
 		t.Fatalf("wrong offline contract: %v", err)
 	}
-	for _, path := range []string{"/v1/tags", "/v1/sources", "/v1/status", "/healthz", "/readyz"} {
+	for _, path := range []string{"/v1/tags", "/v1/sources", "/v1/status", "/v1/news", "/v1/news/{id}", "/healthz", "/readyz"} {
 		if len(exported.Paths[path]) != 1 || exported.Paths[path]["get"] == nil {
 			t.Fatalf("missing read-only operation: %s", path)
 		}
-		get(t, router, path+"?unknown=true", 422)
+		get(t, router, strings.ReplaceAll(path, "{id}", "1")+"?unknown=true", 422)
 		if api.OpenAPI().Paths[path].Get.Responses["422"] == nil {
 			t.Fatalf("unknown-query error missing from contract: %s", path)
 		}
@@ -157,7 +157,7 @@ func TestPostgresVocabularySourcesAndReadiness(t *testing.T) {
 	if err := pool.Close(); err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/v1/tags", "/v1/sources", "/v1/status", "/readyz"} {
+	for _, path := range []string{"/v1/tags", "/v1/sources", "/v1/status", "/v1/news", "/v1/news/1", "/readyz"} {
 		out := get(t, router, path, 503)
 		for _, forbidden := range []string{"postgres://", "news_test", "sql:", "password", "closed"} {
 			if strings.Contains(out.Body.String(), forbidden) {

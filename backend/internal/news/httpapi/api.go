@@ -122,5 +122,6 @@ func New(db *gorm.DB) (*gin.Engine, huma.API, error) {
 		return out, nil
 	})
 	registerStatus(api, db)
+	registerNews(api, db)
 	return router, api, nil
 }
