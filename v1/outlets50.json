@@ -1,0 +1,352 @@
+[
+ {
+  "id": "rbc",
+  "name": "РБК",
+  "kind": "G",
+  "sector": "экономика",
+  "feed": "https://rssexport.rbc.ru/rbcnews/news/30/full.rss"
+ },
+ {
+  "id": "kommersant",
+  "name": "Коммерсантъ",
+  "kind": "G",
+  "sector": "экономика",
+  "feed": "https://www.kommersant.ru/RSS/news.xml"
+ },
+ {
+  "id": "vedomosti",
+  "name": "Ведомости",
+  "kind": "G",
+  "sector": "экономика",
+  "feed": "https://www.vedomosti.ru/rss/news"
+ },
+ {
+  "id": "interfax",
+  "name": "Интерфакс",
+  "kind": "G",
+  "sector": "экономика",
+  "feed": "https://www.interfax.ru/rss.asp"
+ },
+ {
+  "id": "tass",
+  "name": "ТАСС",
+  "kind": "G",
+  "sector": "общее",
+  "feed": "https://tass.ru/rss/v2.xml"
+ },
+ {
+  "id": "ria",
+  "name": "РИА Новости",
+  "kind": "G",
+  "sector": "общее",
+  "feed": "https://ria.ru/export/rss2/archive/index.xml"
+ },
+ {
+  "id": "forbes",
+  "name": "Forbes.ru",
+  "kind": "G",
+  "sector": "бизнес",
+  "feed": "https://www.forbes.ru/newrss.xml"
+ },
+ {
+  "id": "lenta",
+  "name": "Lenta.ru",
+  "kind": "G",
+  "sector": "общее",
+  "feed": "https://lenta.ru/rss/news"
+ },
+ {
+  "id": "izvestia",
+  "name": "Известия",
+  "kind": "G",
+  "sector": "общее",
+  "feed": "https://iz.ru/xml/rss/all.xml"
+ },
+ {
+  "id": "rg",
+  "name": "Российская газета",
+  "kind": "G",
+  "sector": "госрегулирование",
+  "feed": "https://rg.ru/xml/index.xml"
+ },
+ {
+  "id": "kp",
+  "name": "Комсомольская правда",
+  "kind": "G",
+  "sector": "общее",
+  "feed": "https://www.kp.ru/rss/allsections.xml"
+ },
+ {
+  "id": "regnum",
+  "name": "Regnum",
+  "kind": "G",
+  "sector": "общее",
+  "feed": "https://regnum.ru/rss"
+ },
+ {
+  "id": "banki",
+  "name": "Банки.ру",
+  "kind": "S",
+  "sector": "K финансы",
+  "feed": "https://www.banki.ru/xml/news.rss"
+ },
+ {
+  "id": "cbr",
+  "name": "Банк России",
+  "kind": "S",
+  "sector": "K финансы/регулятор",
+  "feed": "https://www.cbr.ru/rss/RssNews"
+ },
+ {
+  "id": "gov",
+  "name": "Правительство РФ",
+  "kind": "S",
+  "sector": "O госуправление",
+  "feed": "http://government.ru/all/rss/"
+ },
+ {
+  "id": "cnews",
+  "name": "CNews",
+  "kind": "S",
+  "sector": "J ИТ",
+  "feed": "https://www.cnews.ru/inc/rss/news.xml"
+ },
+ {
+  "id": "habr",
+  "name": "Habr",
+  "kind": "S",
+  "sector": "J ИТ",
+  "feed": "https://habr.com/ru/rss/news/?fl=ru"
+ },
+ {
+  "id": "3dnews",
+  "name": "3DNews",
+  "kind": "S",
+  "sector": "J ИТ/железо",
+  "feed": "https://3dnews.ru/news/rss/"
+ },
+ {
+  "id": "ixbt",
+  "name": "iXBT",
+  "kind": "S",
+  "sector": "J ИТ/железо",
+  "feed": "https://www.ixbt.com/export/news.rss"
+ },
+ {
+  "id": "tadviser",
+  "name": "TAdviser",
+  "kind": "S",
+  "sector": "J ИТ/проекты",
+  "feed": "https://www.tadviser.ru/xml/tadviser.xml"
+ },
+ {
+  "id": "fishnews",
+  "name": "Fishnews",
+  "kind": "S",
+  "sector": "A рыболовство",
+  "feed": "https://fishnews.ru/rss"
+ },
+ {
+  "id": "zr",
+  "name": "За рулём",
+  "kind": "S",
+  "sector": "G автомобили",
+  "feed": "https://www.zr.ru/rss-news/"
+ },
+ {
+  "id": "pharmvestnik",
+  "name": "Фармвестник",
+  "kind": "S",
+  "sector": "21 фармацевтика",
+  "feed": "https://pharmvestnik.ru/rss.xml"
+ },
+ {
+  "id": "medvestnik",
+  "name": "Медвестник",
+  "kind": "S",
+  "sector": "Q здравоохранение",
+  "feed": "https://medvestnik.ru/rss/news"
+ },
+ {
+  "id": "pravo",
+  "name": "Право.ru",
+  "kind": "S",
+  "sector": "M юридические",
+  "feed": "https://pravo.ru/rss/"
+ },
+ {
+  "id": "edu",
+  "name": "Учительская газета",
+  "kind": "S",
+  "sector": "P образование",
+  "feed": "https://www.ug.ru/feed/"
+ },
+ {
+  "id": "sber_pro",
+  "name": "Банковское обозрение",
+  "kind": "S",
+  "sector": "K банки",
+  "feed": "https://bosfera.ru/rss.xml"
+ },
+ {
+  "id": "meatinfo",
+  "name": "Meatinfo",
+  "kind": "S",
+  "sector": "A/C мясо",
+  "feed": "https://meatinfo.ru/news/rss"
+ },
+ {
+  "id": "topwar",
+  "name": "Военное обозрение",
+  "kind": "S",
+  "sector": "C оборонка",
+  "feed": "https://topwar.ru/rss.xml"
+ },
+ {
+  "id": "russianelectronics",
+  "name": "Russian Electronics",
+  "kind": "S",
+  "sector": "C электроника",
+  "feed": "https://russianelectronics.ru/feed/"
+ },
+ {
+  "id": "realty_ria",
+  "name": "РИА Недвижимость",
+  "kind": "S",
+  "sector": "L недвижимость",
+  "feed": "https://realty.ria.ru/export/rss2/archive/index.xml"
+ },
+ {
+  "id": "newretail",
+  "name": "New Retail",
+  "kind": "S",
+  "sector": "G ритейл",
+  "feed": "https://new-retail.ru/rss/index_all.php"
+ },
+ {
+  "id": "ato",
+  "name": "Авиатранспортное обозрение",
+  "kind": "S",
+  "sector": "H авиация",
+  "feed": "https://www.ato.ru/rss.xml"
+ },
+ {
+  "id": "garant",
+  "name": "Гарант",
+  "kind": "S",
+  "sector": "M право/налоги",
+  "feed": "https://www.garant.ru/rss/news"
+ },
+ {
+  "id": "nplus1",
+  "name": "N+1",
+  "kind": "S",
+  "sector": "M наука",
+  "feed": "https://nplus1.ru/rss"
+ },
+ {
+  "id": "hr_media",
+  "name": "HR-Media",
+  "kind": "S",
+  "sector": "N HR",
+  "feed": "https://hr-media.ru/rss"
+ },
+ {
+  "id": "fas",
+  "name": "ФАС",
+  "kind": "S",
+  "sector": "O антимонополь",
+  "feed": "https://fas.gov.ru/publications.rss"
+ },
+ {
+  "id": "minpromtorg",
+  "name": "Минпромторг",
+  "kind": "S",
+  "sector": "O промышленность",
+  "feed": "https://minpromtorg.gov.ru/rss"
+ },
+ {
+  "id": "mgzt",
+  "name": "Медицинская газета",
+  "kind": "S",
+  "sector": "Q медицина",
+  "feed": "https://mgzt.ru/rss.xml"
+ },
+ {
+  "id": "energypolicy",
+  "name": "Энергетическая политика",
+  "kind": "S",
+  "sector": "B/D энергетика",
+  "feed": "https://energy-policy.ru/feed/"
+ },
+ {
+  "id": "energo_news",
+  "name": "Энерго-новости",
+  "kind": "S",
+  "sector": "D энергетика",
+  "feed": "https://energo-news.ru/rss/"
+ },
+ {
+  "id": "minenergo",
+  "name": "Минэнерго",
+  "kind": "S",
+  "sector": "D энергетика",
+  "feed": "https://minenergo.gov.ru/rss"
+ },
+ {
+  "id": "ancb",
+  "name": "АНСБ",
+  "kind": "S",
+  "sector": "F стройка",
+  "feed": "https://ancb.ru/rss/index.rss"
+ },
+ {
+  "id": "logist",
+  "name": "Logist.ru",
+  "kind": "S",
+  "sector": "H логистика",
+  "feed": "https://www.logist.ru/rss.xml"
+ },
+ {
+  "id": "infranews",
+  "name": "Инфра-Ньюс",
+  "kind": "S",
+  "sector": "H инфраструктура",
+  "feed": "https://www.infranews.ru/feed/"
+ },
+ {
+  "id": "gmk",
+  "name": "GMK Center",
+  "kind": "S",
+  "sector": "C металлургия",
+  "feed": "https://gmk.center/rss"
+ },
+ {
+  "id": "ruscable",
+  "name": "Русcable",
+  "kind": "S",
+  "sector": "C/J кабели/связь",
+  "feed": "https://www.ruscable.ru/rss/news"
+ },
+ {
+  "id": "xakep",
+  "name": "Хакер",
+  "kind": "S",
+  "sector": "J ИБ",
+  "feed": "https://xakep.ru/feed/"
+ },
+ {
+  "id": "sports",
+  "name": "Sports.ru",
+  "kind": "S",
+  "sector": "R спорт",
+  "feed": "https://www.sports.ru/rss/main.xml"
+ },
+ {
+  "id": "dtf",
+  "name": "DTF",
+  "kind": "S",
+  "sector": "R игры/медиа",
+  "feed": "https://dtf.ru/rss"
+ }
+]
