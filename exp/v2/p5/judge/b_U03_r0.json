@@ -1,4 +1,0 @@
-{"M1": {"nuggets": [0,0.5,1,0,1,0,0.5,0], "decisions": 6, "correct": 3, "claims_checked": 7, "unsupported": 1, "overall": 4, "note": "Covers Ozon, PVZ and marking but includes irrelevant office-lease and price items and misses rates."},
-"M2": {"nuggets": [0.5,1,0.5,0.5,1,0,0,0], "decisions": 6, "correct": 6, "claims_checked": 8, "unsupported": 0, "overall": 6, "note": "Well-grounded marketplace, compliance and returns actions; weak on rates and ruble."},
-"M3": {"nuggets": [0.5,1,1,0.5,1,0,0,0], "decisions": 6, "correct": 6, "claims_checked": 7, "unsupported": 0, "overall": 6, "note": "Solid Ozon fee, FAS, marking and supply buffer actions; ruble and rate implications underused."},
-"M4": {"nuggets": [0,0.5,1,0.5,1,0,1,0], "decisions": 6, "correct": 6, "claims_checked": 7, "unsupported": 0, "overall": 6.5, "note": "Actionable across fees, channel test, compliance and import repricing; rates only a deposit remark."}}

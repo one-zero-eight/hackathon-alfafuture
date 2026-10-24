@@ -1,5 +1,0 @@
-*
-!ui
-ui/node_modules
-ui/dist
-!v1/web

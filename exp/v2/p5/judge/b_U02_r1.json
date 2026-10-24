@@ -1,4 +1,0 @@
-{"M1": {"nuggets": [1,0.5,0.5,0,0.5,0,0.5,0,0], "decisions": 6, "correct": 5, "claims_checked": 6, "unsupported": 0, "overall": 5, "note": "Right FX conversion call and CNY test, but keeps deposits short despite no cuts before 2027."},
-"M2": {"nuggets": [1,0.5,1,0.5,0.5,0,0,0,0], "decisions": 7, "correct": 7, "claims_checked": 7, "unsupported": 2, "overall": 6, "note": "Best deposit and FX logic, but cites A0057 (Ukraine news) for US sanctions status."},
-"M3": {"nuggets": [1,0.5,0.5,0,0.5,0,0.5,0,0], "decisions": 6, "correct": 5, "claims_checked": 7, "unsupported": 1, "overall": 5, "note": "Sound FX conversion but does not lengthen deposits and mislabels A0057 as the sanctions freeze."},
-"M4": {"nuggets": [1,0.5,0.75,0,0.5,0,0,0,0], "decisions": 5, "correct": 5, "claims_checked": 6, "unsupported": 0, "overall": 6, "note": "Balanced partial deposit lock and 70% FX conversion with triggers, but narrow on sanctions, OFZ and risks."}}

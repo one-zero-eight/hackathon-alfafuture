@@ -1,7 +1,0 @@
-{"M1": {"nuggets": [0.5, 1, 0.5, 0, 1, 0, 0], "decisions": 5, "correct": 4, "claims_checked": 7, "unsupported": 0, "overall": 7, "note": "Covers FX, deposits, CNY channel; converting 70% of proceeds is aggressive."},
-"M2": {"nuggets": [0.5, 0, 0, 0, 0, 0, 0], "decisions": 3, "correct": 2, "claims_checked": 4, "unsupported": 0, "overall": 3, "note": "Almost no rate or deposit analysis; cash buffer tied to tax admin is weak."},
-"M3": {"nuggets": [0.5, 0, 0, 0, 0, 0, 0], "decisions": 5, "correct": 2, "claims_checked": 5, "unsupported": 1, "overall": 3, "note": "Misses the rate outlook; bank-spreading rationale from A0022 is a stretch."},
-"M4": {"nuggets": [0.5, 1, 0.5, 0, 0.5, 0, 0], "decisions": 5, "correct": 3, "claims_checked": 7, "unsupported": 0, "overall": 5, "note": "Good deposit and FX calls but the exchange-trade payment test is speculative."},
-"M5": {"nuggets": [0.5, 1, 0, 0, 1, 0, 0], "decisions": 4, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 5, "note": "Decision 4 says do not pre-buy FX on rouble strength, which goes against the window."},
-"M6": {"nuggets": [0.5, 1, 0.5, 0, 0, 0, 0], "decisions": 4, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 5, "note": "Sound deposit ladder and FX hedge, but no real use of the CNY or bond items."},
-"M7": {"nuggets": [0.5, 1, 0, 0, 0.5, 0, 0], "decisions": 5, "correct": 4, "claims_checked": 7, "unsupported": 0, "overall": 6, "note": "Balanced and actionable; covers FX, short deposits, CNY test and deposit insurance."}}

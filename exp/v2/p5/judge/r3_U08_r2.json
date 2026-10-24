@@ -1,9 +1,0 @@
-{
-"M1": {"nuggets": [0,0.5,0,0,1,1,0,0,0], "decisions": 4, "correct": 2, "claims_checked": 8, "unsupported": 1, "overall": 3.5, "note": "Reasonable diesel and petrol cost assumptions but no rate decision and focus on Moscow airport restrictions, which is mostly irrelevant for trucking."},
-"M2": {"nuggets": [0,1,0,0,0,0,0,0,0], "decisions": 5, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 3.5, "note": "Fuel clause and Brent trigger are fine but it omits rates, FX and the retail and ports items."},
-"M3": {"nuggets": [0,0,1,0,0,0,0,0,0], "decisions": 4, "correct": 2, "claims_checked": 8, "unsupported": 0, "overall": 4, "note": "Correct debt fixing and FX but the rest is airport and insurance noise, with no freight or fuel pass-through."},
-"M4": {"nuggets": [0,0.5,1,0,0,0,0,0,0], "decisions": 5, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 5, "note": "Sound debt, FX and fuel-index decisions with caveats, but misses retail delivery changes and ports."},
-"M5": {"nuggets": [0.5,0.5,1,0.5,0,0,1,0,0], "decisions": 5, "correct": 4, "claims_checked": 6, "unsupported": 0, "overall": 6, "note": "Covers rates, FX, small-lot pricing for the retail chain and Baltic coal, though the surcharge decision is internally hedged."},
-"M6": {"nuggets": [0.5,1,1,0,0,0,1,0,0], "decisions": 6, "correct": 5, "claims_checked": 7, "unsupported": 0, "overall": 6.5, "note": "Most actionable memo: rates, FX, pass-through clause, retail small-batch pricing, port exposure check and a leasing quote benchmark."},
-"M7": {"nuggets": [0,1,1,0,0,0,0,0,0], "decisions": 6, "correct": 4, "claims_checked": 6, "unsupported": 1, "overall": 5, "note": "Good rate, FX and pass-through decisions but ignores retail and ports, and tax-administration claim for A1801 is unclear."}
-}

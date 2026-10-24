@@ -1,0 +1,135 @@
+# Run from the repository root:  docker compose --env-file .env -f docker/compose.yaml up -d --build
+# Needs .env (see .env.example): POSTGRES_PASSWORD, LLM_API_KEY, LLM_BASE_URL.
+name: alfa
+
+x-database-url: &database_url postgres://news:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/news?sslmode=disable
+
+services:
+  postgres:
+    image: postgres:18.6-alpine@sha256:898c60cb390d1085bc97bdd6a1ae968757421df394b071848b52b1c09c89d6a5
+    environment:
+      POSTGRES_DB: news
+      POSTGRES_USER: news
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "news", "-d", "news"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    stop_grace_period: 20s
+    restart: unless-stopped
+
+  collector:  # 1. Collection: Go. RSS + Google News -> Postgres, tags and regional geotags by Gemma
+    build:
+      context: ..
+      dockerfile: docker/collector.Dockerfile
+    environment:
+      DATABASE_URL: *database_url
+      HTTP_ADDR: 0.0.0.0:8080
+      LLM_ENABLED: ${LLM_ENABLED:-true}  # false: only collect, spend nothing
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${COLLECTOR_LLM_MODEL:-google/gemma-4-26b-a4b-it}
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    stop_grace_period: 20s
+    restart: unless-stopped
+
+  agents:  # 2. Agents: the only caller of the LLMs (besides the collector)
+    build:
+      context: ..
+      dockerfile: docker/agents.Dockerfile
+    environment:
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_BASE_URL_BACKUP: ${LLM_BASE_URL_BACKUP:-}
+    ports:
+      - "127.0.0.1:8001:8000"
+    restart: unless-stopped
+
+  news_search:  # 3. News search: every search method over the Postgres corpus
+    build:
+      context: ..
+      dockerfile: docker/ml.Dockerfile
+    image: alfa-ml  # the same image as analytics
+    command: ["uvicorn", "news_search.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      DATABASE_URL: *database_url
+      AGENTS_URL: http://agents:8000
+      NEWS_SEARCH_DATA: /data
+    volumes:
+      - hf_cache:/hf_cache
+      - search_data:/data
+    ports:
+      - "127.0.0.1:8002:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      agents:
+        condition: service_healthy
+    restart: unless-stopped
+
+  analytics:  # 4. Analytics: news -> analytics -> decisions
+    build:
+      context: ..
+      dockerfile: docker/ml.Dockerfile
+    image: alfa-ml  # the same image as news_search
+    command: ["uvicorn", "analytics.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      AGENTS_URL: http://agents:8000
+      ANALYTICS_DATA: /data
+      PAPERS_DIR: /papers
+    volumes:
+      - hf_cache:/hf_cache
+      - analytics_data:/data
+      - ../external-docs/analytical-papers:/papers:ro
+    ports:
+      - "127.0.0.1:8003:8000"
+    depends_on:
+      agents:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backend:  # 5. Backend: orchestration, profiles, pages, the UI API
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    environment:
+      DATABASE_URL: *database_url
+      NEWS_SEARCH_URL: http://news_search:8000
+      ANALYTICS_URL: http://analytics:8000
+      NEWS_SEARCH_METHOD: ${NEWS_SEARCH_METHOD:-dense_xquad}  # lexical | dense_llm | dense_xquad
+      COMPANY_DIR: /company
+      PAPERS_DIR: /papers
+    volumes:
+      - ../external-docs/company:/company:ro
+      - ../external-docs/analytical-papers:/papers:ro
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:  # 6. Frontend: built UI behind nginx, /api goes to the backend
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - "127.0.0.1:3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  hf_cache:
+  search_data:
+  analytics_data:

@@ -1,352 +1,101 @@
-# AGENTS.md — Alfa Hack: News Analytics project notes
+# AGENTS.md — Alfa Hack: News Analytics
 
-READ BEFORE WORKING AND FOLLOW THE RULES STATED
+Read this before working. Dialogue with the user is in English unless asked otherwise; code and comments are in English; commit messages, PR texts, `docs/`, section READMEs and `CHANGELOG.md` are in Russian.
 
-ALL DEVELOPMENT FOLLOWS THE PONYTAIL PRINCIPLES (SEE "Ponytail" SECTION BELOW). NO EXCEPTIONS.
-
-UNLESS ASKED OR APPROVED, NO DESTRUCTIVE ACTION IS TO BE TAKEN. CODE/GIT INCLUDED. SUGGESTIONS ARE ALLOWED.
-A TEAMMATE'S WORK IS ONLY TO BE CHANGED ON USER APPROVAL AND IF NECESSARY.
-CLAUDE GIT CONTRIBUTION IS PROHIBITED.
-ANY CHANGE TO THE ALGORITHMS AT ALL HAS TO BE DISCUSSED WITH THE USER AND REFLECTED IN APPROPRIATE `docs/` FILE
-ALONG WITH THE SYSTEM PARTS DESCRIBED THAT WILL BE DESCRIBED IN DOCS ADD A SIMPLE-WORDED CONCISE STEP-BY-STEP WALKTHROUGH OF HOW THAT SYSTEM PART WORKS.
-
-BIG CHANGES (NEW MODULES, CONTRACTS, MULTI-FILE CHANGES) NEED AN APPROVED PLAN BEFORE ANY FILE IS WRITTEN.
-NEVER GUESS OR ASSUME. IF A FACT, REQUIREMENT OR DECISION IS NOT STATED, ASK.
-
-**Purpose**: instant context for AI agents working on this project. Read this first.
-
-**Rules belong here.** Any durable rule, workflow constraint, or corrected behavior for this
-project gets written into *this file*, not into `agents_memory/`, a tool's own memory system, or any
-other side channel. Those stores are gitignored/personal and won't reach a teammate's checkout or a
-different agent/tool. If a rule is recorded elsewhere too, AGENTS.md is the canonical copy.
+**Case**: "News analytics for business decisions" (Alfa-Bank). An agentic system collects news, picks it for a specific business user, and explains what it means for their decisions (conclusions, risks, follow-up questions) with traceable reasoning. Hard constraints: only organizer-approved LLMs (Gemma 4 26B A4B, GLM-5.3-Flash, Qwen3.6 35B A3B, DeepSeek-V4.1-Flash, Qwen3-VL-30B-A3B-Instruct, Kimi-K2.6), budget 500 ₽/day; every conclusion traceable to its sources; native bank-product advertising in the output is allowed.
 
 ---
 
-## Ponytail, lazy senior dev mode
+## 1. Project structure
 
-You are a lazy senior developer. The best code is the code never written. You solve the whole
-problem with the least new code. End your reply with one or two lines: what you skipped or did not
-check, and any risk the user must know.
+```
+collector/     Go. RSS + Google News -> Postgres; tags and regional geotags (Gemma). sources.json, topics.txt
+agents/        Python, FastAPI. Every Python LLM call: 9 named agents, prompts/*.md
+news_search/   Python. Class NewsSearch (lexical | dense_llm | dense_xquad), embedders, HyDE, dedup; HTTP wrapper
+analytics/     Python, FastAPI. News -> analytics -> decisions with evidence; Alfa PDF theses; data/roles.json
+backend/       Python, FastAPI. Orchestration, profiles/pages in Postgres, UI API, chat; config NEWS_SEARCH_METHOD
+frontend/      TypeScript, React, Vite. The UI
+docker/        All Dockerfiles, compose.yaml, nginx.conf, check.sh
+docs/          One Russian doc per section + architecture.md + benchmark-template.md
+backlog/       Plans and tasks (BACKLOG.md index + phase-*.md)
+external-docs/ Case brief, meeting notes, organizer data (company CSVs, Alfa PDFs)
+```
 
-### Before you write
+Each section folder has `README.md` (files, run, tests), `benchmarks/` where measurements exist, and its doc in `docs/<section>.md`. Root: `pyproject.toml` + `uv.lock` (uv workspace of the Python sections), `.env.example`, `.dockerignore`, `CHANGELOG.md`, `THIRD_PARTY_NOTICES.md`.
 
-Read the task and the code it touches. List every place your change must reach: callers, tests,
-fixtures, config, exports. Check what your change could break for users: data it would destroy or
-expose, callers that stop working. That is scope. Extra features are not.
+Where each section came from (the refactor of 2026-10-24 assembled the project from separate branches):
 
-### The smallest complete change
+| Section | Assembled from |
+|---|---|
+| `collector/` | Go service of Alexandr (branch `tags`, in `main`): config, vocabulary of 525 tags, store, RSS collection of RBC/Kommersant/CBR, tagging worker, HTTP API, `llm/` client. Added: `sources.json` (merged `outlets50/outlets_new/outlets_regional.json`), generic RSS reader, Google News, resumable backfill, geotag; ported from Python `ingest.py`/`geotag.py` (branch `news_search/v1`) |
+| `agents/` | LLM helpers scattered over `news_search/v1|v2` (`pipeline.py`, `analyze.py`), `ranking/reasoning-chain` (`reasoning/llm.py`, `alfa.py`); prompts from `prompt.md` and inline strings |
+| `news_search/` | Branch `news_search/v2` (Goober-nation: bge-m3 over the corpus, xQuAD, pairs) as `dense_xquad`; branch `news_search/v1` as `dense_llm` and `lexical` (`lib.py`, `pipeline.py`); experiment findings in `news_search/benchmarks/` |
+| `analytics/` | Branch `ranking/reasoning-chain` (Lev Vizan: `reasoning/chain.py`, `search.py`, `embed.py`, `alfa.py`, `roles.json`), switched from offline week cards to live search results |
+| `backend/` | Mock server (`mock_server/`, UI contract) + `v1/v2` server and worker (profile queue, 24 h cache) + company card from bank CSVs (v2 `companies.py`, Lev's `company.py`) + role-line reading (`focus.py` of the reasoning branch) |
+| `frontend/` | Former `ui/` (branch `ui/mockup-dashboard`), moved unchanged |
+| `docker/` | Compose files of `v1/v2` and the Go service, rewritten as one stack |
+| `docs/` | New per-section docs; Alexandr's `news-service.md` and `tag-vocabulary.md` kept as `collector-news-service.md`, `collector-tag-vocabulary.md` |
 
-Take the first option that fully works:
-
-1. Does it need to exist? Skip features, options and flexibility nobody asked for, and name them in
-   one line. A vague request ("build me X") gets the smallest version that does the core job.
-2. Already in this codebase (a helper, component, service, pattern)? Use it the way the surrounding
-   code does.
-3. Standard library or a platform feature? Use it, unless the project has its own. A house component
-   beats a native widget.
-4. An installed dependency? Use it. Never add a dependency for a few lines.
-5. Can it be one line a reader gets at a glance? One line.
-6. Otherwise: the minimum code that works.
-
-- Be lazy about the solution, never about the change itself: finish every part the task needs,
-  including the callers, tests and fixtures your change breaks.
-- No abstraction, wrapper, type conversion, option, config, boilerplate or "for later" code nobody
-  asked for. Keep values in the form the platform already gives you. Deletion beats addition. Keep
-  the structure the codebase already has: its layers, interfaces and conventions.
-- The shortest working diff wins, once you know everything it must touch. A one-liner that needs
-  decoding is not short.
-- Comment only the why the code cannot show, in one line.
-- Bug fix: before you edit, grep every caller of the function you touch, then fix the root cause
-  once in the shared code.
-- Code you move or merge keeps its error handling and validation.
-- Between options of equal size, take the one that is correct on edge cases.
-- Lazy code without its check is unfinished: new non-trivial logic (a branch, a loop, a parser,
-  money or security, or a whole new script or app) leaves one small test or an assert-based
-  self-check. Trivial changes need none.
-- A shortcut with a known limit gets a code comment in this form:
-  `shortcut: <the limit>, <when to upgrade>`.
-
-Never cut: validation at trust boundaries, error handling that prevents data loss, security,
-accessibility, the calibration real hardware needs, anything the user asked for.
+Architecture rules: every Python LLM call goes through `agents/` (the only exception is the Go tagging/geotag client in `collector/`); Postgres is shared (`collector` owns the corpus tables, `backend` owns `profiles`, the rest only read); sections talk HTTP/JSON and document their contract in their doc; the search method is picked by backend config, never hardcoded in a caller. Details: `docs/architecture.md`.
 
 ---
 
-## Project Context
+## 2. Working field
 
-Hackathon case: **"News analytics for business decisions"** (Alfa-Bank). Build an agentic system
-that collects news, ranks it for a specific business user, and explains what it means for their
-business (conclusions, risks, follow-up questions), with traceable reasoning.
-
-Given by organizers: anonymised company data (OKVED code/name, region, city, links/payments between
-companies, client products) and a handful of Alfa-Bank analytics PDFs. **No news dataset** — we
-collect news ourselves.
-
-Hard constraints from the brief:
-- **Only LLMs from the organizer-approved list** (Gemma 4 26B A4B, GLM-5.3-Flash, Qwen3.6 35B A3B, 
-  DeepSeek-V4.1-Flash, Qwen3-VL-30B-A3B-Instruct, Kimi-K2.6), budget 500 ₽/day.
-  No other LLM allowed at all.
-- Decisions must be **traceable**: every ranking/conclusion can be traced back to its sources.
-- User can ask follow-up questions, view data in another cut, and open the original source.
-- Native advertising of bank products in the output is allowed.
-
-Planned pipeline (MVP-0, team meeting 2026-10-20). Overview only — the full design lives in
-`docs/architecture.md` (Russian, once agreed). Keep this list a short overview (soft limit ~10–15
-lines); move detail to `docs/` rather than growing it here.
-1. **Collection** — news via RSS from curated per-sector sources (text only).
-2. **Tagging** — one LLM pass per item → unified JSON with tags from a **fixed vocabulary**.
-3. **Multi-layer graph** — news = node, layers per tag type, weighted cross-industry edges.
-4. **Ranking** — user profile (OKVED, region, date, role) dropped into the graph, BFS a few hops.
-5. **LLM interpretation + UI** — recommendations, risks, follow-ups.
-Alfa-Bank PDFs: separate higher-weight graph layer, reproducible parsing pipeline.
-
-### Team & modules
-
-| Person   | Module                                       | Branch prefix |
-|----------|----------------------------------------------|---------------|
-| Тимофей  | Graph construction                           | `graph/`      |
-| Саша     | Tag vocabulary & LLM tagging                 | `tags/`       |
-| Лев      | Ranking, user profile, graph traversal       | `ranking/`    |
-| Арсен    | Alfa PDF parsing, news sources research      | `sources/`    |
-| Арсентий | UI: Figma, frontend skeleton, mock endpoints | `ui/`         |
-
-Modules talk through agreed input/output contracts (HTTP / JSON); each owner documents their
-module's contract in `docs/`.
-
-### Computational resources
-
-We as a team have compute server with the following specs which can be used for resource intensive computations:
-- GPU: Tesla V100, 32 GB VRAM
-- CPU: 60 cores, Intel Xeon E5-2698, 2.2GHz
-- RAM: 190 GB
-- Disk: 3 TB
-
-About resources for local development ask user, as each team member has different hardware
-
-### Open questions (do not assume answers)
-
-- Final tag vocabulary and graph weight format.
-- Format of the risk assessment in the output.
-- Stack and build tooling.
+1. **At the start of every task, state which section it belongs to** (one section per task). If the section is not obvious, ask.
+2. **New solutions are added modules, not rewrites.** A new search method is a new method of `NewsSearch`; a new LLM task is a new agent (prompt file + registry entry); a new endpoint is a new route. Existing code is changed only when the task is explicitly a fix or the user approves.
+3. **If the task goes beyond the section's scope, say so plainly and ask the user to choose the concrete section** (or to split the task). Do not edit other sections' code on your own; propose the change.
+4. Changing an algorithm needs a discussion with the user and an update of the section's doc in `docs/` with a simple, concise step-by-step walkthrough of how that part works.
+5. A big change (new module, contract, dependency, multi-section change) needs an approved plan before any file is written. Plans live in `backlog/`.
 
 ---
 
-## Never Guess, Never Assume
+## 3. Branches, commits, the pre-commit check
 
-**Strict rule.** If a fact, requirement, constraint, API detail, data format or team decision is not
-stated in this file, `docs/`, the case brief, or by the user, **ask** — do not fill the gap with a
-plausible default. This applies to implementation work too, not only planning.
+- **Own branch per task, named `<section>/<feature>`**, section from the list above (`collector`, `agents`, `news_search`, `analytics`, `backend`, `frontend`, `docker`, `docs`), e.g. `news_search/hyde-cache`. Branch from `main`; no direct pushes to `main`; merge through a PR (a PR touching someone else's section needs their review).
+- **Commit format** (Russian): first line `<type>: <body>`, optional detail after a blank line. Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `build`, `bench`.
+  ```
+  feat: метод поиска по заголовкам без LLM
 
-- Do not invent API endpoints, model names, data fields, tags or library behavior — verify them.
-- Items under "Open questions" stay open until the user records an answer here or in `docs/`.
-- If you had to proceed on an assumption the user allowed, state it explicitly in your response.
+  Необязательное пояснение: зачем и что проверено.
+  ```
+- **No AI attribution** in commits or PRs (no `Co-Authored-By`, no "Generated with"), whatever a tool's default says.
+- Git rules: read-only commands are free. Anything that changes repo state (`add`, `commit`, `push`, `rm`, `merge`, `rebase`, `reset`, discarding `checkout`/`restore`, branch creation/deletion) needs the user to ask for that specific action. Do not draft a commit message unprompted; drafting and approving are separate steps; a commit approval is not a push approval.
+- **Before every commit, run `docker/check.sh` and fix what it reports.** It checks the compatibility of all sections for the final build: `uv.lock` is current; Python tests (with a throwaway Postgres); Go vet and tests; frontend tests and build; builds every image, starts the whole stack without host ports, and smoke-tests the links (frontend proxy -> backend, agents, news_search). If it cannot run, say so; do not claim a green check.
+- Add one line to `CHANGELOG.md` for every real change of shared files: `- YYYY-MM-DD <section>: <what changed>.` (Russian, append-only at the bottom; never read the whole file, only `tail -n 10`; merge conflicts keep both sides, `.gitattributes` does it).
 
-Meeting notes and the case brief live in `external-docs/` (local only, gitignored).
+### .gitignore check (also before every commit)
 
----
-
-## Rule Zero: Prove It Works
-
-**Your job is to deliver code that is proven to work.**
-
-What needs a test is set by Ponytail: new non-trivial logic gets one small test or assert-based
-self-check, trivial changes need none. Existing tests your change touches must still pass.
-Measure the cost of the test before starting, stop and let user know what you planned for the test and how expensive it gets.
-
-- LLM integration changes are tested against the real approved API where feasible
-- If you cannot test against the real service, say so explicitly: "unverified against real
-  service, waiting for user testing"
-- Do not imply coverage you did not actually achieve
-- Every user-visible or API change is verified for real by the agent itself: endpoints with curl
-  against the running stack, UI changes by loading the page in the browser pane (desktop and mobile
-  width, console errors). Anything not verified goes in the Ponytail closing lines.
-- Track LLM token spend for anything that runs over many items — the budget is daily and small.
+`.gitignore` is a denylist: caches, environments, build output, secrets and run-time data are ignored for the whole repo, so no section needs its own. Before committing:
+1. `git status --short --ignored` and look for stray caches or generated files inside every section (`__pycache__`, `.pytest_cache`, `node_modules`, `dist`, `.vite`, `*.npz`, `*.dump`, logs, local `.env`).
+2. Anything generated that shows up as untracked: add a rule to the root `.gitignore`, do not commit it.
+3. Nothing secret may be tracked: `.env` stays ignored, only `.env.example` is committed. Note that `external-docs/` is tracked and contains organizer data: check what you are adding.
 
 ---
 
-## Plan Before You Touch Anything
+## 4. Benchmarks
 
-**Big changes need a discussed plan and explicit user approval before any file is written.** Big
-means: a new module or service, any change to a module contract or shared format (tag vocabulary,
-graph format, API), a dependency/stack choice, or a change spanning multiple files or modules.
-
-Small changes inside the user's own module (a fix, a single-file edit, a tweak the user asked for)
-can proceed directly. When unsure whether something is big, treat it as big and ask.
-
-For git, see "Git Rules" below — stricter for commit/push-type actions, looser for read-only ones.
+If a change affects quality, speed or cost (a new method, model, prompt or parameter), measure it:
+- In the section folder create or open `benchmarks/` and add `<benchmark-name>.md` (lowercase, hyphens).
+- Contents: what is measured and the hypothesis; the metric (units, formula, which direction is better); data and environment; the compared methods; a results table; a conclusion (what is chosen and why); limits; how to reproduce.
+- Use the template `docs/benchmark-template.md`. Several runs of one benchmark go into the same file with dates.
+- State what was not measured. Track LLM spend of anything that runs over many items.
 
 ---
 
-## Git Rules
+## 5. Standing rules
 
-**Read-only git commands are fine unprompted** — `status`, `diff`, `log`, `fetch`, `show`, `blame`.
+- **Never guess or assume.** If a fact, requirement or decision is not in this file, `docs/`, the case brief or the user's words, ask. Do not invent endpoints, model names, data fields, tags or library behaviour: verify them.
+- **No destructive action** (code, data, git) unless asked or approved. A teammate's work is changed only on the user's approval and if necessary.
+- **Prove it works.** New non-trivial logic gets a small test. Every API/UI change is verified for real (endpoints with curl against the running stack; UI in a browser at desktop and mobile width, console errors). LLM integration is tested against the real approved API where feasible; otherwise say "unverified against real service". Do not imply coverage you do not have.
+- **Lazy senior developer (Ponytail).** The best code is the code never written: reuse what exists, use the standard library or an installed dependency, no abstractions, options or config nobody asked for; never cut validation at trust boundaries, error handling that prevents data loss, security or accessibility. A shortcut with a known limit gets a comment `shortcut: <limit>, <when to upgrade>`. End a reply with one or two lines: what you skipped or did not check, and the risk.
+- **LLM rules.** Only the approved models. The LLM never invents tags or industries outside the fixed vocabulary (extend it in `docs/` with team agreement). Never hardcode one-off processing of the Alfa PDFs: the pipeline accepts new PDFs.
+- **Python tooling is uv**: `uv sync --all-packages`, `uv run pytest`, `uv lock` after changing dependencies (each section's `pyproject.toml`); no `pip` and no `requirements.txt`.
+- **Escalation.** Tests fail 3 times: stop, document, revert, ask. Lint or build fails: one fix attempt, then ask. Never shotgun debug (hypothesis, test, verify). Stuck: describe the problem, propose 2-3 options, ask.
+- **Docs.** `docs/` and section READMEs must not point into ignored scratch paths; inline the needed fact.
+- **Backlog**: `backlog/BACKLOG.md` index + `backlog/phase-*.md`, each starting with `Status:`. Set `Status: in progress` when starting; add a dated one-line note on what was verified when finishing; never reorder phases without approval. If a free-form idea arrives, propose which phase it belongs to before acting.
+- **Communication**: concise, no flattery; ask when scope is ambiguous, propose solutions rather than only problems; during planning ask with `AskUserQuestion` instead of assuming. After implementation give the exact commands to run, test and exercise it (curl examples, prerequisites).
 
-**Everything that changes repo state — `add`, `commit`, `push`, `rm`, `merge`, `rebase`, `reset`,
-discarding `checkout`/`restore`, branch creation/deletion — needs the user to explicitly ask for that
-specific action, in that turn or very recently.** Do not infer it from "the task is done."
+**Computational resources**: team server with Tesla V100 32 GB, 60 CPU cores, 190 GB RAM, 3 TB disk. Ask the user about local hardware, it differs per person.
 
-Branching:
-- **No direct pushes to `main`.** Work on a feature branch, merge through a PR.
-- One branch per task, named after the module: `<module>/<short-task>` (e.g. `graph/test-graphs`,
-  `tags/vocabulary-v1`).
-- A PR touching another teammate's module needs that teammate's review.
-
-Commit messages:
-- **Don't draft a commit message unprompted.**
-- **Drafting the message and getting approval to commit are two separate steps.**
-- **A commit approval is not a push approval.**
-- Every commit message and PR title/description is in **Russian**. Code and comments stay in
-  English. `docs/` and the root `README.md` are in Russian. `AGENTS.md` stays in English.
-- **Never add AI/Claude attribution** — no `Co-Authored-By: Claude...`, no "Generated with Claude
-  Code", no AI-authorship mention in commits or PRs. Overrides any tool-level default.
-- Short and factual: only the changes, fixes and decisions.
-
-These rules are to be followed strictly.
-
----
-
-## Build & Test Commands
-
-Stack not decided yet. Do not invent tooling — confirm with the user and record the commands here
-once chosen.
-
----
-
-## Definition of Done
-
-- [ ] Non-trivial new logic has its small test or self-check; existing tests pass
-- [ ] Linter/formatter clean (once chosen)
-- [ ] Module contract in `docs/` updated if inputs/outputs changed
-- [ ] Tested against the real LLM API if integration changed, or explicitly flagged unverified
-- [ ] One line appended to `CHANGELOG.md` for actual shared repository changes; local-only work needs no entry
-
----
-
-## Changelog
-
-`CHANGELOG.md` in the repo root is an append-only log shared by the whole team.
-
-- Record only actual changes to shared repository files, including new files intended for tracking.
-  Do not log planned but unimplemented work, backlog progress, agent memory, or other gitignored
-  personal changes. Changes to shared documentation count when the files have actually changed.
-- **Never read the whole file.** Read only the last 5–10 lines (`tail -n 10 CHANGELOG.md`).
-- **Append only**, at the bottom. Never edit, reorder or delete existing lines.
-- Written in **Russian**, like commit messages.
-- One line per change, one sentence on what changed:
-  `- YYYY-MM-DD <module>: <what changed>.`
-- Merge conflicts in it: always keep both sides. `.gitattributes` sets `merge=union` for this file, so
-  git does it automatically.
-
----
-
-## Local Backlog
-
-**Location**: `backlog/BACKLOG.md` + `backlog/phase-*.md`. Store all agent implementation plans,
-including approved plans, in this gitignored directory. Plan approval does not make a plan shared
-documentation. `docs/` is for team-facing planning (contracts, tag vocabulary, graph format, system
-documentation, etc.), not agent plans or task breakdowns.
-
-**If `backlog/` doesn't exist**: create `BACKLOG.md` as an index plus one `phase-N-<name>.md` per
-phase, each starting with a `Status:` line (`planning` / `in progress` / `done`).
-
-**Workflow:** set `Status: in progress` when starting; add a short dated note (~1 sentence of what
-was verified) when finishing a task; `Status: done` when the phase is complete. Never reorder phases
-without user approval.
-
----
-
-## Agent Memory System
-
-**Location**: `agents_memory/` — gitignored, personal. `MEMORY.md` (durable facts, ~50 lines max,
-read every session) plus `topics/*.md` (one file per research domain, read on demand). Create it
-with a `README.md` explaining the structure if it doesn't exist.
-
----
-
-## Session Startup Checklist
-
-1. Read `AGENTS.md` (this file)
-2. Read `agents_memory/MEMORY.md`
-3. Read `backlog/BACKLOG.md` and the current phase's file
-4. If given a free-form note/idea, propose which phase it belongs to before acting
-5. Identify next task, begin work
-
-**If anything is unclear or missing, ask the user before proceeding.**
-
----
-
-## Anti-Patterns (Never Do These)
-
-❌ **Never start a big change (see "Plan Before You Touch Anything") before a plan is approved.**
-
-❌ **Never push directly to `main`.**
-
-❌ **Never run a repo-state-changing git command, or draft a commit message, without an explicit
-ask** (read-only commands excepted).
-
-❌ **Never call an LLM outside the organizer-approved list**, and never route requests through an
-external model/agent service.
-
-❌ **Never let the LLM invent tags or industries outside the fixed vocabulary** — extend the
-vocabulary in `docs/` with team agreement instead.
-
-❌ **Never hardcode one-off processing of the Alfa PDFs** — the pipeline must accept new PDFs.
-
-❌ **Never edit another teammate's module or contract without user approval** — propose the change.
-
-❌ **Never shotgun debug** — hypothesis, test, verify.
-
-❌ **Never reference gitignored paths (`backlog/`, `agents_memory/`, `external-docs/`, `tmp/`) from
-`docs/`** — inline the needed fact instead.
-
-❌ **Never leave code in a broken state** — if a fix fails 3x, stop and ask; revert to last known
-working state.
-
----
-
-## Key Files
-
-| File             | Purpose                                                        |
-|------------------|----------------------------------------------------------------|
-| `AGENTS.md`      | This file                                                      |
-| `CHANGELOG.md`   | Append-only team changelog, read only the tail                 |
-| `docs/`          | Team-facing contracts and decisions (Russian)                  |
-| `backlog/`       | Personal, gitignored planning                                  |
-| `agents_memory/` | Personal, gitignored durable facts                             |
-| `external-docs/` | Case brief PDF, meeting transcripts and summaries (gitignored) |
-
----
-
-## Escalation Rules
-
-- **Tests fail 3x:** stop, document what was tried, revert, ask the user.
-- **Lint fails:** one auto-fix attempt, then ask.
-- **Build fails:** fix and retry once, then ask.
-- **Stuck:** describe the problem, propose 2-3 options, ask for direction.
-
----
-
-## Communication Style
-
-- Concise, no flattery
-- Start immediately once a plan is approved (or right away for small changes)
-- Ask clarifying questions when scope is ambiguous; propose solutions, not just problems
-- Dialogue with the user is in English unless asked otherwise; git messages are always Russian
-
----
-
-## Interview the User During Planning
-
-During design/planning, ask instead of assuming (see "Never Guess, Never Assume" — it applies to
-implementation too). Use `AskUserQuestion` (up to 4 batched questions)
-about priorities, edge-case mechanics, and anything ambiguous. If an answer reveals a better idea,
-adopt it. Record answers as durable decisions (phase file if task-scoped, `docs/` if team-facing,
-this file if it's a rule).
-
----
-
-## Give the User Run Commands
-
-After any implementation work, give the exact commands to run it, test it, and exercise it (curl
-examples etc.), plus any prerequisites.
-
-**End of AGENTS.md**
+**Open questions (do not assume answers)**: format of the risk assessment in the output; event cards (cause -> effect) for live news are not built, so analytics works without them; owners of the new sections; whether the tag graph is revived (it lost to embeddings in the experiments).

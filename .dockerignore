@@ -1,0 +1,12 @@
+# Build context of every image is the repository root: keep out everything an image does not need.
+.git
+.venv
+.env
+backlog
+external-docs
+docs
+**/node_modules
+frontend/dist
+**/__pycache__
+**/*_test.go
+**/test_*.py

@@ -1,4 +1,0 @@
-{"M1": {"nuggets": [0.5,0.5,1,0,0,1,0,0,0], "decisions": 6, "correct": 6, "claims_checked": 6, "unsupported": 0, "overall": 5, "note": "Reasonable core on Ozon, compliance and holding credit plans, but misses drones, GIS outages and tariffs."},
-"M2": {"nuggets": [0.5,0.5,1,0,0,1,0,0,0], "decisions": 6, "correct": 6, "claims_checked": 6, "unsupported": 0, "overall": 5, "note": "Similar coverage with a useful returns-policy check, but no warehouse-drone or tariff signals."},
-"M3": {"nuggets": [0.5,0.5,1,0,0,1,0.5,0,0], "decisions": 6, "correct": 5, "claims_checked": 6, "unsupported": 1, "overall": 5, "note": "Adds a rate-driven stock decision but leans on A0126 for Volga freight claims that look weakly supported."},
-"M4": {"nuggets": [0.5,0.5,0.5,0,0,1,0,0,0], "decisions": 6, "correct": 6, "claims_checked": 7, "unsupported": 1, "overall": 4, "note": "Utility re-budget and price hold are only weakly tied to the week's key signals and the Ozon item is passive."}}

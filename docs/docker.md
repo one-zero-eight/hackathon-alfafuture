@@ -1,0 +1,67 @@
+# 7. Docker
+
+Все Dockerfile и compose лежат в [docker/](../docker/). Контекст сборки каждого образа — корень репозитория; лишнее исключает корневой [.dockerignore](../.dockerignore).
+
+## Сервисы
+
+| Сервис | Образ | Порт на хосте | Что делает |
+|---|---|---|---|
+| `postgres` | postgres 18.6 | 127.0.0.1:5433 | общая БД: корпус новостей и профили |
+| `collector` | [collector.Dockerfile](../docker/collector.Dockerfile) (Go) | 127.0.0.1:8080 | сбор, теги ([collector.md](collector.md)) |
+| `agents` | [agents.Dockerfile](../docker/agents.Dockerfile) | 127.0.0.1:8001 | вызовы LLM ([agents.md](agents.md)) |
+| `news_search` | [ml.Dockerfile](../docker/ml.Dockerfile) | 127.0.0.1:8002 | поиск новостей ([news-search.md](news-search.md)) |
+| `analytics` | [ml.Dockerfile](../docker/ml.Dockerfile) (общий образ) | 127.0.0.1:8003 | аналитика и решения ([analytics.md](analytics.md)) |
+| `backend` | [backend.Dockerfile](../docker/backend.Dockerfile) | 127.0.0.1:8000 | оркестрация и API ([backend.md](backend.md)) |
+| `frontend` | [frontend.Dockerfile](../docker/frontend.Dockerfile) | 127.0.0.1:3000 | интерфейс |
+
+Тома: `postgres_data` (корпус), `hf_cache` (модели эмбеддеров, около 4,5 ГБ), `search_data` (кэши поиска и векторы статей), `analytics_data` (тезисы банка). Сервисы `news_search` и `analytics` используют один общий образ `alfa-ml` (CPU-версия torch ставится один раз). Python-зависимости ставит uv по `uv.lock`.
+
+## Подготовка
+
+1. Docker с Compose v2 и 8 ГБ памяти для Docker (эмбеддеры).
+2. Скопируйте [.env.example](../.env.example) в `.env` в корне репозитория: `POSTGRES_PASSWORD` (буквы и цифры), `LLM_API_KEY`, `LLM_BASE_URL`, при желании `LLM_BASE_URL_BACKUP`. `LLM_ENABLED=false` выключает теги и геотеги коллектора (сбор без расходов).
+3. Для профилей по `company_id` положите файлы организаторов `df_Uid_data_hack.csv` и `df_Uid_payment_hack.csv` в локальную папку, которую `docker/compose.yaml` монтирует в `/company` сервиса `backend`; PDF Альфа-Банка — в папку, монтируемую в `/papers`. Пути заданы в `volumes` compose-файла; в git эти файлы не входят.
+
+## Запуск
+
+```bash
+docker compose --env-file .env -f docker/compose.yaml up -d --build
+docker compose --env-file .env -f docker/compose.yaml ps        # все сервисы Up, healthy
+open http://127.0.0.1:3000
+```
+
+## Проверка
+
+```bash
+curl -s localhost:3000/api/page | python3 -m json.tool | head -20                      # демо-страница
+curl -s localhost:8080/v1/status                                                         # collector
+curl -s localhost:8001/agents | python3 -m json.tool | head                              # agents
+curl -s localhost:8002/methods                                                           # news_search
+curl -s -X POST localhost:3000/api/profile -H 'Content-Type: application/json' -d '{"company":"Делимобиль","role":"Глава найма"}'
+curl -s localhost:3000/api/profile/<key>                                                 # queued -> running -> ready
+curl -s "localhost:3000/api/page?profile=<key>"
+docker compose --env-file .env -f docker/compose.yaml logs -f backend news_search analytics
+```
+
+Первый расчёт профиля занимает минуты (поиск по корпусу, десятки вызовов LLM), а при методах `dense_*` ещё и скачивание моделей. Метод поиска выбирается переменной `NEWS_SEARCH_METHOD` в `.env`.
+
+## Готовый корпус из дампа (по желанию)
+
+Если есть дамп корпуса, сделанный `pg_dump -Fc` версией 18 (статьи, источники, региональные метки), загрузите его в пустую БД **до** запуска остальных сервисов; коллектор потом дополнит схему сам:
+
+```bash
+docker compose --env-file .env -f docker/compose.yaml up -d postgres
+docker exec -i alfa-postgres-1 pg_restore -U news -d news --no-owner --exit-on-error < <файл-дампа>
+docker compose --env-file .env -f docker/compose.yaml up -d
+```
+
+Пароль БД применяется только при создании тома `postgres_data`: если том уже создан с другим `POSTGRES_PASSWORD`, смените пароль в `.env` на прежний или удалите том.
+
+Если порты 3000, 5433, 8000–8003 или 8080 заняты, добавьте второй файл compose с `ports: !override [...]` для нужных сервисов (`-f docker/compose.yaml -f мой-порты.yaml`).
+
+## Остановка
+
+```bash
+docker compose --env-file .env -f docker/compose.yaml down        # данные сохраняются в томах
+docker compose --env-file .env -f docker/compose.yaml down -v     # ВНИМАНИЕ: удалит корпус новостей и модели
+```

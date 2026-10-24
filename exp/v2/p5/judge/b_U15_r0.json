@@ -1,4 +1,0 @@
-{"M1": {"nuggets": [0,1,0,0.5,0,0], "decisions": 5, "correct": 4, "claims_checked": 8, "unsupported": 0, "overall": 4, "note": "Screens Astra and adds second cloud region but omits the PHP vulnerabilities."},
-"M2": {"nuggets": [0,0,0,0.5,0,0], "decisions": 7, "correct": 3, "claims_checked": 7, "unsupported": 0, "overall": 2, "note": "Misses PHP and Astra; decisions are mostly speculative checks on Revolut, foreign brands and satellite links."},
-"M3": {"nuggets": [1,0,0,0.5,0,0], "decisions": 5, "correct": 4, "claims_checked": 8, "unsupported": 0, "overall": 5, "note": "PHP patching and continuity are right; Astra and AI-hack hardening absent."},
-"M4": {"nuggets": [1,0,0,1,0,0], "decisions": 5, "correct": 4, "claims_checked": 8, "unsupported": 0, "overall": 6, "note": "Actionable PHP patch, DR test and insurance check with deadlines; misses Astra and authentication hardening."}}

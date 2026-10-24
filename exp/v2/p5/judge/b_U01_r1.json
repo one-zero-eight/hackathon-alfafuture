@@ -1,4 +1,0 @@
-{"M1": {"nuggets": [0,1,0,0.5,0,0,0,0,0,0,0], "decisions": 6, "correct": 4, "claims_checked": 6, "unsupported": 1, "overall": 3, "note": "Rates and Brent covered, but misses drones, sanctions, freight, diesel and OSAGO, and says to hedge less for an exporter."},
-"M2": {"nuggets": [0,1,0,0.5,0,1,0.5,0,0.5,0,1], "decisions": 5, "correct": 4, "claims_checked": 6, "unsupported": 1, "overall": 5, "note": "Covers rates, freight and OSAGO, but accelerating FX purchases is the wrong direction for an oil exporter."},
-"M3": {"nuggets": [0,1,0,0.5,0,0,0,0,0,0,0], "decisions": 6, "correct": 5, "claims_checked": 5, "unsupported": 0, "overall": 3, "note": "Thin on nuggets, mostly rates and FX, and buys FX despite exporter status."},
-"M4": {"nuggets": [0,1,0,0.5,0,1,0.5,0,0.5,0,1], "decisions": 6, "correct": 5, "claims_checked": 6, "unsupported": 0, "overall": 6, "note": "Broadest coverage with freight pass-through and OSAGO, but FX purchase direction is wrong for an exporter."}}
