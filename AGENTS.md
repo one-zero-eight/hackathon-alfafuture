@@ -17,7 +17,6 @@ backend/       Python, FastAPI. Orchestration, profiles/pages in Postgres, UI AP
 frontend/      TypeScript, React, Vite. The UI
 docker/        All Dockerfiles, compose.yaml, nginx.conf, check.sh
 docs/          One Russian doc per section + architecture.md + benchmark-template.md
-backlog/       Plans and tasks (BACKLOG.md index + phase-*.md)
 external-docs/ Case brief, meeting notes, organizer data (company CSVs, Alfa PDFs)
 ```
 
@@ -46,13 +45,14 @@ Architecture rules: every Python LLM call goes through `agents/` (the only excep
 2. **New solutions are added modules, not rewrites.** A new search method is a new method of `NewsSearch`; a new LLM task is a new agent (prompt file + registry entry); a new endpoint is a new route. Existing code is changed only when the task is explicitly a fix or the user approves.
 3. **If the task goes beyond the section's scope, say so plainly and ask the user to choose the concrete section** (or to split the task). Do not edit other sections' code on your own; propose the change.
 4. Changing an algorithm needs a discussion with the user and an update of the section's doc in `docs/` with a simple, concise step-by-step walkthrough of how that part works.
-5. A big change (new module, contract, dependency, multi-section change) needs an approved plan before any file is written. Plans live in `backlog/`.
+5. A big change (new module, contract, dependency, multi-section change) needs an approved plan before any file is written. Plans are agreed in the dialogue and recorded in the GitHub issue of the task (https://github.com/one-zero-eight/hackathon-alfafuture/issues).
 
 ---
 
 ## 3. Branches, commits, the pre-commit check
 
-- **Own branch per task, named `<section>/<feature>`**, section from the list above (`collector`, `agents`, `news_search`, `analytics`, `backend`, `frontend`, `docker`, `docs`), e.g. `news_search/hyde-cache`. Branch from `main`; no direct pushes to `main`; merge through a PR (a PR touching someone else's section needs their review).
+- **Own branch for every substantial task, named `<section>/<feature>`**, section from the list above (`collector`, `agents`, `news_search`, `analytics`, `backend`, `frontend`, `docker`, `docs`), e.g. `news_search/hyde-cache`. Branch from `main`; no direct pushes to `main`; merge through a PR (a PR touching someone else's section needs their review).
+- **Minor changes** (typos, small doc or config fixes, one-line fixes, no behavior or contract change) may be made without a separate branch, in the current working tree; the git-state rule below still applies (the user asks for commits). If the agent judges a change non-trivial, risky, or touching several files or sections, it proposes a separate branch and asks the user before creating it.
 - **Commit format** (Russian): first line `<type>: <body>`, optional detail after a blank line. Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `build`, `bench`.
   ```
   feat: метод поиска по заголовкам без LLM
@@ -94,7 +94,7 @@ If a change affects quality, speed or cost (a new method, model, prompt or param
 - **Python tooling is uv**: `uv sync --all-packages`, `uv run pytest`, `uv lock` after changing dependencies (each section's `pyproject.toml`); no `pip` and no `requirements.txt`.
 - **Escalation.** Tests fail 3 times: stop, document, revert, ask. Lint or build fails: one fix attempt, then ask. Never shotgun debug (hypothesis, test, verify). Stuck: describe the problem, propose 2-3 options, ask.
 - **Docs.** `docs/` and section READMEs must not point into ignored scratch paths; inline the needed fact.
-- **Backlog**: `backlog/BACKLOG.md` index + `backlog/phase-*.md`, each starting with `Status:`. Set `Status: in progress` when starting; add a dated one-line note on what was verified when finishing; never reorder phases without approval. If a free-form idea arrives, propose which phase it belongs to before acting.
+- **Tasks** live as GitHub issues in `one-zero-eight/hackathon-alfafuture` (use `gh issue`). Before starting, read the issue; when finishing, add a comment with what was verified. If a free-form idea arrives, propose creating an issue before acting.
 - **Communication**: concise, no flattery; ask when scope is ambiguous, propose solutions rather than only problems; during planning ask with `AskUserQuestion` instead of assuming. After implementation give the exact commands to run, test and exercise it (curl examples, prerequisites).
 
 **Computational resources**: team server with Tesla V100 32 GB, 60 CPU cores, 190 GB RAM, 3 TB disk. Ask the user about local hardware, it differs per person.
