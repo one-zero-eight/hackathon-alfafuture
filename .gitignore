@@ -103,4 +103,5 @@ v1/out/
 v1/cache/
 
 # reasoning pipeline: run results, call logs, parsed Alfa theses
-reasoning/out/
+reasoning/out/*
+!reasoning/out/U_9250.json

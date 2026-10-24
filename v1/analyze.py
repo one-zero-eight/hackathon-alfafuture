@@ -47,9 +47,17 @@ def _text(v, limit=600):
 def build_page(key, company, role, top):
     top = top[:30]
     lines = "\n".join(f"{i} | {_date(t['date'])} | {', '.join(t['outlets'][:2])} | {t['title']}" for i, t in enumerate(top))
-    prompt = (f"Компания: «{company}». Роль руководителя / сфера анализа: «{role}».\n"
-              f"Ниже {len(top)} отобранных российских новостей (номер | дата | источник | заголовок).\n"
-              f"Сделай из них аналитику для принятия решений.\n{SPEC % {'n': N_NEWS}}\n\n{lines}")
+    try:
+        from reasoning.company import line as company_line
+        facts = company_line(company)
+    except Exception:
+        facts = ""
+    prompt = (
+        f"Компания: «{company}». Роль руководителя / сфера анализа: «{role}».\n"
+        + (f"Факты из карточки банка: {facts}\n" if facts else "")
+        + f"Ниже {len(top)} отобранных российских новостей (номер | дата | источник | заголовок).\n"
+        + f"Сделай из них аналитику для принятия решений.\n{SPEC % {'n': N_NEWS}}\n\n{lines}"
+    )
     d = chat_json(QUERY_MODEL, prompt, "news")
     pid = lambda x: f"{key}_{x}"
     widgets, links, news_ids, analytics_ids, decision_ids = [], [], {}, set(), set()

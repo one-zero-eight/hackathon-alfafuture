@@ -1,0 +1,7 @@
+.venv
+**/node_modules
+exp
+analytical-papers
+.git
+reasoning/out/*
+!reasoning/out/U_9250.json
