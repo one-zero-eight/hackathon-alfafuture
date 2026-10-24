@@ -1,3 +1,0 @@
-Read the file {IN}: line 1 is a user profile (login parameters only: role, OKVED, region, size, bank products); below are news stories relevant to them with a relevance grade (3 = act now, 2 = monitor, 1 = background).
-Extract NUGGETS: atomic, decision-relevant points this user must take from the news (a fact plus its implication for their decisions, e.g. "Key rate kept at 16.5% -> refinancing of leasing lines not cheaper this quarter"). Merge stories saying the same thing into one nugget. 5-15 nuggets, most important first. Ignore grade-1 stories unless they combine into something decision-relevant.
-Write ONLY JSON to {OUT}: [{"n": "<Russian nugget>", "sids": ["A...", ...], "importance": 1-3}]. Reply "done".

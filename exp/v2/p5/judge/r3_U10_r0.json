@@ -1,7 +1,0 @@
-{"M1": {"nuggets": [1,1,0,1,0,0], "decisions": 4, "correct": 4, "claims_checked": 6, "unsupported": 0, "overall": 7, "note": "Covers paper VAT, 1 Nov, Labour Code and utilities; misses 2027 tax package."},
-"M2": {"nuggets": [1,1,0,1,0.5,0], "decisions": 5, "correct": 5, "claims_checked": 5, "unsupported": 0, "overall": 8, "note": "Concrete paper-VAT screen with thresholds, plus 1 Nov and Labour Code; misses tax package."},
-"M3": {"nuggets": [0.5,1,0.5,1,0,0], "decisions": 5, "correct": 5, "claims_checked": 7, "unsupported": 0, "overall": 7, "note": "Good coverage incl. tax package monitor; paper VAT only as a monitor."},
-"M4": {"nuggets": [0,1,0,1,0,0], "decisions": 6, "correct": 5, "claims_checked": 5, "unsupported": 0, "overall": 6, "note": "Solid on 1 Nov and Labour Code but omits paper VAT; driver-licence decision off-role."},
-"M5": {"nuggets": [0,1,0,0,0,0], "decisions": 5, "correct": 3, "claims_checked": 4, "unsupported": 0, "overall": 4, "note": "Covers 1 Nov only; misses paper VAT and Labour Code; FX and drone-reserve items weak."},
-"M6": {"nuggets": [0,1,0,0,0,0], "decisions": 4, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 4, "note": "Covers 1 Nov and FX revaluation; misses paper VAT and Labour Code."},
-"M7": {"nuggets": [0.5,1,0,0.5,0,0], "decisions": 3, "correct": 2, "claims_checked": 6, "unsupported": 0, "overall": 4, "note": "Right topics but thin; paper VAT only a monitor, decisions mostly defer action."}}

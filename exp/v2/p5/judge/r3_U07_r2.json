@@ -1,9 +1,0 @@
-{
-"M1": {"nuggets": [0,0,0,0,1,0.5,0,0.5,0,0,0], "decisions": 5, "correct": 3, "claims_checked": 7, "unsupported": 0, "overall": 4, "note": "Fuel scenario and index clause are right for a CFO, but nothing on rates, leasing or ports."},
-"M2": {"nuggets": [1,0.5,0,0,0.5,0,0,0,0,0,0], "decisions": 6, "correct": 4, "claims_checked": 7, "unsupported": 0, "overall": 5.5, "note": "Correct rate-fixing and FX moves plus a fuel budget scenario, but dismisses the subsidised leasing news and misses the operational items."},
-"M3": {"nuggets": [1,0.5,0,0,0.5,0,0,0,0,0,0], "decisions": 4, "correct": 3, "claims_checked": 7, "unsupported": 0, "overall": 5.5, "note": "Sensible debt fixing, FX and fuel indexation; the deposit placement is marginal and the leasing programme is ignored."},
-"M4": {"nuggets": [0,0,0,0.5,0.5,0,0,0,0,0,0.5], "decisions": 4, "correct": 2, "claims_checked": 6, "unsupported": 0, "overall": 3, "note": "Omits the central rate decision and fixes on tanker and US-diesel counterparty checks that do not fit a road carrier."},
-"M5": {"nuggets": [1,0,0,0.5,1,0,0,0,0,0,0], "decisions": 5, "correct": 4, "claims_checked": 7, "unsupported": 0, "overall": 6, "note": "Good rate fix, FX, fuel indexation and a truck-eligibility check on leasing, with honest flagging of unknowns."},
-"M6": {"nuggets": [1,0.5,0.5,0.5,0.5,0.5,0,0.5,0,0,0], "decisions": 6, "correct": 4, "claims_checked": 8, "unsupported": 0, "overall": 6, "note": "Broadest coverage with parameterised, owner-assigned decisions, though the credit-term tightening and route repricing are speculative."},
-"M7": {"nuggets": [1,0.5,0.5,0.5,1,0,0,0,0,0,0], "decisions": 5, "correct": 4, "claims_checked": 8, "unsupported": 0, "overall": 5.5, "note": "Solid rate, FX and scenario decisions with triggers; the driver-licence audit is low value."}
-}

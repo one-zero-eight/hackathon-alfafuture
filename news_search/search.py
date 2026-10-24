@@ -1,0 +1,200 @@
+"""NewsSearch: every way of turning (company, sphere, region) into a ranked list of news from the corpus.
+
+Methods (choose one per call; the backend config decides which):
+  lexical      stem match of keyword queries, deduplicated, ranked by the number of matched queries and freshness (baseline)
+  dense_llm    v1: lexical pool, e5-large-instruct + bge-m3 on queries and HyDE headlines, an LLM picks the top 30, rank fusion
+  dense_xquad  v2 (default): bge-m3 over the whole corpus with needs + HyDE, then xQuAD diversification over the query blocks
+
+All LLM calls go through the agents service (the `agents` argument: anything with run(name, input) -> dict).
+"""
+import collections
+import datetime
+import hashlib
+import json
+import os
+import re
+import time
+
+import numpy as np
+
+from news_search import scoring
+from news_search.dedup import dd_hybrid
+from news_search.embed import VectorCache, sentence_transformer, wrap_query
+from news_search.scoring import TOP_OUT, age_days, fresh, mean_top3, norm01
+from news_search.text import match_items
+
+METHODS = ("lexical", "dense_llm", "dense_xquad")
+DEFAULT_METHOD = "dense_xquad"
+CORPUS_DAYS, CACHE_TTL = 365, 24 * 3600  # corpus window; a finished result is reused for a day
+PER_QUERY_CORPUS = 30  # lexical matches per query
+N_DENSE, TOP_CAND = 100, 150  # v2: dense candidates, and with the lexical second source
+TOP_EMB, MAX_CAND = 50, 200  # v1: per embedder, and after interleaving
+# Names of companies the pipeline was tuned on; any other company falls back to its name stems (see own_pattern).
+ALIASES = {"Магазин Мать и Дитя": r"мать и дит|мать и дочь|\bмд мед", "Инарктика": r"инарктик|интарктик|\baqua\b|inarctica",
+           "Группа Астра": r"групп\w* астр|astra|астра линукс|\bастр[аыуе]\b", "Делимобиль": r"делимобил|delimobil",
+           "Селектел": r"селектел|selectel"}
+
+
+class TooFewNews(ValueError):
+    pass
+
+
+def own_pattern(company):
+    if company in ALIASES:
+        return ALIASES[company]
+    # shortcut: an unknown company matches when all its name stems appear in the title; add an ALIASES entry for better recall
+    stems = [w[:5] for w in re.findall(r"[a-zа-я0-9]+", company.lower().replace("ё", "е")) if len(w) > 2 and w not in ("группа", "компания", "магазин")]
+    return "".join(f"(?=.*{s})" for s in stems) if stems else re.escape(company.lower())
+
+
+def dedup_filter(pool, company, anonymised=False):
+    """Merge duplicates, drop news about the company itself. Returns (items, number of dropped own-company clusters)."""
+    clusters = collections.defaultdict(list)
+    for i, label in enumerate(dd_hybrid(pool)):
+        clusters[label].append(pool[i])
+    pattern = None if anonymised else re.compile(own_pattern(company), re.S)  # anonymised data has no company name to filter on
+    items, own = [], 0
+    for members in clusters.values():
+        if {b for m in members for b in m["blocks"]} == {"company_self"} or (pattern and any(pattern.search(m["title"].lower()) for m in members)):
+            own += 1
+            continue
+        first = members[0]
+        items.append({"id": len(items), "aid": first["aid"], "title": first["title"], "link": first["link"], "date": first["date"],
+                      "summary": first.get("summary", ""), "outlets": sorted({m["outlet"] for m in members}),
+                      "methods": sorted({m["method"] for m in members}),
+                      "blocks": dict(collections.Counter(b for m in members for b in m["blocks"])),
+                      "queries": sorted({q for m in members for q in m["queries"]}),
+                      **{k: first[k] for k in ("score", "aspects", "vec") if k in first}})  # ranking data of the best copy
+    return items, own
+
+
+class NewsSearch:
+    def __init__(self, corpus, agents, data_dir, encoder_factory=sentence_transformer, now=None):
+        """corpus: load(days) -> items (see corpus.postgres_corpus); data_dir keeps run caches and the vector cache."""
+        self.corpus, self.agents, self.data_dir = corpus, agents, data_dir
+        self.encoder_factory, self._now = encoder_factory, now
+        self._bge = None
+
+    def now(self):
+        return self._now() if self._now else datetime.datetime.now(datetime.timezone.utc)
+
+    def search(self, company, line, region="", method=DEFAULT_METHOD, anonymised=False):
+        if method not in METHODS:
+            raise ValueError(f"method must be one of {METHODS}")
+        slug = "__".join(re.sub(r"\W+", "_", x.lower())[:40] for x in (company, line, region) if x)
+        slug += "__" + hashlib.sha1(f"{company}|{line}|{region}".encode()).hexdigest()[:8]
+        run_dir = os.path.join(self.data_dir, "runs", slug)
+        os.makedirs(run_dir, exist_ok=True)
+        result_file = os.path.join(run_dir, f"result_{method}.json")
+        if os.path.exists(result_file) and time.time() - os.path.getmtime(result_file) < CACHE_TTL:
+            return json.load(open(result_file, encoding="utf-8"))
+        cost0 = self.agents.cost
+        ask = dict(company=company, line=line, region=region)
+        queries = self._cached(run_dir, "queries", lambda: self.agents.run("queries", ask))
+        if method == "dense_xquad":
+            needs = self._cached(run_dir, "needs", lambda: self.agents.run("needs", ask))["needs"]
+        headlines = None if method == "lexical" else self._cached(run_dir, "hyde", lambda: self.agents.run("hyde", ask))["headlines"]
+        run = dict(company=company, line=line, region=region, anonymised=anonymised, queries=queries, headlines=headlines, now=self.now())
+        if method == "dense_xquad":
+            res = self._dense_xquad(run, needs)
+        else:
+            res = getattr(self, "_" + method)(run)
+        res.update(company=company, line=line, region=region, method=method, date=datetime.date.today().isoformat(), cost=round(self.agents.cost - cost0, 4))
+        json.dump(res, open(result_file, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        return res
+
+    @staticmethod
+    def _cached(run_dir, name, make):
+        """A generated step (queries, needs, HyDE) is kept next to the result: repeated searches do not pay for it again."""
+        path = os.path.join(run_dir, name + ".json")
+        if os.path.exists(path):
+            return json.load(open(path, encoding="utf-8"))
+        out = make()
+        json.dump(out, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        return out
+
+    # ---------------- shared steps ----------------
+    @staticmethod
+    def keyword_queries(queries):
+        return sorted({q for b, qs in queries.items() if b != "company_self" for q in qs})
+
+    def lexical_pool(self, items, queries):
+        """Stemmed token overlap of every query with the corpus."""
+        block = {q: b for b, qs in queries.items() for q in qs}
+        pool = []
+        for q, found in match_items(items, sorted(block), per_query=PER_QUERY_CORPUS).items():
+            for _, j in found:
+                pool.append({**{k: items[j][k] for k in ("aid", "title", "link", "date", "outlet", "summary")}, "method": "B", "queries": [q], "blocks": [block[q]]})
+        return pool
+
+    def unique(self, pool, run):
+        items, own = dedup_filter(pool, run["company"], run["anonymised"])
+        if len(items) < TOP_OUT:
+            raise TooFewNews(f"too few news collected: {len(items)} unique, need {TOP_OUT}")
+        return items, own
+
+    @staticmethod
+    def public(item):
+        return {k: v for k, v in item.items() if k not in ("vec", "aspects")}
+
+    # ---------------- lexical ----------------
+    def _lexical(self, run):
+        items, own = self.unique(self.lexical_pool(self.corpus(CORPUS_DAYS), run["queries"]), run)
+        for it in items:  # more distinct matching queries first, outlets confirming the story add a little, then freshness
+            it["score"] = (len(it["queries"]) + 0.01 * min(len(it["outlets"]) - 1, 3)) * fresh(age_days(it["date"], run["now"]))
+        top = sorted(items, key=lambda it: -it["score"])[:TOP_OUT]
+        return {"top": [self.public(it) for it in top], "pairs": [], "blocks": [b for b in run["queries"] if b != "company_self"],
+                "stats": {"unique": len(items), "own_removed": own}}
+
+    # ---------------- dense_llm (v1) ----------------
+    def _dense_llm(self, run):
+        items, own = self.unique(self.lexical_pool(self.corpus(CORPUS_DAYS), run["queries"]), run)
+        lists = self.embed_lists(items, run)
+        cand = list(dict.fromkeys(i for pair in zip(*lists) for i in pair))[:MAX_CAND]  # interleave so both embedders survive the cap
+        asked = self.agents.run("pick", {"company": run["company"], "line": run["line"], "top": TOP_OUT, "candidates": [
+            {"id": i, "date": items[i]["date"], "outlets": items[i]["outlets"], "title": items[i]["title"]} for i in cand]})["top"]
+        final, score = scoring.fuse([asked], items, run["now"])
+        top = [{**self.public(items[i]), "score": round(score[i], 4), "voted_by": ["glm"]} for i in final]
+        return {"top": top, "pairs": [], "blocks": [b for b in run["queries"] if b != "company_self"],
+                "stats": {"unique": len(items), "own_removed": own, "candidates": len(cand)}}
+
+    def embed_lists(self, items, run):
+        """Per embedder: titles vs keyword queries and HyDE headlines, times freshness; the best TOP_EMB ids of each."""
+        fr = np.array([fresh(age_days(it["date"], run["now"])) for it in items])
+        queries = self.keyword_queries(run["queries"])
+        lists = []
+        for name in ("e5-large-instruct", "bge-m3"):
+            encode = self.encoder_factory(name, 96)
+            E = encode([it["title"] for it in items])
+            s_raw = mean_top3(E @ encode([wrap_query(name, q) for q in queries]).T)
+            SH = E @ encode([wrap_query(name, h) for h in run["headlines"]]).T
+            s_hyde = mean_top3((SH - SH.mean(0)) / (SH.std(0) + 1e-6))  # z-norm per HyDE headline
+            lists.append([int(i) for i in np.argsort(-(norm01(s_raw) + norm01(s_hyde)) * fr, kind="stable")[:TOP_EMB]])
+            del encode
+        return lists
+
+    # ---------------- dense_xquad (v2) ----------------
+    def bge(self):
+        if self._bge is None:
+            self._bge = self.encoder_factory("bge-m3", 128)
+        return self._bge
+
+    def _dense_xquad(self, run, needs):
+        """Dense candidates from the whole corpus window, no lexical gate (the lexical match alone reached ~45% of relevant news)."""
+        items = self.corpus(CORPUS_DAYS)
+        encode = self.bge()
+        X = VectorCache(os.path.join(self.data_dir, "vectors_bgem3.npz")).vectors(items, encode)
+        fr = np.array([fresh(age_days(it["date"], run["now"])) for it in items])
+        s = (norm01(scoring.zscore_top3(X, encode(needs))) + norm01(scoring.zscore_top3(X, encode(run["headlines"])))) * fr
+        dense = [int(j) for j in np.argsort(-s, kind="stable")[:N_DENSE]]
+        # second source, not a gate: the stem match over the keyword queries adds news that dense search misses (recall 0.59 -> 0.63)
+        lex = {j for found in match_items(items, self.keyword_queries(run["queries"]), per_query=PER_QUERY_CORPUS).values() for _, j in found}
+        top = np.array(dense + sorted(lex - set(dense), key=lambda j: -s[j])[:TOP_CAND - N_DENSE])
+        blocks = [b for b in run["queries"] if b != "company_self"]
+        B = np.stack([(X[top] @ encode(run["queries"][b]).T).max(1) for b in blocks], 1)  # aspect score: best keyword query of each block
+        pool = [{**{k: items[j][k] for k in ("aid", "title", "link", "date", "outlet", "summary")}, "method": "D", "queries": [], "score": float(s[j]),
+                 "blocks": [blocks[int(B[r].argmax())]], "aspects": B[r].round(4).tolist(), "vec": X[j]} for r, j in enumerate(top)]
+        unique, own = self.unique(pool, run)
+        shown = [unique[i] for i in scoring.xquad(unique)]
+        return {"top": [self.public(it) for it in shown], "pairs": scoring.pairs(shown), "blocks": blocks,
+                "stats": {"candidates": len(pool), "unique": len(unique), "own_removed": own}}

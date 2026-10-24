@@ -1,9 +1,0 @@
-{
-"M1": {"nuggets": [0.5,0,0,0.5,0.5,0,0,0,0], "decisions": 3, "correct": 1, "claims_checked": 6, "unsupported": 1, "overall": 3, "note": "Only the fuel surcharge is sound; rail booking and sanctions screening are weak, and the southern-port and retail nuggets are dismissed."},
-"M2": {"nuggets": [0,0,0,0.5,0.5,0.5,0,0,0], "decisions": 4, "correct": 2, "claims_checked": 6, "unsupported": 0, "overall": 3.5, "note": "Fuel-indexation review is fine, but diesel-export compliance and Arctic oil tonnage are off-role for a Siberian road carrier."},
-"M3": {"nuggets": [1,0.5,0,1,0,0,0,0,0], "decisions": 5, "correct": 2, "claims_checked": 6, "unsupported": 1, "overall": 3, "note": "Good fuel pass-through clause, but shifting cargo from truck to rail and booking rail slots is the wrong direction for a trucker."},
-"M4": {"nuggets": [0.5,0,0,0.5,0,0,0,0,0], "decisions": 5, "correct": 1, "claims_checked": 5, "unsupported": 1, "overall": 2.5, "note": "Mostly low-value checks (licence fines, air hubs) and misses almost all vital points."},
-"M5": {"nuggets": [0.5,0,0.5,1,0,0,0,0,0], "decisions": 4, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 5, "note": "Sound fuel-index and truck-leasing eligibility checks, but freezing purchases amid +20% demand is questionable and the ports are ignored."},
-"M6": {"nuggets": [0.5,0.5,0.5,1,0.5,0,0,0,0], "decisions": 4, "correct": 3, "claims_checked": 7, "unsupported": 0, "overall": 5.5, "note": "Covers fuel clause, rates and ports with sensible hedged actions, but misses retail, customs and the new minister."},
-"M7": {"nuggets": [0,0.5,0,0.5,0,0,0,0.5,0], "decisions": 6, "correct": 2, "claims_checked": 8, "unsupported": 0, "overall": 3.5, "note": "Well cited but decisions are scattered (southern-route volume shift, air legs, insurance) and not tied to a Siberian trucking business."}
-}

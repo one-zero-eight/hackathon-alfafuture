@@ -1,7 +1,0 @@
-{"M1": {"nuggets": [0,1,0,1,0,0], "decisions": 4, "correct": 3, "claims_checked": 8, "unsupported": 1, "overall": 4, "note": "Good hosting and Yandex outage handling but misses the PHP emergency and the scraping decision is off-base."},
-"M2": {"nuggets": [1,0,0.5,0,0.5,0], "decisions": 4, "correct": 3, "claims_checked": 8, "unsupported": 0, "overall": 7, "note": "Leads correctly with PHP patching and cloud fallback; misses Astra and Yandex."},
-"M3": {"nuggets": [0,0,0,0,0.5,0.5], "decisions": 3, "correct": 0, "claims_checked": 7, "unsupported": 0, "overall": 1, "note": "Focuses on Lukoil/sanctions exposure and misses every key cyber and outage risk."},
-"M4": {"nuggets": [1,0,0,0.5,0.5,0], "decisions": 4, "correct": 3, "claims_checked": 8, "unsupported": 0, "overall": 6, "note": "PHP 48-hour patch and single-cloud review are right; lacks Astra and AI-agent threats."},
-"M5": {"nuggets": [0,0.5,1,0,0,0], "decisions": 3, "correct": 2, "claims_checked": 5, "unsupported": 0, "overall": 5, "note": "Hardening and Astra check are good but the PHP emergency is missing."},
-"M6": {"nuggets": [1,0,0,1,0.5,0], "decisions": 4, "correct": 3, "claims_checked": 6, "unsupported": 0, "overall": 7, "note": "Covers PHP, data-centre concentration and telecom protection with honest caveats; misses Astra and AI-agent hacking."},
-"M7": {"nuggets": [1,1,0.5,0,0,0], "decisions": 5, "correct": 4, "claims_checked": 6, "unsupported": 1, "overall": 8, "note": "Best coverage of PHP, VMmanager and AI-agent risks with concrete owners and deadlines; misses Yandex outage."}}

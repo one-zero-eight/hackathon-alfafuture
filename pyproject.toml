@@ -1,0 +1,27 @@
+[project]
+name = "alfa-future"
+version = "0.1.0"
+description = "News analytics for business decisions (Alfa Hack): workspace root of the Python sections"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "numpy"]
+
+[tool.uv]
+package = false
+default-groups = ["dev"]
+
+[tool.uv.workspace]
+members = ["agents", "news_search", "analytics", "backend"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["agents", "news_search", "analytics", "backend"]
