@@ -4,6 +4,7 @@ Methods (choose one per call; the backend config decides which):
   lexical      stem match of keyword queries, deduplicated, ranked by the number of matched queries and freshness (baseline)
   dense_llm    v1: lexical pool, e5-large-instruct + bge-m3 on queries and HyDE headlines, an LLM picks the top 30, rank fusion
   dense_xquad  v2 (default): bge-m3 over the whole corpus with needs + HyDE, then xQuAD diversification over the query blocks
+refine() adds news to a shown page (dense_xquad only): close to a topic, conclusion or pasted news, without shown or removed ones.
 
 All LLM calls go through the agents service (the `agents` argument: anything with run(name, input) -> dict).
 """
@@ -18,10 +19,10 @@ import time
 import numpy as np
 
 from news_search import scoring
-from news_search.dedup import dd_hybrid
+from news_search.dedup import UnionFind, dd_hybrid
 from news_search.embed import VectorCache, sentence_transformer, wrap_query
 from news_search.scoring import TOP_OUT, age_days, fresh, mean_top3, norm01
-from news_search.text import match_items
+from news_search.text import match_items, norm_title
 
 METHODS = ("lexical", "dense_llm", "dense_xquad")
 DEFAULT_METHOD = "dense_xquad"
@@ -29,6 +30,15 @@ CORPUS_DAYS, CACHE_TTL = 365, 24 * 3600  # corpus window; a finished result is r
 PER_QUERY_CORPUS = 30  # lexical matches per query
 N_DENSE, TOP_CAND = 100, 150  # v2: dense candidates, and with the lexical second source
 TOP_EMB, MAX_CAND = 50, 200  # v1: per embedder, and after interleaving
+REFINE_KINDS, REFINE_LIMIT, REFINE_TTL = ("topic", "perspective", "claim", "link"), 10, 3600
+REMOVED_SIM, REMOVED_FACTOR = 0.7, 0.5  # refine: news this close to a removed one get half the score
+# shortcut: paraphrase threshold picked by eye on 3 topics (paraphrases 0.80-0.85, related news <= 0.73), tune on labelled pairs
+PARAPHRASE_SIM = 0.8
+# perspective: up to REGION_SLOTS of the results name the new region and are at least this close to the topic (raw cosine)
+# shortcut: threshold picked by eye on 6 topics (relevant regional news 0.39-0.50), region found by its name only, not by
+# the capital or the outlet's region; add source_regions of the collector when the corpus has it
+REGION_SLOTS, REGION_SIM = 3, 0.42
+REGION_GENERIC = {"область", "край", "республика", "автономный", "автономная", "округ", "город"}
 # Names of companies the pipeline was tuned on; any other company falls back to its name stems (see own_pattern).
 ALIASES = {"Магазин Мать и Дитя": r"мать и дит|мать и дочь|\bмд мед", "Инарктика": r"инарктик|интарктик|\baqua\b|inarctica",
            "Группа Астра": r"групп\w* астр|astra|астра линукс|\bастр[аыуе]\b", "Делимобиль": r"делимобил|delimobil",
@@ -81,10 +91,7 @@ class NewsSearch:
     def search(self, company, line, region="", method=DEFAULT_METHOD, anonymised=False):
         if method not in METHODS:
             raise ValueError(f"method must be one of {METHODS}")
-        slug = "__".join(re.sub(r"\W+", "_", x.lower())[:40] for x in (company, line, region) if x)
-        slug += "__" + hashlib.sha1(f"{company}|{line}|{region}".encode()).hexdigest()[:8]
-        run_dir = os.path.join(self.data_dir, "runs", slug)
-        os.makedirs(run_dir, exist_ok=True)
+        run_dir = self.run_dir(company, line, region)
         result_file = os.path.join(run_dir, f"result_{method}.json")
         if os.path.exists(result_file) and time.time() - os.path.getmtime(result_file) < CACHE_TTL:
             return json.load(open(result_file, encoding="utf-8"))
@@ -100,6 +107,87 @@ class NewsSearch:
         else:
             res = getattr(self, "_" + method)(run)
         res.update(company=company, line=line, region=region, method=method, date=datetime.date.today().isoformat(), cost=round(self.agents.cost - cost0, 4))
+        json.dump(res, open(result_file, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        return res
+
+    def run_dir(self, company, line, region):
+        slug = "__".join(re.sub(r"\W+", "_", x.lower())[:40] for x in (company, line, region) if x)
+        slug += "__" + hashlib.sha1(f"{company}|{line}|{region}".encode()).hexdigest()[:8]
+        path = os.path.join(self.data_dir, "runs", slug)
+        os.makedirs(path, exist_ok=True)
+        return path
+
+    def refine(self, company, line, kind, text, region="", exclude_aids=(), removed_aids=(), limit=REFINE_LIMIT, anonymised=False,
+               page_line=None, page_region=None):
+        """Additional search on top of a shown page (dense_xquad only): news close to `text`, none of the shown or removed
+        news or their duplicates or paraphrases, news close to removed ones demoted. kind: topic (a new topic),
+        perspective (the topic seen from another region/line: line and region are the new ones, page_line/page_region
+        the page's), claim (an edited conclusion), link (title + text of a news item the user pasted)."""
+        if kind not in REFINE_KINDS:
+            raise ValueError(f"kind must be one of {REFINE_KINDS}")
+        if not text.strip():
+            raise ValueError("text is empty")
+        page_line = line if page_line is None else page_line
+        page_region = region if page_region is None else page_region
+        run_dir = self.run_dir(company, page_line, page_region)  # the page's query blocks are reused, no new queries call
+        key = hashlib.sha1(json.dumps([kind, text, line, region, sorted(exclude_aids), sorted(removed_aids), limit, anonymised]).encode()).hexdigest()[:12]
+        result_file = os.path.join(run_dir, f"refine_{key}.json")
+        if os.path.exists(result_file) and time.time() - os.path.getmtime(result_file) < REFINE_TTL:
+            return json.load(open(result_file, encoding="utf-8"))
+        cost0 = self.agents.cost
+        queries = self._cached(run_dir, "queries", lambda: self.agents.run("queries", dict(company=company, line=page_line, region=page_region)))
+        items = self.corpus(CORPUS_DAYS)
+        encode = self.bge()
+        X = VectorCache(os.path.join(self.data_dir, "vectors_bgem3.npz")).vectors(items, encode)
+        now = self.now()
+        texts = [text] + ([f"{text}. {region}", f"{text}. {line}"] if kind == "perspective" else [])
+        s = norm01(scoring.zscore_top3(X, encode(texts))) * np.array([fresh(age_days(it["date"], now)) for it in items])
+        shown, removed = set(exclude_aids), set(removed_aids)
+        rem = [j for j, it in enumerate(items) if it["aid"] in removed]
+        if rem:  # shortcut: fixed threshold and factor, tune on news_search/benchmarks/refine.md
+            s = np.where((X @ X[rem].T).max(1) >= REMOVED_SIM, s * REMOVED_FACTOR, s)
+        top = [int(j) for j in np.argsort(-s, kind="stable") if items[j]["aid"] not in shown | removed][:TOP_CAND]
+        regional = {}  # aid -> cosine with the topic, for news naming the perspective's region
+        if kind == "perspective":
+            stems = {w[:6] for w in norm_title(region).split() if len(w) > 3 and w not in REGION_GENERIC}
+            cos = X @ encode([text])[0]
+            for j in np.nonzero(cos >= REGION_SIM)[0]:
+                it = items[j]
+                if it["aid"] not in shown | removed and stems & {w[:6] for w in norm_title(it["title"] + " " + (it["summary"] or "")).split()}:
+                    regional[it["aid"]] = float(cos[j])
+                    if j not in top:
+                        top.append(int(j))
+        blocks = [b for b in queries if b != "company_self"]
+        B = np.stack([(X[top] @ encode(queries[b]).T).max(1) for b in blocks], 1)
+        pool = [{**{k: items[j][k] for k in ("aid", "title", "link", "date", "outlet", "summary")}, "method": "D", "queries": [], "score": float(s[j]),
+                 "blocks": [blocks[int(B[r].argmax())]], "aspects": B[r].round(4).tolist(), "vec": X[j]} for r, j in enumerate(top)]
+        # duplicates and paraphrases (cosine >= PARAPHRASE_SIM) of shown or removed news are dropped, and of each other
+        # only the best scored copy is kept: dedup the pool together with the seen news
+        seen_j = [j for j, it in enumerate(items) if it["aid"] in shown | removed]
+        uf = UnionFind(len(pool) + len(seen_j))
+        for i, label in enumerate(dd_hybrid(pool + [items[j] for j in seen_j])):
+            uf.union(i, label)
+        V = X[top + seen_j]
+        for a, b in zip(*np.nonzero(np.triu(V @ V.T >= PARAPHRASE_SIM, 1))):
+            uf.union(int(a), int(b))
+        labels = uf.labels()
+        taken = set(labels[len(pool):])
+        kept = []
+        for p, label in zip(pool, labels):  # pool is ordered by score
+            if label not in taken:
+                kept.append(p)
+                taken.add(label)
+        pool = kept
+        unique, own = dedup_filter(pool, company, anonymised)
+        reg = sorted((u for u in unique if u["aid"] in regional), key=lambda u: -regional[u["aid"]])[:min(REGION_SLOTS, limit)]
+        reg_aids = {u["aid"] for u in reg}  # by aid: the items hold numpy vectors, dict equality would compare them
+        rest = [u for u in unique if u["aid"] not in reg_aids]
+        picked = reg + ([rest[i] for i in scoring.xquad(rest, k=limit - len(reg))] if rest else [])
+        res = {"top": [{**self.public(it), "regional": it["aid"] in reg_aids} for it in picked], "pairs": scoring.pairs(picked) if picked else [], "blocks": blocks,
+               "stats": {"candidates": len(top), "duplicates": len(top) - len(pool), "unique": len(unique), "own_removed": own,
+                         "excluded": len(shown), "removed": len(removed), "regional": len(reg)},
+               "company": company, "line": line, "region": region, "method": "dense_xquad", "kind": kind, "text": text,
+               "date": datetime.date.today().isoformat(), "cost": round(self.agents.cost - cost0, 4)}
         json.dump(res, open(result_file, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         return res
 
