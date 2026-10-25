@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from agents.client import Agents
+from news_search.cache import PgCache
 from news_search import DEFAULT_METHOD, METHODS, NewsSearch, TooFewNews, postgres_corpus
 from news_search.search import REFINE_LIMIT
 
@@ -39,7 +40,8 @@ class RefineRequest(BaseModel):
 
 def search_instance() -> NewsSearch:
     if not _search:
-        _search.append(NewsSearch(postgres_corpus(os.environ["DATABASE_URL"]), Agents(), os.environ.get("NEWS_SEARCH_DATA", "/data")))
+        url = os.environ["DATABASE_URL"]
+        _search.append(NewsSearch(postgres_corpus(url), Agents(), os.environ.get("NEWS_SEARCH_DATA", "/data"), cache=PgCache(url)))
     return _search[0]
 
 

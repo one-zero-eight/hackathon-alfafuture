@@ -14,11 +14,11 @@ import hashlib
 import json
 import os
 import re
-import time
 
 import numpy as np
 
 from news_search import scoring
+from news_search.cache import MemoryCache
 from news_search.dedup import UnionFind, dd_hybrid
 from news_search.embed import VectorCache, sentence_transformer, wrap_query
 from news_search.scoring import TOP_OUT, age_days, fresh, mean_top3, norm01
@@ -79,9 +79,11 @@ def dedup_filter(pool, company, anonymised=False):
 
 
 class NewsSearch:
-    def __init__(self, corpus, agents, data_dir, encoder_factory=sentence_transformer, now=None):
-        """corpus: load(days) -> items (see corpus.postgres_corpus); data_dir keeps run caches and the vector cache."""
+    def __init__(self, corpus, agents, data_dir, encoder_factory=sentence_transformer, now=None, cache=None):
+        """corpus: load(days) -> items (see corpus.postgres_corpus); data_dir keeps the vector cache; cache keeps the run steps and results
+        (cache.PgCache in the service). shortcut: the default MemoryCache forgets everything on exit, pass a PgCache where results must survive."""
         self.corpus, self.agents, self.data_dir = corpus, agents, data_dir
+        self.cache = cache or MemoryCache()
         self.encoder_factory, self._now = encoder_factory, now
         self._bge = None
 
@@ -91,31 +93,28 @@ class NewsSearch:
     def search(self, company, line, region="", method=DEFAULT_METHOD, anonymised=False):
         if method not in METHODS:
             raise ValueError(f"method must be one of {METHODS}")
-        run_dir = self.run_dir(company, line, region)
-        result_file = os.path.join(run_dir, f"result_{method}.json")
-        if os.path.exists(result_file) and time.time() - os.path.getmtime(result_file) < CACHE_TTL:
-            return json.load(open(result_file, encoding="utf-8"))
+        run_key = self.run_key(company, line, region)
+        if (done := self.cache.get(run_key, f"result_{method}", CACHE_TTL)) is not None:
+            return done
         cost0 = self.agents.cost
         ask = dict(company=company, line=line, region=region)
-        queries = self._cached(run_dir, "queries", lambda: self.agents.run("queries", ask))
+        queries = self._cached(run_key, "queries", lambda: self.agents.run("queries", ask))
         if method == "dense_xquad":
-            needs = self._cached(run_dir, "needs", lambda: self.agents.run("needs", ask))["needs"]
-        headlines = None if method == "lexical" else self._cached(run_dir, "hyde", lambda: self.agents.run("hyde", ask))["headlines"]
+            needs = self._cached(run_key, "needs", lambda: self.agents.run("needs", ask))["needs"]
+        headlines = None if method == "lexical" else self._cached(run_key, "hyde", lambda: self.agents.run("hyde", ask))["headlines"]
         run = dict(company=company, line=line, region=region, anonymised=anonymised, queries=queries, headlines=headlines, now=self.now())
         if method == "dense_xquad":
             res = self._dense_xquad(run, needs)
         else:
             res = getattr(self, "_" + method)(run)
         res.update(company=company, line=line, region=region, method=method, date=datetime.date.today().isoformat(), cost=round(self.agents.cost - cost0, 4))
-        json.dump(res, open(result_file, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        self.cache.put(run_key, f"result_{method}", res)
         return res
 
-    def run_dir(self, company, line, region):
+    @staticmethod
+    def run_key(company, line, region):
         slug = "__".join(re.sub(r"\W+", "_", x.lower())[:40] for x in (company, line, region) if x)
-        slug += "__" + hashlib.sha1(f"{company}|{line}|{region}".encode()).hexdigest()[:8]
-        path = os.path.join(self.data_dir, "runs", slug)
-        os.makedirs(path, exist_ok=True)
-        return path
+        return slug + "__" + hashlib.sha1(f"{company}|{line}|{region}".encode()).hexdigest()[:8]
 
     def refine(self, company, line, kind, text, region="", exclude_aids=(), removed_aids=(), limit=REFINE_LIMIT, anonymised=False,
                page_line=None, page_region=None):
@@ -129,13 +128,12 @@ class NewsSearch:
             raise ValueError("text is empty")
         page_line = line if page_line is None else page_line
         page_region = region if page_region is None else page_region
-        run_dir = self.run_dir(company, page_line, page_region)  # the page's query blocks are reused, no new queries call
+        run_key = self.run_key(company, page_line, page_region)  # the page's query blocks are reused, no new queries call
         key = hashlib.sha1(json.dumps([kind, text, line, region, sorted(exclude_aids), sorted(removed_aids), limit, anonymised]).encode()).hexdigest()[:12]
-        result_file = os.path.join(run_dir, f"refine_{key}.json")
-        if os.path.exists(result_file) and time.time() - os.path.getmtime(result_file) < REFINE_TTL:
-            return json.load(open(result_file, encoding="utf-8"))
+        if (done := self.cache.get(run_key, f"refine_{key}", REFINE_TTL)) is not None:
+            return done
         cost0 = self.agents.cost
-        queries = self._cached(run_dir, "queries", lambda: self.agents.run("queries", dict(company=company, line=page_line, region=page_region)))
+        queries = self._cached(run_key, "queries", lambda: self.agents.run("queries", dict(company=company, line=page_line, region=page_region)))
         items = self.corpus(CORPUS_DAYS)
         encode = self.bge()
         X = VectorCache(os.path.join(self.data_dir, "vectors_bgem3.npz")).vectors(items, encode)
@@ -188,17 +186,15 @@ class NewsSearch:
                          "excluded": len(shown), "removed": len(removed), "regional": len(reg)},
                "company": company, "line": line, "region": region, "method": "dense_xquad", "kind": kind, "text": text,
                "date": datetime.date.today().isoformat(), "cost": round(self.agents.cost - cost0, 4)}
-        json.dump(res, open(result_file, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        self.cache.put(run_key, f"refine_{key}", res)
         return res
 
-    @staticmethod
-    def _cached(run_dir, name, make):
-        """A generated step (queries, needs, HyDE) is kept next to the result: repeated searches do not pay for it again."""
-        path = os.path.join(run_dir, name + ".json")
-        if os.path.exists(path):
-            return json.load(open(path, encoding="utf-8"))
-        out = make()
-        json.dump(out, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    def _cached(self, run_key, name, make):
+        """A generated step (queries, needs, HyDE) is kept with the result: repeated searches do not pay for it again."""
+        out = self.cache.get(run_key, name)
+        if out is None:
+            out = make()
+            self.cache.put(run_key, name, out)
         return out
 
     # ---------------- shared steps ----------------

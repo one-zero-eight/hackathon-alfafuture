@@ -32,3 +32,4 @@
 - 2026-10-25 docs: AGENTS.md запрещает закрывать фичу и issue до закрытия её PR.
 - 2026-10-25 docker: docker/up.sh выбирает устройство (CUDA-образ для NVIDIA, news_search на хосте с MPS для Mac, иначе CPU); news_search считает векторы в fp16 на GPU.
 - 2026-10-25 analytics: цепочки новостей и пакеты verify идут параллельно (ANALYTICS_WORKERS, по умолчанию 6); шаг аналитики пишет Gemma 4 26B A4B вместо DeepSeek (agents), замер в analytics/benchmarks/parallel-and-models.md.
+- 2026-10-25 news_search: кэш шагов запуска и результатов поиска (queries, needs, hyde, result, refine) перенесён из JSON-файлов в таблицу search_cache; папка NEWS_SEARCH_DATA хранит только векторы статей.
