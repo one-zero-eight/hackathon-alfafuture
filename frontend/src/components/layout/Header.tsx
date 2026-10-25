@@ -8,7 +8,7 @@ export function Header({ company: c, demo, onMenu }: { company: Company; demo: b
         {[c.name, c.okved && c.okved !== "не указан" ? "ОКВЭД " + c.okved : "", "Роль: " + c.role, c.date].filter(Boolean).map(t => <span className="chip" key={t}>{t}</span>)}
         {demo && <span className="chip demo">демо-данные</span>}
       </div>
-      <button className="back-menu" onClick={onMenu}>Сменить компанию</button>
+      <button className="back-menu" onClick={onMenu}>Новая аналитика</button>
     </header>
   );
 }
