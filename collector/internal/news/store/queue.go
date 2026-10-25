@@ -13,6 +13,13 @@ func NextArticleForTagging(ctx context.Context, db *gorm.DB) (Article, error) {
 	return article, err
 }
 
+// NextArticlesForTagging returns the head of the same queue, for batched work ahead of tagging.
+func NextArticlesForTagging(ctx context.Context, db *gorm.DB, limit int) ([]Article, error) {
+	var articles []Article
+	err := db.WithContext(ctx).Where("processing_status = ? AND btrim(text) <> ''", StatusPending).Order("id").Limit(limit).Find(&articles).Error
+	return articles, err
+}
+
 func ProcessingAttempts(ctx context.Context, db *gorm.DB) ([]TaggingAttempt, error) {
 	var attempts []TaggingAttempt
 	err := db.WithContext(ctx).Where("status = ?", StatusProcessing).Order("id").Find(&attempts).Error

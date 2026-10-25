@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"slices"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -81,6 +82,42 @@ func TestLiveWorker(t *testing.T) {
 	}
 	if !fact || !forecast {
 		t.Fatal("live model did not distinguish the monetary decision from the inflation forecast")
+	}
+}
+
+func TestLivePlaces(t *testing.T) {
+	if os.Getenv("LIVE_LLM_TEST") != "1" {
+		t.Skip("set LIVE_LLM_TEST=1 for one real approved LLM request")
+	}
+	if path := os.Getenv("ENV_FILE"); path != "" {
+		if err := godotenv.Load(path); err != nil {
+			t.Fatal("cannot load live-test ENV_FILE")
+		}
+	}
+	client, err := llm.NewFromEnv()
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(t.Context(), 3*time.Minute)
+	defer cancel()
+	w := &Worker{client: &oneRequestClient{client: client, cancel: func() {}}, timeout: 2 * time.Minute, index: newGeoIndex(fixedVocabulary(t))}
+	names, tokens, err := w.askPlaces(ctx, []store.Article{
+		{Text: "Глава МИД провёл переговоры в Пекине."}, {Text: "В Казани открыли новый завод."}, {Text: "Регулятор сохранил ключевую ставку."},
+	})
+	t.Logf("places=%v tokens=%d", names, tokens)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got [][]string
+	for _, i := range []string{"0", "1"} {
+		var tags []string
+		for _, name := range names[i] {
+			tags = append(tags, w.index.find(name)...)
+		}
+		got = append(got, tags)
+	}
+	if !slices.Contains(got[0], "geography:country:CN") || !slices.Contains(got[1], "geography:region:056") {
+		t.Fatalf("live answer did not map to China and Tatarstan: %v", got)
 	}
 }
 

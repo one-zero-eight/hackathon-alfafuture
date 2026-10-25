@@ -1,0 +1,16 @@
+# NVIDIA GPU override: docker compose -f docker/compose.yaml -f docker/compose.gpu.yaml up -d --build  (docker/up.sh picks it itself).
+# Needs the NVIDIA driver and nvidia-container-toolkit on the host. cu126 wheels keep the V100 (sm_70).
+x-gpu: &gpu
+  build:
+    args:
+      TORCH_BACKEND: cu126
+  image: alfa-ml-gpu
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - {driver: nvidia, count: 1, capabilities: [gpu]}
+
+services:
+  news_search: *gpu
+  analytics: *gpu

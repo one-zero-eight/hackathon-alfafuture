@@ -20,12 +20,26 @@ import (
 )
 
 type fakeChat struct {
-	calls atomic.Int32
-	call  func(context.Context, openai.ChatCompletionNewParams) (*openai.ChatCompletion, error)
+	calls       atomic.Int32
+	placesCalls atomic.Int32
+	call        func(context.Context, openai.ChatCompletionNewParams) (*openai.ChatCompletion, error)
+	// places answers the geography fallback; nil means "no place found". Its calls are not in calls.
+	places func(context.Context, openai.ChatCompletionNewParams) (*openai.ChatCompletion, error)
+}
+
+func isPlacesCall(p openai.ChatCompletionNewParams) bool {
+	return len(p.Messages) == 1 && p.Messages[0].OfUser != nil && strings.HasPrefix(p.Messages[0].OfUser.Content.OfString.Value, placesPrompt)
 }
 
 func (f *fakeChat) Model() string { return llm.DefaultModel }
 func (f *fakeChat) Chat(ctx context.Context, p openai.ChatCompletionNewParams) (*openai.ChatCompletion, error) {
+	if isPlacesCall(p) {
+		f.placesCalls.Add(1)
+		if f.places != nil {
+			return f.places(ctx, p)
+		}
+		return &openai.ChatCompletion{Choices: []openai.ChatCompletionChoice{{Message: openai.ChatCompletionMessage{Content: `{"places":{}}`}}}}, nil
+	}
 	f.calls.Add(1)
 	return f.call(ctx, p)
 }
