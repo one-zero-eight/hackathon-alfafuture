@@ -3,3 +3,4 @@ h1 { margin:0 0 14px; font-size:32px; font-weight:700; line-height:1.15; }
 .chips { display:flex; flex-wrap:wrap; gap:8px; padding-bottom:16px; }
 .chip { background:var(--card); color:var(--ink); border-radius:999px; padding:6px 14px; font-size:13px; }
 .chip.demo { background:var(--accent); }
+.back-menu { border-radius:999px; padding:8px 18px; margin-bottom:16px; }

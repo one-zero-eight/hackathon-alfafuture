@@ -11,11 +11,12 @@ from pathlib import Path
 from typing import Literal
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from backend import config, pages, store, worker
+from backend.companies import CompanyUnavailable
 
 logging.basicConfig(level=logging.INFO)
 DEMO = json.loads((Path(__file__).parent / "demo" / "seed.json").read_text(encoding="utf-8"))
@@ -77,6 +78,15 @@ def health() -> dict:
     return {"status": "ok"}
 
 
+@app.get("/api/companies")
+def companies(q: str = "", offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=200)) -> dict:
+    """The company picker of the start menu: a page of bank-data companies, optionally filtered by id or OKVED name."""
+    try:
+        return worker.book.listing(q, offset, limit)
+    except CompanyUnavailable as e:
+        raise HTTPException(503, str(e))
+
+
 @app.post("/api/profile")
 def set_profile(req: ProfileRequest) -> dict:
     company, role, region, company_id = (" ".join(x.split()) for x in (req.company, req.role, req.region, req.company_id))
@@ -86,7 +96,7 @@ def set_profile(req: ProfileRequest) -> dict:
         raise HTTPException(422, "role and company (or company_id U_<digits>) are required; fields at most 200 characters")
     key = worker.profile_key(company, company_id, role, region, config.NEWS_SEARCH_METHOD)
     k, status, error = store.submit(key=key, company=company, company_id=company_id, role=role, region=region, method=config.NEWS_SEARCH_METHOD)
-    return {"key": k, "status": status, "error": error}
+    return {"key": k, "status": status, "error": error, "cached": status == "ready"}  # ready right at submit = served from the database
 
 
 @app.get("/api/profile/{key}")
@@ -94,7 +104,7 @@ def profile_status(key: str) -> dict:
     row = store.status(key)
     if not row:
         raise HTTPException(404, f"profile {key} not found")
-    return {"key": key, "status": row[0], "error": row[1]}
+    return {"key": key, "status": row[0], "error": row[1], "stage": row[2], "found": row[3], "selected": row[4]}
 
 
 @app.get("/api/page")

@@ -27,6 +27,8 @@
 - 2026-10-25 news_search: добавлен допоиск NewsSearch.refine и POST /refine (тема, вывод, ссылка) с исключением показанных и удалённых новостей, только для dense_xquad.
 - 2026-10-25 news_search: допоиск получил вид perspective (без нового вызова queries) и склейку пересказов по косинусу ≥ 0,8; замер в news_search/benchmarks/refine.md.
 - 2026-10-25 news_search: в perspective-допоиске до 3 мест из 10 отдаются новостям с названием нового региона и сходством с темой ≥ 0,42.
+- 2026-10-25 backend: GET /api/companies (список компаний банка), этап и счётчики новостей в GET /api/profile/{key}, признак cached в ответе POST /api/profile.
+- 2026-10-25 frontend: стартовое меню выбора компании и роли и вертикальный таймлайн сбора новостей вместо формы в шапке.
 - 2026-10-25 docs: AGENTS.md запрещает закрывать фичу и issue до закрытия её PR.
 - 2026-10-25 docker: docker/up.sh выбирает устройство (CUDA-образ для NVIDIA, news_search на хосте с MPS для Mac, иначе CPU); news_search считает векторы в fp16 на GPU.
 - 2026-10-25 analytics: цепочки новостей и пакеты verify идут параллельно (ANALYTICS_WORKERS, по умолчанию 6); шаг аналитики пишет Gemma 4 26B A4B вместо DeepSeek (agents), замер в analytics/benchmarks/parallel-and-models.md.
