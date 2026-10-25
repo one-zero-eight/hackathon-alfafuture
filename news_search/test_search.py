@@ -222,3 +222,29 @@ def test_postgres_corpus_reads_articles_with_outlet_and_skips_old_ones():
             conn.execute("DROP SCHEMA ns_test CASCADE")
     assert {r["title"] for r in rows} == {"Свежая", "Без даты"} and all(r["outlet"] == "РБК" for r in rows)
     assert next(r for r in rows if r["title"] == "Свежая")["summary"] == "x" * 300
+
+
+def test_steps_and_results_go_to_the_cache_and_not_to_the_data_folder(tmp_path):
+    s, agents = searcher(tmp_path, make_corpus())
+    s.search("Ромашка", "Закупки", "Тверь", "dense_xquad")
+    key = s.run_key("Ромашка", "Закупки", "Тверь")
+    assert {name for (k, name) in s.cache.items if k == key} == {"queries", "needs", "hyde", "result_dense_xquad"}
+    assert not (tmp_path / "runs").exists()  # nothing but the vector cache is written to the folder
+
+
+def test_cache_entries_expire_by_age():
+    from news_search.cache import MemoryCache
+    cache = MemoryCache()
+    cache.put("k", "n", {"a": 1})
+    assert cache.get("k", "n") == {"a": 1} and cache.get("k", "n", 3600) == {"a": 1} and cache.get("k", "n", 0) is None and cache.get("k", "x") is None
+
+
+@pytest.mark.skipif(not os.environ.get("TEST_DATABASE_URL"), reason="set TEST_DATABASE_URL to use a real PostgreSQL cache")
+def test_postgres_cache_survives_a_new_instance_and_updates_in_place():
+    from news_search.cache import PgCache
+    dsn, key = os.environ["TEST_DATABASE_URL"], "test_" + str(random.random())
+    PgCache(dsn).put(key, "queries", {"a": ["б"]})
+    again = PgCache(dsn)
+    assert again.get(key, "queries") == {"a": ["б"]} and again.get(key, "queries", 0) is None and again.get(key, "hyde") is None
+    again.put(key, "queries", {"a": []})
+    assert PgCache(dsn).get(key, "queries", 3600) == {"a": []}

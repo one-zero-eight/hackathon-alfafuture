@@ -1,4 +1,4 @@
-# One image for news_search and analytics (both need CPU torch + bge-m3): torch is installed once. poppler reads image-only PDFs for analytics.alfa.
+# One image for news_search and analytics (both need torch + bge-m3; CPU by default, CUDA via TORCH_BACKEND): torch is installed once. poppler reads image-only PDFs for analytics.alfa.
 # CPU-only torch comes from [tool.uv.sources] in the root pyproject.toml; models (about 4.5 GB) are downloaded on first use into the hf_cache volume.
 FROM python:3.13-slim
 COPY --from=ghcr.io/astral-sh/uv:0.12.9 /uv /usr/local/bin/uv
@@ -12,6 +12,12 @@ COPY news_search/pyproject.toml news_search/pyproject.toml
 COPY analytics/pyproject.toml analytics/pyproject.toml
 COPY backend/pyproject.toml backend/pyproject.toml
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --no-install-project --package alfa-news-search --package alfa-analytics
+# TORCH_BACKEND=cpu keeps the locked CPU torch. Another value (cu126 for V100, see docker/compose.gpu.yaml) swaps in the CUDA wheel of the same version.
+ARG TORCH_BACKEND=cpu
+RUN --mount=type=cache,target=/root/.cache/uv if [ "$TORCH_BACKEND" != cpu ]; then \
+      V=$(python -c "from importlib.metadata import version; print(version('torch').split('+')[0])") && \
+      uv pip install --python /opt/venv/bin/python --reinstall-package torch "torch==$V+$TORCH_BACKEND" \
+        --index-url https://download.pytorch.org/whl/$TORCH_BACKEND --extra-index-url https://pypi.org/simple --index-strategy unsafe-best-match; fi
 COPY agents/__init__.py agents/client.py /app/agents/
 COPY news_search /app/news_search
 COPY analytics /app/analytics

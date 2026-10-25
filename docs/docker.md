@@ -14,7 +14,7 @@
 | `backend` | [backend.Dockerfile](../docker/backend.Dockerfile) | 127.0.0.1:8000 | оркестрация и API ([backend.md](backend.md)) |
 | `frontend` | [frontend.Dockerfile](../docker/frontend.Dockerfile) | 127.0.0.1:3000 | интерфейс |
 
-Тома: `postgres_data` (корпус), `hf_cache` (модели эмбеддеров, около 4,5 ГБ), `search_data` (кэши поиска и векторы статей), `analytics_data` (тезисы банка). Сервисы `news_search` и `analytics` используют один общий образ `alfa-ml` (CPU-версия torch ставится один раз). Python-зависимости ставит uv по `uv.lock`.
+Тома: `postgres_data` (корпус), `hf_cache` (модели эмбеддеров, около 4,5 ГБ), `search_data` (кэши поиска и векторы статей), `analytics_data` (тезисы банка). Сервисы `news_search` и `analytics` используют один общий образ `alfa-ml` (torch ставится один раз; по умолчанию CPU-версия). Python-зависимости ставит uv по `uv.lock`.
 
 ## Подготовка
 
@@ -65,3 +65,13 @@ docker compose --env-file .env -f docker/compose.yaml up -d
 docker compose --env-file .env -f docker/compose.yaml down        # данные сохраняются в томах
 docker compose --env-file .env -f docker/compose.yaml down -v     # ВНИМАНИЕ: удалит корпус новостей и модели
 ```
+
+## Запуск на быстром устройстве
+
+`docker/up.sh` сам выбирает устройство и запускает стек:
+
+1. **NVIDIA GPU** (`nvidia-smi` видит карту): `docker/compose.gpu.yaml` собирает `ml.Dockerfile` с `TORCH_BACKEND=cu126`. После `uv sync` по `uv.lock` в образ ставится CUDA-колесо `torch` той же версии, контейнерам `news_search` и `analytics` выдаётся GPU. Нужны драйвер и nvidia-container-toolkit на хосте. cu126 выбран, потому что он поддерживает V100 (sm_70); работу на V100 ещё не проверяли.
+2. **macOS**: Docker на Mac не видит GPU Apple, поэтому `news_search` не поднимается в контейнере: скрипт запускает его на хосте через `uv run` (устройство MPS, логи в `.run/news_search.log`, векторы в `.run/search_data`), а `docker/compose.mac.yaml` направляет бэкенд на `host.docker.internal:8002`.
+3. **Иначе** обычный запуск на CPU.
+
+Остановка: `docker/up.sh down`. На GPU `news_search/embed.py` дополнительно переводит модель в fp16 (`model.half()`), на CUDA берёт пачки по 128 текстов.

@@ -67,7 +67,7 @@ Architecture rules: every Python LLM call goes through `agents/` (the only excep
 
 ### .gitignore check (also before every commit)
 
-`.gitignore` is a denylist: caches, environments, build output, secrets and run-time data are ignored for the whole repo, so no section needs its own. Before committing:
+`.gitignore` is an allowlist: project source files and organizer materials are explicitly allowed; caches, environments, build output, secrets and run-time data are re-ignored for the whole repo, so no section needs its own. Before committing:
 1. `git status --short --ignored` and look for stray caches or generated files inside every section (`__pycache__`, `.pytest_cache`, `node_modules`, `dist`, `.vite`, `*.npz`, `*.dump`, logs, local `.env`).
 2. Anything generated that shows up as untracked: add a rule to the root `.gitignore`, do not commit it.
 3. Nothing secret may be tracked: `.env` stays ignored, only `.env.example` is committed. Note that `external-docs/` is tracked and contains organizer data: check what you are adding.

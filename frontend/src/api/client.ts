@@ -1,4 +1,4 @@
-import type { ChatContext, ChatResponse, LinkDetails, Page, ProfileStatus, RiskInfo, WidgetDetails } from "./types";
+import type { ChatContext, ChatResponse, CompanyList, LinkDetails, Page, ProfileStatus, RiskInfo, WidgetDetails } from "./types";
 
 export class ApiError extends Error {
   constructor(public status: number, msg: string) { super(msg); }
@@ -12,6 +12,7 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   page: (profile?: string | null) => call<Page>(profile ? `/page?profile=${encodeURIComponent(profile)}` : "/page"),
+  companies: (q: string, offset: number, limit = 50) => call<CompanyList>(`/companies?q=${encodeURIComponent(q)}&offset=${offset}&limit=${limit}`),
   setProfile: (body: { company: string; role: string }) =>
     call<ProfileStatus>("/profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }),
   profileStatus: (key: string) => call<ProfileStatus>(`/profile/${key}`),

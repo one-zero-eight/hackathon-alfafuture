@@ -6,6 +6,7 @@ import { applyPatch } from "./lib/patch";
 import { computeFocus } from "./lib/focus";
 import type { Hover } from "./lib/focus";
 import { Header } from "./components/layout/Header";
+import { StartMenu } from "./components/views/StartMenu";
 import { Overview } from "./components/views/Overview";
 import { Board } from "./components/views/Board";
 import { AddBlockModal } from "./components/modals/AddBlockModal";
@@ -27,6 +28,8 @@ export function App() {
   const [addCol, setAddCol] = useState<Column | null>(null); // column whose "add block" list is open
   const [section, setSection] = useState<Column>("news");
   const [profile, setProfile] = useState<string | null>(() => { try { return localStorage.getItem("profile"); } catch { return null; } }); // key of the page built for the user's company and role
+
+  const [menu, setMenu] = useState(!profile); // the start menu comes before any analytics; "demo" leaves it without a profile
 
   const boardRef = useRef<HTMLElement>(null);
   const nodes = useRef(new Map<string, HTMLElement>());
@@ -72,20 +75,22 @@ export function App() {
     widgets.load(id);
   };
 
+  const selectProfile = (key: string) => {
+    try { localStorage.setItem("profile", key); } catch { /* storage may be blocked */ }
+    setOpen(new Set()); setProfile(key); setMenu(false);
+  };
+
+  if (menu) return <StartMenu onReady={selectProfile} onDemo={() => { setProfile(null); setMenu(false); }} />;
   if (error) return <div className="state" style={{ color: "#fff", padding: 28 }}>Не удалось загрузить страницу<button onClick={loadPage}>Повторить</button></div>;
   if (!page) return <div className="state" style={{ color: "#fff", padding: 28 }}>Загрузка…</div>;
 
   const title = (id: string) => page.widgets.find(w => w.id === id)?.title ?? id;
   const linkTitle = (id: string) => { const l = page.links.find(x => x.id === id); return l ? `${title(l.from)} → ${title(l.to)}` : id; };
   const { hlLinks, hlWidgets, selected, hidden, visibleLinks } = computeFocus(page, open, hover);
-  const selectProfile = (key: string) => {
-    try { localStorage.setItem("profile", key); } catch { /* storage may be blocked */ }
-    setOpen(new Set()); setProfile(key);
-  };
 
   return (
     <>
-      <Header company={page.company} demo={!profile} onProfile={selectProfile} />
+      <Header company={page.company} demo={!profile} onMenu={() => setMenu(true)} />
       {!selected.length ? (
         <Overview widgets={page.widgets} details={widgets.entries} section={section} onSection={setSection} onToggle={toggle} />
       ) : (
