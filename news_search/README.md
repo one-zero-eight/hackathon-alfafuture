@@ -18,3 +18,5 @@
 uv sync --all-packages
 TEST_DATABASE_URL=postgres://… uv run pytest news_search
 ```
+
+Журнал (#29): при `TRACE_BACKEND_URL` оба HTTP-маршрута передают общие шаги поиска в backend для всех трёх методов и кэша. Прямой запрос создаёт запуск; ID — в `X-Run-ID`, потери — в `X-Trace-Incomplete`. Формат JSON поиска сохранён. Общие точки в `search.py`: запросы, чтение корпуса, дедупликация, отбор. Контракт — в docs/news-search.md и docs/backend.md.

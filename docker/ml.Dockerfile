@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/root/.cache/uv if [ "$TORCH_BACKEND" != cpu ]; th
       V=$(python -c "from importlib.metadata import version; print(version('torch').split('+')[0])") && \
       uv pip install --python /opt/venv/bin/python --reinstall-package torch "torch==$V+$TORCH_BACKEND" \
         --index-url https://download.pytorch.org/whl/$TORCH_BACKEND --extra-index-url https://pypi.org/simple --index-strategy unsafe-best-match; fi
-COPY agents/__init__.py agents/client.py /app/agents/
+COPY agents/__init__.py agents/client.py agents/tracing.py /app/agents/
 COPY news_search /app/news_search
 COPY analytics /app/analytics
 ENV HF_HOME=/hf_cache

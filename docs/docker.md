@@ -75,3 +75,9 @@ docker compose --env-file .env -f docker/compose.yaml down -v     # ВНИМАН
 3. **Иначе** обычный запуск на CPU.
 
 Остановка: `docker/up.sh down`. На GPU `news_search/embed.py` дополнительно переводит модель в fp16 (`model.half()`), на CUDA берёт пачки по 128 текстов.
+
+## Доставка событий запуска (#29)
+
+Backend-образ теперь включает `agents/client.py` и `agents/tracing.py`; ML-образ — также модуль трассировки. В Compose `TRACE_BACKEND_URL=http://backend:8000` задан сервисам agents/news_search/analytics. Для news_search на хосте macOS `docker/up.sh` задаёт `http://localhost:8000`. Циклических `depends_on` не добавлено: недоступность журнала не блокирует расчёт и отмечается как неполнота.
+
+`TRACE_AI_ENABLED` (по умолчанию false) одинаково передаётся backend и agents. Включать его можно только после подтверждения валюты шлюза и доступного дневного бюджета. Маршруты `/internal/trace/*` не проксируются nginx; backend остаётся доступен с хоста только через loopback. Не публикуйте служебный порт без аутентификации. Реальные вызовы LLM для проверки журнала не нужны: `uv run python -m backend.benchmarks.journal_smoke` использует отдельную тестовую БД, фикстуры моделей и реальные HTTP/curl.

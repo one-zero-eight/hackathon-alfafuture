@@ -244,3 +244,27 @@ def test_news_are_analysed_at_once_and_the_page_keeps_their_order(monkeypatch):
     assert [w["id"] for w in many["widgets"]] == [w["id"] for w in one["widgets"]]
     assert [w["title"] for w in many["widgets"] if w["column"] == "news"] == [n["title"] for n in news]
     assert t8 < t1 / 2
+
+
+def test_parallel_analytics_and_verification_keep_trace_context_and_source_references():
+    import uuid
+    from agents import tracing
+    events = []
+    observed = []
+    fake = fake_for()
+    original = fake.run
+
+    def run(name, data):
+        observed.append((name, tracing.CURRENT.get().run_id, tracing.PARENT.get()))
+        return original(name, data)
+
+    fake.run = run
+    trace = tracing.Trace(uuid.uuid4().hex, "cap", "analytics", sender=events.append)
+    with tracing.activate(trace), tracing.span("run"):
+        make_page(fake, PROFILE, "CFO", "", NEWS, [])
+    assert not trace.incomplete
+    assert {name for name, _, _ in observed} >= {"analytics_step", "decision", "verify"}
+    assert all(run_id == trace.run_id and parent for _, run_id, parent in observed)
+    completed = [e for e in events if e.status == "completed"]
+    assert {"analytics", "decision", "verification"} <= {e.step for e in completed}
+    assert any("N1" in e.source_ids for e in completed)

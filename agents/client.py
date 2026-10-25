@@ -4,6 +4,8 @@ import threading
 
 import httpx
 
+from agents import tracing
+
 
 class AgentError(RuntimeError):
     pass
@@ -20,7 +22,8 @@ class Agents:
 
     def run(self, name: str, data: dict) -> dict:
         try:
-            r = httpx.post(f"{self.url}/agents/{name}", json={"input": data}, timeout=self.timeout)
+            r = httpx.post(f"{self.url}/agents/{name}", json={"input": data}, headers=tracing.headers(), timeout=self.timeout)
+            tracing.observe(r)
         except httpx.HTTPError as e:
             raise AgentError(f"agents service unreachable: {e!r}") from e
         if r.status_code != 200:

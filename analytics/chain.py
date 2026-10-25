@@ -10,6 +10,9 @@ import os
 import re
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from contextvars import copy_context
+
+from agents import tracing
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
@@ -132,7 +135,14 @@ def alfa_embed(items: dict):
 
 
 # ---------------- hops ----------------
-def hop2(agents, event: dict, items: dict, index: Index, ctx: dict, kinds: list[str], embeds=None, first_hits: list[str] = ()) -> list[dict]:
+def hop2(agents, event, *args, **kwargs):
+    with tracing.span("analytics", source_ids=[event["id"]]) as result:
+        notes = _hop2(agents, event, *args, **kwargs)
+        result.update(counts={"notes": len(notes)}, source_ids=list(dict.fromkeys([event["id"], *(e["id"] for n in notes for e in n["evidence"])])))
+        return notes
+
+
+def _hop2(agents, event: dict, items: dict, index: Index, ctx: dict, kinds: list[str], embeds=None, first_hits: list[str] = ()) -> list[dict]:
     """Up to STEPS iterations: write one thought, then search again with that thought. Ungrounded thoughts are dropped.
 
     first_hits: related news (pairs from the search) that are always shown to the writer in the first iteration.
@@ -162,7 +172,14 @@ def hop2(agents, event: dict, items: dict, index: Index, ctx: dict, kinds: list[
     return notes
 
 
-def hop3(agents, event: dict, notes: list[dict], role: dict, triz: bool, sphere: str = "") -> dict | None:
+def hop3(agents, event, *args, **kwargs):
+    with tracing.span("decision", source_ids=[event["id"]]) as result:
+        decision = _hop3(agents, event, *args, **kwargs)
+        result["counts"] = {"decisions": int(decision is not None)}
+        return decision
+
+
+def _hop3(agents, event: dict, notes: list[dict], role: dict, triz: bool, sphere: str = "") -> dict | None:
     ans = agents.run("decision", {"sphere": sphere, "role": role, "moves": MOVES if triz else {}, "title": event["title"], "notes": notes})
     if not ans.get("title") or not ans.get("text"):
         return None
@@ -174,7 +191,14 @@ def hop3(agents, event: dict, notes: list[dict], role: dict, triz: bool, sphere:
     return ans
 
 
-def verify(agents, claims: list[dict]) -> set[int]:
+def verify(agents, claims):
+    with tracing.span("verification", counts={"claims": len(claims)}) as event:
+        bad = _verify(agents, claims)
+        event["counts"]["unsupported"] = sum(0 <= i < len(claims) for i in bad)
+        return bad
+
+
+def _verify(agents, claims: list[dict]) -> set[int]:
     """Returns indexes the other model marks unsupported. The caller already dropped bad quotes.
 
     One call for every claim makes this model spend the whole token cap on reasoning, so claims go in fours.
@@ -184,12 +208,13 @@ def verify(agents, claims: list[dict]) -> set[int]:
         try:
             return start, agents.run("verify", {"claims": claims[start:start + 4]})
         except RuntimeError as e:
+            tracing.emit("verification", status="failed", error_code="upstream_error", counts={"claims": len(claims[start:start + 4])})
             log.warning("verify %d failed: %s", start, e)
             return start, {}
 
     bad = set()
     with ThreadPoolExecutor(max(1, WORKERS)) as pool:
-        for start, ans in pool.map(batch, range(0, len(claims), 4)):
+        for start, ans in (future.result() for future in [pool.submit(copy_context().run, batch, start) for start in range(0, len(claims), 4)]):
             for j, verdict in enumerate(ans.get("verdicts") or []):
                 if verdict != "supported":
                     bad.add(start + j)
@@ -263,10 +288,12 @@ def build(profile: dict, role: dict, events: list[dict], items: dict, agents, re
                 decision = hop3(agents, event, notes, role, triz, sphere)
             except RuntimeError as e:
                 log.warning("decision for %s failed: %s", event["id"], e)
+        else:
+            tracing.emit("decision", status="skipped", counts={"decisions": 0}, source_ids=[event["id"]])
         return card, kinds, notes, decision
 
     with ThreadPoolExecutor(max(1, min(WORKERS, len(chosen) or 1))) as pool:  # results come back in the order of the news
-        analysed = list(pool.map(lambda args: analyse(*args), enumerate(chosen, 1)))
+        analysed = [future.result() for future in [pool.submit(copy_context().run, analyse, n, event) for n, event in enumerate(chosen, 1)]]
     for n, (event, (card, kinds, notes, decision)) in enumerate(zip(chosen, analysed), 1):
         journal.append({"event": event["id"], "plan": kinds, "notes": len(notes), "decision": bool(decision),
                         "move": (decision or {}).get("move"), "evidence": [e["id"] for note in notes for e in note["evidence"]]})

@@ -50,6 +50,8 @@ services:
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_BASE_URL: ${LLM_BASE_URL:-}
       LLM_BASE_URL_BACKUP: ${LLM_BASE_URL_BACKUP:-}
+      TRACE_BACKEND_URL: http://backend:8000
+      TRACE_AI_ENABLED: ${TRACE_AI_ENABLED:-false}
     ports:
       - "127.0.0.1:8001:8000"
     restart: unless-stopped
@@ -63,6 +65,7 @@ services:
     environment:
       DATABASE_URL: *database_url
       AGENTS_URL: http://agents:8000
+      TRACE_BACKEND_URL: http://backend:8000
       NEWS_SEARCH_DATA: /data
     volumes:
       - hf_cache:/hf_cache
@@ -84,6 +87,7 @@ services:
     command: ["uvicorn", "analytics.app:app", "--host", "0.0.0.0", "--port", "8000"]
     environment:
       AGENTS_URL: http://agents:8000
+      TRACE_BACKEND_URL: http://backend:8000
       ANALYTICS_DATA: /data
       PAPERS_DIR: /papers
     volumes:
@@ -105,6 +109,8 @@ services:
       DATABASE_URL: *database_url
       NEWS_SEARCH_URL: http://news_search:8000
       ANALYTICS_URL: http://analytics:8000
+      AGENTS_URL: http://agents:8000
+      TRACE_AI_ENABLED: ${TRACE_AI_ENABLED:-false}
       NEWS_SEARCH_METHOD: ${NEWS_SEARCH_METHOD:-dense_xquad}  # lexical | dense_llm | dense_xquad
       COMPANY_DIR: /company
       PAPERS_DIR: /papers

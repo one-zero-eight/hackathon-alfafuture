@@ -4,6 +4,8 @@ status: queued -> running -> ready | failed. The page is a jsonb: {version, comp
 """
 
 import psycopg
+
+from agents import tracing
 from psycopg.types.json import Jsonb
 
 from backend import config
@@ -14,7 +16,7 @@ DDL = """CREATE TABLE IF NOT EXISTS profiles (
   created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now())"""
 # Progress of a running profile for the UI timeline: stage search -> rank -> analysis, with the news counts known at that stage.
 MIGRATE = """ALTER TABLE profiles ADD COLUMN IF NOT EXISTS stage text NOT NULL DEFAULT 'search',
-  ADD COLUMN IF NOT EXISTS news_found int, ADD COLUMN IF NOT EXISTS news_selected int"""
+  ADD COLUMN IF NOT EXISTS news_found int, ADD COLUMN IF NOT EXISTS news_selected int, ADD COLUMN IF NOT EXISTS run_id text"""
 # A ready page younger than the TTL is served as is; anything else (failed, stale) goes to the queue again.
 SUBMIT = """INSERT INTO profiles (key, company, company_id, role, region, method) VALUES (%(key)s, %(company)s, %(company_id)s, %(role)s, %(region)s, %(method)s)
   ON CONFLICT (key) DO UPDATE SET status = CASE
@@ -22,10 +24,10 @@ SUBMIT = """INSERT INTO profiles (key, company, company_id, role, region, method
       WHEN profiles.status = 'ready' AND profiles.updated_at > now() - make_interval(hours => %(ttl)s) THEN 'ready'
       ELSE 'queued' END, error = '',
     updated_at = CASE WHEN profiles.status = 'ready' AND profiles.updated_at > now() - make_interval(hours => %(ttl)s) THEN profiles.updated_at ELSE now() END
-  RETURNING key, status, error"""
+  RETURNING key, status, error, run_id"""
 TAKE = """UPDATE profiles SET status = 'running', stage = 'search', news_found = NULL, news_selected = NULL, updated_at = now()
   WHERE key = (SELECT key FROM profiles WHERE status = 'queued' ORDER BY created_at LIMIT 1 FOR UPDATE SKIP LOCKED)
-  RETURNING key, company, company_id, role, region, method"""
+  RETURNING key, company, company_id, role, region, method, run_id"""
 
 
 def connect():
@@ -36,17 +38,26 @@ def init() -> None:
     with connect() as conn:
         conn.execute(DDL)
         conn.execute(MIGRATE)
-        conn.execute("UPDATE profiles SET status = 'queued' WHERE status = 'running'")  # the previous process died mid-run
+        from backend import journal
+        journal.init(conn)
+        conn.execute("UPDATE profiles SET status = 'queued', run_id = NULL WHERE status = 'running'")
 
 
-def submit(**fields) -> tuple[str, str, str]:
-    with connect() as conn:
-        return conn.execute(SUBMIT, {**fields, "ttl": config.PROFILE_TTL_HOURS}).fetchone()
+def submit(**fields):
+    from backend import journal
+    with connect() as conn, conn.transaction():
+        row = conn.execute(SUBMIT, {**fields, "ttl": config.PROFILE_TTL_HOURS}).fetchone()
+        key, state, error, run_id = row
+        active = conn.execute("SELECT status FROM trace_runs WHERE id=%s", (run_id,)).fetchone() if run_id else None
+        if state == "queued" and (active is None or active[0] not in ("queued", "running")):
+            run_id = journal.create("profile", tracing.company_ref(fields["company_id"] or fields["company"]), key, conn)["run_id"]
+            conn.execute("UPDATE profiles SET run_id=%s WHERE key=%s", (run_id, key))
+        return key, state, error, run_id
 
 
 def status(key: str):
     with connect() as conn:
-        return conn.execute("SELECT status, error, stage, news_found, news_selected FROM profiles WHERE key = %s", (key,)).fetchone()
+        return conn.execute("SELECT status, error, stage, news_found, news_selected, run_id FROM profiles WHERE key = %s", (key,)).fetchone()
 
 
 def progress(key: str, stage: str, found: int | None = None, selected: int | None = None) -> None:
@@ -56,8 +67,17 @@ def progress(key: str, stage: str, found: int | None = None, selected: int | Non
 
 
 def take():
-    with connect() as conn:
-        return conn.execute(TAKE).fetchone()
+    from backend import journal
+    with connect() as conn, conn.transaction():
+        row = conn.execute(TAKE).fetchone()
+        if row:
+            *fields, run_id = row
+            if not run_id:
+                run_id = journal.create("profile", tracing.company_ref(row[2] or row[1]), row[0], conn)["run_id"]
+                conn.execute("UPDATE profiles SET run_id=%s WHERE key=%s", (run_id, row[0]))
+            conn.execute("UPDATE trace_runs SET status='running' WHERE id=%s", (run_id,))
+            return (*fields, run_id)
+        return None
 
 
 def finish(key: str, page: dict) -> None:

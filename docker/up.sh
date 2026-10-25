@@ -20,7 +20,7 @@ elif [ "$(uname -s)" = Darwin ]; then
   "${COMPOSE[@]}" -f docker/compose.mac.yaml up -d --build --scale news_search=0 "$@"
   [ -f $PID ] && kill "$(cat $PID)" 2>/dev/null || true
   # Postgres and agents are published on the host ports of compose.yaml (5433, 8001)
-  DATABASE_URL="postgresql://${POSTGRES_USER:-news}:${POSTGRES_PASSWORD}@localhost:5433/${POSTGRES_DB:-news}" AGENTS_URL=http://localhost:8001 \
+  TRACE_BACKEND_URL=http://localhost:8000 DATABASE_URL="postgresql://${POSTGRES_USER:-news}:${POSTGRES_PASSWORD}@localhost:5433/${POSTGRES_DB:-news}" AGENTS_URL=http://localhost:8001 \
     NEWS_SEARCH_DATA="$PWD/$RUN/search_data" HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}" PYTORCH_ENABLE_MPS_FALLBACK=1 \
     nohup uv run --package alfa-news-search uvicorn news_search.app:app --port 8002 > $RUN/news_search.log 2>&1 &
   echo $! > $PID

@@ -7,7 +7,8 @@ import time
 
 import httpx
 
-from backend import config, pages, store
+from backend import config, pages, store, journal
+from agents import tracing
 from backend.companies import CompanyBook, CompanyUnavailable
 from backend.focus import interpret, page_key_bits
 
@@ -28,8 +29,11 @@ def profile_key(company: str, company_id: str, role: str, region: str, method: s
 
 def _post(url: str, body: dict, what: str) -> dict:
     try:
-        r = httpx.post(url, json=body, timeout=config.REQUEST_TIMEOUT)
+        r = httpx.post(url, json=body, headers=tracing.headers(), timeout=config.REQUEST_TIMEOUT)
+        tracing.observe(r)
     except httpx.HTTPError as e:
+        if tracing.CURRENT.get():
+            tracing.CURRENT.get().mark_incomplete()
         raise ProfileError(f"{what} is unreachable: {e!r}") from e
     if r.status_code != 200:
         raise ProfileError(f"{what}: HTTP {r.status_code}: {r.text[:300]}")
@@ -37,7 +41,27 @@ def _post(url: str, body: dict, what: str) -> dict:
 
 
 def build_page(key: str, company: str, company_id: str, role: str, region: str, method: str) -> dict:
+    with tracing.span("profile"):
+        profile, query_company, region = prepare_profile(company, company_id, role, region)
     focus = interpret(role)
+    store.progress(key, "search")
+    with tracing.span("search") as event:
+        found = _post(f"{config.NEWS_SEARCH_URL}/search", {"company": query_company, "line": role, "region": region, "method": method, "anonymised": bool(company_id)}, "news_search")
+        event["counts"] = {"selected": len(found["top"])}
+    stats = found.get("stats", {})
+    store.progress(key, "rank", stats.get("candidates") or stats.get("unique") or len(found["top"]))
+    store.progress(key, "analysis", selected=len(found["top"]))
+    with tracing.span("analytics") as event:
+        page = _post(f"{config.ANALYTICS_URL}/page", {"profile": profile, "role": focus.role or "CFO", "sphere": focus.sphere, "news": found["top"], "pairs": found["pairs"]}, "analytics")
+        event["counts"] = {"after": sum(w["column"] == "analytics" for w in page["widgets"]), "decisions": sum(w["column"] == "decisions" for w in page["widgets"])}
+    meta = {"method": method, "search_cost": found["cost"], "search_stats": stats, "facts": profile.get("facts", ""), "journal": page.get("journal", [])}
+    with tracing.span("publication") as event:
+        published = pages.publish(key, page, meta)
+        event["widget_ids"] = [w["id"] for w in published["widgets"]][:200]
+        return published
+
+
+def prepare_profile(company, company_id, role, region):
     if company_id:  # anonymised bank record: the description, region and products come from the data, not from the user
         try:
             profile = book.profile(company_id)
@@ -47,31 +71,25 @@ def build_page(key: str, company: str, company_id: str, role: str, region: str, 
     else:
         profile = {"label": company, "region": region}
         query_company = company
-    store.progress(key, "search")
-    found = _post(f"{config.NEWS_SEARCH_URL}/search", {"company": query_company, "line": role, "region": region, "method": method,
-                                                        "anonymised": bool(company_id)}, "news_search")
-    stats = found.get("stats", {})
-    # shortcut: news_search ranks inside one /search call, so "rank" is only reported once it returns; upgrade when /search streams progress
-    store.progress(key, "rank", stats.get("candidates") or stats.get("unique") or len(found["top"]))
-    store.progress(key, "analysis", selected=len(found["top"]))
-    page = _post(f"{config.ANALYTICS_URL}/page", {"profile": profile, "role": focus.role or "CFO", "sphere": focus.sphere,
-                                                  "news": found["top"], "pairs": found["pairs"]}, "analytics")
-    meta = {"method": method, "search_cost": found["cost"], "search_stats": found.get("stats", {}), "facts": profile.get("facts", ""), "journal": page.get("journal", [])}
-    return pages.publish(key, page, meta)
+    return profile, query_company, region
 
 
 def run_once() -> bool:
     row = store.take()
     if not row:
         return False
-    key, company, company_id, role, region, method = row
+    key, company, company_id, role, region, method, run_id = row
+    trace = journal.safe_context(run_id)
     log.info("profile %s: %r / %r / %r via %s", key, company or company_id, role, region, method)
     try:
-        store.finish(key, build_page(key, company, company_id, role, region, method))
+        with tracing.activate(trace), tracing.span("run"):
+            store.finish(key, build_page(key, company, company_id, role, region, method))
+        journal.safe_finish(run_id, "completed", trace.incomplete)
         log.info("profile %s: ready", key)
     except Exception as e:  # any failure is reported on the profile, the loop goes on
         log.exception("profile %s failed", key)
         store.fail(key, str(e) if isinstance(e, ProfileError) else repr(e))
+        journal.safe_finish(run_id, "failed", trace.incomplete)
     return True
 
 

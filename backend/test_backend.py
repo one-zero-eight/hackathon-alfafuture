@@ -93,7 +93,7 @@ def test_same_request_is_served_from_the_page_and_a_new_method_computes_a_new_on
     first = client.post("/api/profile", json={"company": "Делимобиль", "role": "CFO"}).json()
     worker.run_once()
     again = client.post("/api/profile", json={"company": "делимобиль", "role": "cfo"}).json()
-    assert again == {"key": first["key"], "status": "ready", "error": "", "cached": True} and first["cached"] is False and not worker.run_once()
+    assert again == {"key": first["key"], "status": "ready", "error": "", "cached": True, "run_id": first["run_id"]} and first["cached"] is False and not worker.run_once()
     monkeypatch.setattr(config, "NEWS_SEARCH_METHOD", "lexical")
     other = client.post("/api/profile", json={"company": "Делимобиль", "role": "CFO"}).json()
     assert other["key"] != first["key"] and other["status"] == "queued"
@@ -144,6 +144,7 @@ def test_chat_open_and_followup_question(db, services, monkeypatch):
     assert link_chat["reply"]["basis"] == ["ЦБ сохранил ставку", "Долг дорогой"]
 
     class Reply:
+        headers = {}
         def raise_for_status(self): pass
         def json(self): return {"text": "Долг останется дорогим.", "basis": ["ставка"]}
 
@@ -173,7 +174,7 @@ def test_profile_input_is_validated():
 
 def test_company_id_typed_in_the_company_field_is_recognised(monkeypatch):
     seen = {}
-    monkeypatch.setattr(store, "submit", lambda **kw: seen.update(kw) or (kw["key"], "queued", ""))
+    monkeypatch.setattr(store, "submit", lambda **kw: seen.update(kw) or (kw["key"], "queued", "", "0" * 32))
     client.post("/api/profile", json={"company": "U_42", "role": "CFO"})
     assert seen["company_id"] == "U_42" and seen["company"] == ""
 

@@ -17,6 +17,8 @@ import re
 
 import numpy as np
 
+from agents import tracing
+
 from news_search import scoring
 from news_search.cache import MemoryCache
 from news_search.dedup import UnionFind, dd_hybrid
@@ -58,6 +60,13 @@ def own_pattern(company):
 
 
 def dedup_filter(pool, company, anonymised=False):
+    with tracing.span("deduplication") as event:
+        items, own = _dedup_filter(pool, company, anonymised)
+        event["counts"] = {"before": len(pool), "after": len(items), "own_removed": own, "duplicates": len(pool) - len(items) - own}
+        return items, own
+
+
+def _dedup_filter(pool, company, anonymised=False):
     """Merge duplicates, drop news about the company itself. Returns (items, number of dropped own-company clusters)."""
     clusters = collections.defaultdict(list)
     for i, label in enumerate(dd_hybrid(pool)):
@@ -82,10 +91,16 @@ class NewsSearch:
     def __init__(self, corpus, agents, data_dir, encoder_factory=sentence_transformer, now=None, cache=None):
         """corpus: load(days) -> items (see corpus.postgres_corpus); data_dir keeps the vector cache; cache keeps the run steps and results
         (cache.PgCache in the service). shortcut: the default MemoryCache forgets everything on exit, pass a PgCache where results must survive."""
-        self.corpus, self.agents, self.data_dir = corpus, agents, data_dir
+        self._corpus, self.agents, self.data_dir = corpus, agents, data_dir
         self.cache = cache or MemoryCache()
         self.encoder_factory, self._now = encoder_factory, now
         self._bge = None
+
+    def corpus(self, days):
+        with tracing.span("retrieval") as event:
+            items = self._corpus(days)
+            event["counts"] = {"after": len(items)}
+            return items
 
     def now(self):
         return self._now() if self._now else datetime.datetime.now(datetime.timezone.utc)
@@ -95,6 +110,7 @@ class NewsSearch:
             raise ValueError(f"method must be one of {METHODS}")
         run_key = self.run_key(company, line, region)
         if (done := self.cache.get(run_key, f"result_{method}", CACHE_TTL)) is not None:
+            tracing.emit("cache", status="cached", counts={"selected": len(done["top"])}, queries=tracing.query_sample(self.keyword_queries(self.cache.get(run_key, "queries") or {})))
             return done
         cost0 = self.agents.cost
         ask = dict(company=company, line=line, region=region)
@@ -107,6 +123,7 @@ class NewsSearch:
             res = self._dense_xquad(run, needs)
         else:
             res = getattr(self, "_" + method)(run)
+        tracing.emit("ranking", counts={"before": res["stats"]["unique"], "selected": len(res["top"])}, source_ids=[f"article:{it['aid']}" for it in res["top"]])
         res.update(company=company, line=line, region=region, method=method, date=datetime.date.today().isoformat(), cost=round(self.agents.cost - cost0, 4))
         self.cache.put(run_key, f"result_{method}", res)
         return res
@@ -131,6 +148,7 @@ class NewsSearch:
         run_key = self.run_key(company, page_line, page_region)  # the page's query blocks are reused, no new queries call
         key = hashlib.sha1(json.dumps([kind, text, line, region, sorted(exclude_aids), sorted(removed_aids), limit, anonymised]).encode()).hexdigest()[:12]
         if (done := self.cache.get(run_key, f"refine_{key}", REFINE_TTL)) is not None:
+            tracing.emit("cache", status="cached", counts={"selected": len(done["top"])}, queries=tracing.query_sample(self.keyword_queries(self.cache.get(run_key, "queries") or {})))
             return done
         cost0 = self.agents.cost
         queries = self._cached(run_key, "queries", lambda: self.agents.run("queries", dict(company=company, line=page_line, region=page_region)))
@@ -186,16 +204,24 @@ class NewsSearch:
                          "excluded": len(shown), "removed": len(removed), "regional": len(reg)},
                "company": company, "line": line, "region": region, "method": "dense_xquad", "kind": kind, "text": text,
                "date": datetime.date.today().isoformat(), "cost": round(self.agents.cost - cost0, 4)}
+        tracing.emit("refine", counts={"before": len(top), "duplicates": len(top) - len(pool), "excluded": len(shown), "removed": len(removed), "regional": len(reg), "selected": len(picked)})
+        tracing.emit("ranking", counts={"before": len(unique), "selected": len(picked)}, source_ids=[f"article:{it['aid']}" for it in picked])
         self.cache.put(run_key, f"refine_{key}", res)
         return res
 
     def _cached(self, run_key, name, make):
         """A generated step (queries, needs, HyDE) is kept with the result: repeated searches do not pay for it again."""
-        out = self.cache.get(run_key, name)
-        if out is None:
-            out = make()
-            self.cache.put(run_key, name, out)
-        return out
+        with tracing.span(name) as event:
+            out = self.cache.get(run_key, name)
+            if out is None:
+                out = make()
+                self.cache.put(run_key, name, out)
+            else:
+                event["status"] = "cached"
+            if name == "queries":
+                queries = self.keyword_queries(out)
+                event.update(counts={"queries": len(queries)}, queries=tracing.query_sample(queries))
+            return out
 
     # ---------------- shared steps ----------------
     @staticmethod

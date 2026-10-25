@@ -14,3 +14,5 @@
 docker compose --env-file .env -f docker/compose.yaml up -d --build
 docker/check.sh      # тесты, сборка всех образов, запуск без портов и проверка связей
 ```
+
+Журнал (#29): backend и ML-образ включают `agents/tracing.py`; Compose задаёт сервисам `TRACE_BACKEND_URL`, а backend/agents — `TRACE_AI_ENABLED=false` по умолчанию. Включать ИИ-описания можно после подтверждения валюты и бюджета. `/internal/trace/*` доступен внутри сети, frontend проксирует только `/api`. Подробности — в docs/docker.md.

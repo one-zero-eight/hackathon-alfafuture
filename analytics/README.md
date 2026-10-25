@@ -17,3 +17,5 @@ uv sync --all-packages
 uv run pytest analytics                                # офлайн, агенты подменены
 uv run python -m analytics.alfa /путь/к/pdf            # тезисы банка (тратит LLM)
 ```
+
+Журнал (#29): `TRACE_BACKEND_URL` включает события обработки источников, решений и проверки; `/page` и `/reply` возвращают `X-Run-ID` и `X-Trace-Incomplete`. Контекст переносится в каждый поток цепочки и verify. JSON страницы сохранён, тексты мыслей/банковские факты в журнал не копируются. Контракт — в docs/analytics.md и docs/backend.md.

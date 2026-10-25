@@ -6,11 +6,13 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from agents.client import Agents
+from agents import tracing
 from analytics.alfa import load_theses
 from analytics.chain import EVENTS, ROLES, make_page, reply
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(title="Analytics")
+tracing.install(app, "analytics", ("/page", "/reply"))
 _lock = threading.Lock()  # one page at a time: the encoder for bank theses needs the memory
 
 

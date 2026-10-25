@@ -11,11 +11,13 @@ from pathlib import Path
 from typing import Literal
 
 import httpx
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from backend import config, pages, store, worker
+from backend import config, pages, store, worker, journal
+from backend.journal_api import router as journal_router
+from agents import tracing
 from backend.companies import CompanyUnavailable
 
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +30,7 @@ KEY = re.compile(r"([0-9a-f]{12})_")
 async def lifespan(_: FastAPI):
     store.init()
     stop = threading.Event()
+    threading.Thread(target=journal.run_cleanup, args=(stop,), daemon=True, name="journal-cleanup").start()
     if config.WORKER_ENABLED:
         threading.Thread(target=worker.run_forever, args=(stop,), daemon=True, name="profiles").start()
     yield
@@ -35,6 +38,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="News analytics backend", lifespan=lifespan)
+app.include_router(journal_router)
 
 
 class ChatContext(BaseModel):
@@ -95,8 +99,8 @@ def set_profile(req: ProfileRequest) -> dict:
     if not (company or company_id) or not role or any(len(x) > 200 for x in (company, role, region, company_id)) or (company_id and not worker.COMPANY_ID.fullmatch(company_id)):
         raise HTTPException(422, "role and company (or company_id U_<digits>) are required; fields at most 200 characters")
     key = worker.profile_key(company, company_id, role, region, config.NEWS_SEARCH_METHOD)
-    k, status, error = store.submit(key=key, company=company, company_id=company_id, role=role, region=region, method=config.NEWS_SEARCH_METHOD)
-    return {"key": k, "status": status, "error": error, "cached": status == "ready"}  # ready right at submit = served from the database
+    k, status, error, run_id = store.submit(key=key, company=company, company_id=company_id, role=role, region=region, method=config.NEWS_SEARCH_METHOD)
+    return {"key": k, "status": status, "error": error, "cached": status == "ready", "run_id": run_id}  # ready right at submit = served from the database
 
 
 @app.get("/api/profile/{key}")
@@ -104,7 +108,7 @@ def profile_status(key: str) -> dict:
     row = store.status(key)
     if not row:
         raise HTTPException(404, f"profile {key} not found")
-    return {"key": key, "status": row[0], "error": row[1], "stage": row[2], "found": row[3], "selected": row[4]}
+    return {"key": key, "status": row[0], "error": row[1], "stage": row[2], "found": row[3], "selected": row[4], "run_id": row[5]}
 
 
 @app.get("/api/page")
@@ -137,7 +141,7 @@ def link(lid: str) -> dict:
 
 
 @app.post("/api/chat")
-def chat(req: ChatRequest) -> dict:
+def chat(req: ChatRequest, response: Response) -> dict:
     ctx = req.context
     key, prefix, page = locate(ctx.id)
     card = pages.chat_card(page, ctx.type, ctx.id)
@@ -146,6 +150,29 @@ def chat(req: ChatRequest) -> dict:
     session_id = req.session_id or uuid.uuid4().hex
     if req.message is None:
         return {"session_id": session_id, "reply": card, "patch": None}
+    if not key:
+        return chat_action(req, key, prefix, page, card, session_id)
+    try:
+        created = journal.create("chat", journal.profile_company_ref(key), key)
+        trace = journal.safe_context(created["run_id"])
+    except Exception:
+        logging.getLogger("backend.journal").warning("chat journal unavailable")
+        response.headers["X-Trace-Incomplete"] = "true"
+        return {**chat_action(req, key, prefix, page, card, session_id), "run_id": None}
+    try:
+        with tracing.activate(trace), tracing.span("chat"):
+            result = chat_action(req, key, prefix, page, card, session_id)
+        journal.safe_finish(trace.run_id, "completed", trace.incomplete)
+        response.headers["X-Run-ID"] = trace.run_id
+        response.headers["X-Trace-Incomplete"] = str(trace.incomplete).lower()
+        return {**result, "run_id": trace.run_id}
+    except Exception:
+        journal.safe_finish(trace.run_id, "failed", trace.incomplete)
+        raise
+
+
+def chat_action(req, key, prefix, page, card, session_id):
+    ctx = req.context
     text = req.message.lower()
     if key and ctx.type == "widget" and "добавь" not in text and "измени" not in text:
         return {"session_id": session_id, "reply": answer(page, ctx.id, req.message, card), "patch": None}
@@ -165,10 +192,14 @@ def answer(page: dict, widget_id: str, question: str, card: dict) -> dict:
     """A follow-up question on a profile page: the analytics service answers from the widget and the company facts only."""
     try:
         r = httpx.post(f"{config.ANALYTICS_URL}/reply", timeout=300,
-                       json={"question": question, "widget": pages.find(page["widgets"], widget_id), "facts": page.get("meta", {}).get("facts", "")})
+                       headers=tracing.headers(), json={"question": question, "widget": pages.find(page["widgets"], widget_id), "facts": page.get("meta", {}).get("facts", "")})
+        tracing.observe(r)
         r.raise_for_status()
         got = r.json()
     except (httpx.HTTPError, ValueError) as e:
+        tracing.emit("chat", status="failed", error_code="upstream_error")
+        if tracing.CURRENT.get() and isinstance(e, httpx.HTTPError):
+            tracing.CURRENT.get().mark_incomplete()
         got = {"text": "Не удалось ответить: " + repr(e), "basis": []}
     return {"text": got["text"], "basis": got["basis"], "followups": card.get("followups", [])}
 

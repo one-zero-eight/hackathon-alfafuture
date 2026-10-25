@@ -4,6 +4,7 @@ An agent = prompts/<name>.md + a model + a row in AGENTS. {field} placeholders o
 Gateway: streamed chat (long reasoning answers drop plain connections), main base URL then backup, approved models only.
 """
 import datetime
+import contextvars
 import json
 import os
 import re
@@ -16,11 +17,14 @@ import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+from agents import tracing
+
 PROMPTS = Path(__file__).parent / "prompts"
 GEMMA = "google/gemma-4-26b-a4b-it"
 DEEPSEEK, GLM, QWEN, QWEN_VL = "deepseek/deepseek-v4.1-flash", "z-ai/glm-5.3-flash", "qwen/qwen3.6-35b-a3b", "qwen/qwen3-vl-30b-a3b-instruct"
 APPROVED = {GEMMA, GLM, QWEN, DEEPSEEK, QWEN_VL, "moonshotai/kimi-k2.6"}
 BUDGET_STEP, BUDGET_CAP = 1200, 4000
+ACCOUNT = contextvars.ContextVar("llm_account", default=None)
 
 
 class LLMError(RuntimeError):
@@ -39,22 +43,31 @@ def chat(model: str, content, max_tokens: int, read_timeout: float = 600) -> tup
     body = {"model": model, "messages": [{"role": "user", "content": content}], "max_tokens": max_tokens,
             "stream": True, "stream_options": {"include_usage": True}}
     err = None
-    for base in bases if len(bases) > 1 else bases * 2:  # one gateway: a second try on the same one
+    for gateway_attempt, base in enumerate(bases if len(bases) > 1 else bases * 2, 1):  # one gateway: a second try on the same one
         text, usage = "", {}
         try:
-            with httpx.stream("POST", base + "/chat/completions", json=body, timeout=httpx.Timeout(30.0, read=read_timeout),
-                              headers={"Authorization": "Bearer " + os.environ["LLM_API_KEY"]}) as r:
-                r.raise_for_status()
-                for line in r.iter_lines():
-                    if not line.startswith("data:") or line.endswith("[DONE]"):
-                        continue
-                    event = json.loads(line[5:])
-                    usage = event.get("usage") or usage
-                    for choice in event.get("choices", []):
-                        text += (choice.get("delta") or {}).get("content") or ""
+            with tracing.span("gateway", agent=(ACCOUNT.get() or {}).get("name"), model=model, attempt=gateway_attempt) as gateway_event:
+                try:
+                    with httpx.stream("POST", base + "/chat/completions", json=body, timeout=httpx.Timeout(30.0, read=read_timeout),
+                                      headers={"Authorization": "Bearer " + os.environ["LLM_API_KEY"]}) as r:
+                        r.raise_for_status()
+                        for line in r.iter_lines():
+                            if not line.startswith("data:") or line.endswith("[DONE]"):
+                                continue
+                            event = json.loads(line[5:])
+                            usage = event.get("usage") or usage
+                            for choice in event.get("choices", []):
+                                text += (choice.get("delta") or {}).get("content") or ""
+                finally:
+                    gateway_event["usage"] = tracing.usage_fields(usage)
+                    account = ACCOUNT.get()
+                    if account is not None:
+                        count(account["name"], usage, account["into"])
+                        account["accounted"] = True
             return text, usage
         except (httpx.HTTPError, json.JSONDecodeError) as e:
             err = e
+
     raise LLMError(f"LLM {model} failed: {err!r}")
 
 
@@ -74,7 +87,8 @@ LOCK = threading.Lock()
 
 
 def count(name: str, usage: dict, into: dict) -> None:
-    row = {"calls": 1, "tokens": int(usage.get("total_tokens") or 0), "cost": float(usage.get("cost") or 0)}
+    row = {"calls": 1, "tokens": int(usage.get("total_tokens") or 0), "cost": float(usage.get("cost") or 0),
+           "unknown_usage_calls": int(usage.get("total_tokens") is None), "unknown_cost_calls": int(usage.get("cost") is None)}
     with LOCK:
         for target in (into, TOTALS.setdefault(name, {"calls": 0, "tokens": 0, "cost": 0.0})):
             for k, v in row.items():
@@ -125,11 +139,29 @@ class Agent:
     key: str | None = None  # output field that must be non-empty, else the call is retried
     max_tokens: int = 32000
     read_timeout: float = 600
+    attempts: int = 3
     images: str | None = None  # input field holding data-URL images
     finish: Callable[[dict, dict], dict] = lambda out, inp: out  # normalise the answer
 
 
+def description_events(data):
+    events = data["events"]
+    if not isinstance(events, list) or len(events) > 40:
+        raise ValueError("events must be a list of at most 40 public events")
+    parsed = []
+    for event in events:
+        if not isinstance(event, dict):
+            raise ValueError("invalid event")
+        clean = {k: v for k, v in event.items() if k != "text"}
+        if any(k in clean for k in ("agent", "model", "usage", "attempt")):
+            raise ValueError("only public events may be described")
+        parsed.append(tracing.Event.model_validate(clean).model_dump(mode="json", exclude={"agent", "model", "usage", "attempt"}))
+    return parsed
+
+
 AGENTS: dict[str, Agent] = {
+    "trace_description": Agent(GEMMA, ("events",), lambda i: render("trace_description", events=dump(description_events(i))),
+                               key="descriptions", max_tokens=2500, read_timeout=30, attempts=1),
     # search side
     "queries": Agent(DEEPSEEK, ("company", "line"),
                      lambda i: render("queries", today=today(), company=i["company"] + where(i.get("region", "")), line=i["line"]),
@@ -174,25 +206,35 @@ def run(name: str, data: dict, usage: dict | None = None) -> dict:
     prompt, images = agent.build(data), data.get(agent.images) if agent.images else None
     content = [{"type": "text", "text": prompt}, *({"type": "image_url", "image_url": {"url": u}} for u in images)] if images else prompt
     budget, err = agent.max_tokens, "no JSON object in the answer"
-    for _ in range(3):
-        text, used = chat(agent.model, content, budget, agent.read_timeout)
-        count(name, used, usage if usage is not None else {})
-        match = re.search(r"\{.*\}", text, re.S)
-        try:
-            if match:
-                answer = json.loads(match.group(0))
-                if isinstance(answer, dict) and (agent.key is None or answer.get(agent.key)):
-                    return agent.finish(answer, data)
-                err = f"missing {agent.key!r}"
-        except json.JSONDecodeError as e:
-            err = repr(e)
-        budget = next_budget(budget, used)
+    for attempt in range(1, agent.attempts + 1):
+        with tracing.span("llm", agent=name, model=agent.model, attempt=attempt) as event:
+            account = {"name": name, "into": usage if usage is not None else {}, "accounted": False}
+            token = ACCOUNT.set(account)
+            try:
+                text, used = chat(agent.model, content, budget, agent.read_timeout)
+                if not account["accounted"]:
+                    count(name, used, account["into"])  # injected gateways used in offline tests
+                event["usage"] = tracing.usage_fields(used)
+            finally:
+                ACCOUNT.reset(token)
+            match = re.search(r"\{.*\}", text, re.S)
+            try:
+                if match:
+                    answer = json.loads(match.group(0))
+                    if isinstance(answer, dict) and (agent.key is None or answer.get(agent.key)):
+                        return agent.finish(answer, data)
+                    err = f"missing {agent.key!r}"
+            except json.JSONDecodeError as e:
+                err = repr(e)
+            event.update(status="failed", error_code="invalid_response")
+            budget = next_budget(budget, used)
     raise LLMError(f"{agent.model} gave no valid JSON for {name}: {err}")
 
 
 # ---- HTTP ----
 
 app = FastAPI(title="Agents")
+tracing.install(app, "agents", ("/agents/",))
 
 
 class Request(BaseModel):
@@ -212,7 +254,7 @@ def agents() -> dict:
 @app.get("/usage")
 def usage() -> dict:
     with LOCK:
-        total = {k: sum(row[k] for row in TOTALS.values()) for k in ("calls", "tokens", "cost")}
+        total = {k: sum(row.get(k, 0) for row in TOTALS.values()) for k in ("calls", "tokens", "cost", "unknown_usage_calls", "unknown_cost_calls")}
         return {"total": total, "by_agent": {k: dict(v) for k, v in TOTALS.items()}}
 
 
@@ -220,6 +262,13 @@ def usage() -> dict:
 def run_agent(name: str, req: Request) -> dict:
     if name not in AGENTS:
         raise HTTPException(404, f"unknown agent {name!r}")
+    if name == "trace_description" and os.environ.get("TRACE_AI_ENABLED", "false").lower() != "true":
+        raise HTTPException(503, "AI descriptions disabled pending currency and daily budget confirmation")
+    if name == "trace_description":
+        try:
+            description_events(req.input)
+        except (KeyError, ValueError):
+            raise HTTPException(422, "invalid public events") from None
     used: dict = {}
     try:
         output = run(name, req.input, used)

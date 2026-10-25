@@ -6,11 +6,13 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from agents.client import Agents
+from agents import tracing
 from news_search.cache import PgCache
 from news_search import DEFAULT_METHOD, METHODS, NewsSearch, TooFewNews, postgres_corpus
 from news_search.search import REFINE_LIMIT
 
 app = FastAPI(title="News search")
+tracing.install(app, "news_search", ("/search", "/refine"))
 _lock = threading.Lock()
 _search: list[NewsSearch] = []
 

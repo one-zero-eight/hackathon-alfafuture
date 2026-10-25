@@ -248,3 +248,44 @@ def test_postgres_cache_survives_a_new_instance_and_updates_in_place():
     assert again.get(key, "queries") == {"a": ["б"]} and again.get(key, "queries", 0) is None and again.get(key, "hyde") is None
     again.put(key, "queries", {"a": []})
     assert PgCache(dsn).get(key, "queries", 3600) == {"a": []}
+
+
+@pytest.mark.parametrize("method", METHODS)
+def test_trace_covers_common_search_steps_and_cache_without_extra_llm_calls(tmp_path, method):
+    import uuid
+    from agents import tracing
+    events = []
+    trace = tracing.Trace(uuid.uuid4().hex, "cap", "news_search", sender=events.append)
+    search, agents = searcher(tmp_path, make_corpus())
+    with tracing.activate(trace):
+        result = search.search("Ромашка", "Закупки", "Тверь", method)
+    completed = [e for e in events if e.status != "started"]
+    assert {"queries", "retrieval", "deduplication", "ranking"} <= {e.step for e in completed}
+    assert not trace.incomplete
+    query = next(e for e in completed if e.step == "queries")
+    assert query.counts["queries"] > 0 and 0 < len(query.queries) <= 3
+    dedup = next(e for e in completed if e.step == "deduplication")
+    assert dedup.counts["before"] >= dedup.counts["after"]
+    ranked = next(e for e in completed if e.step == "ranking")
+    assert ranked.counts["selected"] == len(result["top"])
+    calls = len(agents.calls)
+    events.clear()
+    with tracing.activate(trace):
+        search.search("Ромашка", "Закупки", "Тверь", method)
+    assert len(agents.calls) == calls and [e.step for e in events] == ["cache"] and events[0].status == "cached"
+
+
+def test_refine_trace_records_reused_queries_deduplication_and_selection(tmp_path):
+    import uuid
+    from agents import tracing
+    events = []
+    corpus = make_corpus()
+    search, agents = searcher(tmp_path, corpus)
+    search.search("Ромашка", "Закупки", method="dense_xquad")
+    trace = tracing.Trace(uuid.uuid4().hex, "cap", "news_search", sender=events.append)
+    with tracing.activate(trace):
+        result = search.refine("Ромашка", "Закупки", "topic", corpus[0]["title"], limit=5)
+    assert not trace.incomplete
+    assert any(e.step == "queries" and e.status == "cached" for e in events)
+    assert any(e.step == "deduplication" and e.status == "completed" for e in events)
+    assert next(e for e in events if e.step == "ranking").counts["selected"] == len(result["top"])
