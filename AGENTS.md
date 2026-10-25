@@ -52,6 +52,7 @@ Architecture rules: every Python LLM call goes through `agents/` (the only excep
 ## 3. Branches, commits, the pre-commit check
 
 - **Own branch for every substantial task, named `<section>/<feature>`**, section from the list above (`collector`, `agents`, `news_search`, `analytics`, `backend`, `frontend`, `docker`, `docs`), e.g. `news_search/hyde-cache`. Branch from `main`; no direct pushes to `main`; merge through a PR (a PR touching someone else's section needs their review).
+- **A feature is not closed until its PR is closed (merged).** Do not mark the task done, close its GitHub issue, delete the branch or report the feature as finished while the PR is open; until then the status is "in review". Closing the issue is allowed only after the merge, or when the user says so.
 - **Minor changes** (typos, small doc or config fixes, one-line fixes, no behavior or contract change) may be made without a separate branch, in the current working tree; the git-state rule below still applies (the user asks for commits). If the agent judges a change non-trivial, risky, or touching several files or sections, it proposes a separate branch and asks the user before creating it.
 - **Commit format** (Russian): first line `<type>: <body>`, optional detail after a blank line. Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `build`, `bench`.
   ```
