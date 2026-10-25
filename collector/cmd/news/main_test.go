@@ -170,13 +170,18 @@ func TestPostgresRunCollectsTagsAndKeepsCollectingDuringBudgetPause(t *testing.T
 				case "https://www.cbr.ru/fixture":
 					body = `<main id="content"><div class="lead-text">CBR fixture text.</div></main>`
 				case llm.BaseURL + "chat/completions":
-					calls.Add(1)
 					if r.Method != http.MethodPost || r.Header.Get("Authorization") != "Bearer sk-fixture" {
 						return nil, errors.New("unexpected LLM request")
 					}
 					raw, err := io.ReadAll(r.Body)
 					var sent struct{ Messages []struct{ Content string } }
-					if err != nil || json.Unmarshal(raw, &sent) != nil || len(sent.Messages) != 2 {
+					if err == nil && json.Unmarshal(raw, &sent) == nil && len(sent.Messages) == 1 {
+						// Geography fallback of the tagging worker: no place found, not counted as a tagging request.
+						body = `{"id":"fixture","object":"chat.completion","created":1,"model":"google/gemma-4-26b-a4b-it","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","content":"{\"places\":{}}"}}]}`
+						break
+					}
+					calls.Add(1)
+					if err != nil || len(sent.Messages) != 2 {
 						return nil, errors.New("invalid tagging request body")
 					}
 					var claimed store.Article

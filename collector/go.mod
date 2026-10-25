@@ -6,6 +6,7 @@ require (
 	github.com/danielgtaylor/huma/v2 v2.39.1
 	github.com/gin-gonic/gin v1.12.0
 	github.com/joho/godotenv v1.5.1
+	github.com/kljensen/snowball v0.10.0
 	github.com/mmcdole/gofeed v1.5.0
 	github.com/openai/openai-go/v3 v3.85.1
 	golang.org/x/net v0.60.0
