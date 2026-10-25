@@ -1,9 +1,11 @@
 """Offline checks of the analytics service: the agents are replaced by a fake that returns canned JSON; run: pytest analytics"""
+import time
+
 import pytest
 from fastapi.testclient import TestClient
 
 from agents.client import AgentError
-from analytics import app as app_module
+from analytics import app as app_module, chain
 from analytics.alfa import keep
 from analytics.chain import ROLES, bank_position, build, events_from, grounded, hide_loose_bank, make_page, plan, reply, sources
 from analytics.search import Index
@@ -209,3 +211,36 @@ def test_http_contract(monkeypatch):
     r = client.post("/page", json={"profile": PROFILE, "role": "CFO", "news": NEWS})
     assert r.status_code == 200 and len(r.json()["widgets"]) == 4
     assert client.post("/reply", json={"question": "?", "widget": {"title": "t"}}).json()["text"] == "Ответ по разбору"
+
+
+class Slow(Fake):
+    """Every call takes 50 ms, as a network call would."""
+    def run(self, name, data):
+        time.sleep(0.05)
+        return super().run(name, data)
+
+
+def test_news_are_analysed_at_once_and_the_page_keeps_their_order(monkeypatch):
+    news = [{"aid": n, "title": f"Банк России сохранит ставку, часть {n}", "summary": QUOTE, "outlets": ["РБК"], "date": "", "link": f"https://rbc.ru/{n}"}
+            for n in range(1, 9)]
+    ids = [e["id"] for e in events_from(news, [])[0]]
+
+    class Many(Slow):
+        def run(self, name, data):
+            if name == "analytics_step":  # the cited id depends on the news of this call, not on a shared attribute
+                time.sleep(0.05)
+                return {"relevant": True, "done": True, "thought": "Ставка не снизится.",
+                        "evidence": [{"id": ids[int(data["title"].rsplit(" ", 1)[1]) - 1], "quote": QUOTE}]}
+            return super().run(name, data)
+
+    def timed(workers):
+        monkeypatch.setattr(chain, "WORKERS", workers)
+        start = time.time()
+        page = make_page(Many(), PROFILE, "CFO", "", news, [])
+        return page, time.time() - start
+
+    one, t1 = timed(1)
+    many, t8 = timed(8)
+    assert [w["id"] for w in many["widgets"]] == [w["id"] for w in one["widgets"]]
+    assert [w["title"] for w in many["widgets"] if w["column"] == "news"] == [n["title"] for n in news]
+    assert t8 < t1 / 2
