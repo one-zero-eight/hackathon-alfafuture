@@ -22,6 +22,9 @@ func FinishCompletion(ctx context.Context, db *gorm.DB, attemptID int64, reply *
 	if err != nil {
 		return store.AttemptCompletion{}, err
 	}
+	if v, err = offered(v, attempt.Request); err != nil {
+		return store.AttemptCompletion{}, err
+	}
 	outcome := completionOutcome(v, attempt.InputText, reply, finishedAt)
 	if err := store.FinishAttempt(ctx, db, attemptID, outcome); err != nil {
 		return store.AttemptCompletion{}, err

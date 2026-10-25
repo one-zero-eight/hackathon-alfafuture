@@ -35,6 +35,8 @@ type Worker struct {
 	timeout time.Duration
 	now     func() time.Time
 	moscow  *time.Location
+	index   geoIndex
+	places  map[int64][]string // fallback candidates of queued articles, consumed when tagged
 }
 
 func NewWorker(ctx context.Context, db *gorm.DB, client chatClient, timeout time.Duration) (*Worker, error) {
@@ -53,7 +55,7 @@ func NewWorker(ctx context.Context, db *gorm.DB, client chatClient, timeout time
 	if err != nil {
 		return nil, errors.New("cannot load Moscow time zone")
 	}
-	return &Worker{db: db, client: client, v: v, timeout: timeout, now: time.Now, moscow: moscow}, nil
+	return &Worker{db: db, client: client, v: v, timeout: timeout, now: time.Now, moscow: moscow, index: newGeoIndex(v), places: map[int64][]string{}}, nil
 }
 
 // Run owns a session lock until shutdown; a second worker cannot recover or replay live work.
@@ -189,7 +191,11 @@ func (w *Worker) step(ctx context.Context) (time.Duration, error) {
 			return due.Sub(now), nil
 		}
 	}
-	request, err := BuildRequest(w.v, article.Text, w.client.Model())
+	places, err := w.geography(ctx, article)
+	if err != nil {
+		return 0, err
+	}
+	request, err := BuildRequest(offer(w.v, w.index, places), article.Text, w.client.Model())
 	if err != nil {
 		return 0, err
 	}
