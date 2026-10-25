@@ -17,8 +17,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 PROMPTS = Path(__file__).parent / "prompts"
+GEMMA = "google/gemma-4-26b-a4b-it"
 DEEPSEEK, GLM, QWEN, QWEN_VL = "deepseek/deepseek-v4.1-flash", "z-ai/glm-5.3-flash", "qwen/qwen3.6-35b-a3b", "qwen/qwen3-vl-30b-a3b-instruct"
-APPROVED = {"google/gemma-4-26b-a4b-it", GLM, QWEN, DEEPSEEK, QWEN_VL, "moonshotai/kimi-k2.6"}
+APPROVED = {GEMMA, GLM, QWEN, DEEPSEEK, QWEN_VL, "moonshotai/kimi-k2.6"}
 BUDGET_STEP, BUDGET_CAP = 1200, 4000
 
 
@@ -141,7 +142,7 @@ AGENTS: dict[str, Agent] = {
                   lambda i: render("pick", today=today(), company=i["company"], line=i["line"], top=i.get("top", 30), lines=pick_lines(i)),
                   key="top", finish=pick_out),
     # analytics side
-    "analytics_step": Agent(DEEPSEEK, ("company", "kinds", "title", "thoughts", "materials"),
+    "analytics_step": Agent(GEMMA, ("company", "kinds", "title", "thoughts", "materials"),
                             lambda i: render("analytics_step", company=i["company"], facts_line=facts_line(i),
                                              sphere_line=f"Сфера анализа: {i['sphere']}. Пиши про неё, даже если слова введены с опечаткой." if i.get("sphere") else "",
                                              kinds=", ".join(i["kinds"]), title=i["title"], text=i.get("text", ""),
