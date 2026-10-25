@@ -73,7 +73,8 @@ def test_profile_goes_through_queue_search_and_analytics_to_a_page(db, services)
     queued = client.post("/api/profile", json={"company": "Делимобиль", "role": "Финансовый директор"}).json()
     assert queued["status"] == "queued" and client.get(f"/api/profile/{queued['key']}").json()["status"] == "queued"
     assert worker.run_once() and not worker.run_once()
-    assert client.get(f"/api/profile/{queued['key']}").json() == {"key": queued["key"], "status": "ready", "error": ""}
+    done = client.get(f"/api/profile/{queued['key']}").json()
+    assert done["status"] == "ready" and done["error"] == "" and done["stage"] == "analysis" and (done["found"], done["selected"]) == (40, 1)
     search, analytics = services[0][1], services[1][1]
     assert search == {"company": "Делимобиль", "line": "Финансовый директор", "region": "", "method": "dense_xquad", "anonymised": False}
     assert analytics["role"] == "CFO" and analytics["sphere"] == "" and analytics["news"] == NEWS["top"] and analytics["profile"]["label"] == "Делимобиль"
@@ -92,7 +93,7 @@ def test_same_request_is_served_from_the_page_and_a_new_method_computes_a_new_on
     first = client.post("/api/profile", json={"company": "Делимобиль", "role": "CFO"}).json()
     worker.run_once()
     again = client.post("/api/profile", json={"company": "делимобиль", "role": "cfo"}).json()
-    assert again == {"key": first["key"], "status": "ready", "error": ""} and not worker.run_once()
+    assert again == {"key": first["key"], "status": "ready", "error": "", "cached": True} and first["cached"] is False and not worker.run_once()
     monkeypatch.setattr(config, "NEWS_SEARCH_METHOD", "lexical")
     other = client.post("/api/profile", json={"company": "Делимобиль", "role": "CFO"}).json()
     assert other["key"] != first["key"] and other["status"] == "queued"
@@ -224,6 +225,19 @@ def test_company_profile_serves_search_and_analytics_and_hides_the_id(tmp_path):
         companies.CompanyBook(tmp_path).profile("U_404")
     with pytest.raises(companies.CompanyUnavailable):
         companies.CompanyBook(tmp_path / "missing").profile("U_1")
+
+
+def test_company_list_is_paged_and_searchable(tmp_path, monkeypatch):
+    fixture_csv(tmp_path)
+    book = companies.CompanyBook(tmp_path)
+    assert book.listing("", 0, 2) == {"total": 3, "items": [{"id": "U_1", "okved_name": "Строительство"}, {"id": "U_2", "okved_name": "Торговля топливом"}]}
+    assert book.listing("", 2, 2)["items"] == [{"id": "U_3", "okved_name": "Производство цемента"}]
+    assert [c["id"] for c in book.listing("ТОПЛИВ", 0, 10)["items"]] == ["U_2"] and book.listing("u_3", 0, 10)["total"] == 1
+    monkeypatch.setattr(worker, "book", book)
+    got = client.get("/api/companies?q=цемент&limit=5").json()
+    assert got["total"] == 1 and got["items"][0]["id"] == "U_3"
+    monkeypatch.setattr(worker, "book", companies.CompanyBook(tmp_path / "missing"))
+    assert client.get("/api/companies").status_code == 503
 
 
 def test_okved_sections():

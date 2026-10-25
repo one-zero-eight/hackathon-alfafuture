@@ -63,6 +63,13 @@ class CompanyBook:
                     self._groups[r["GROUP_ID"]] = self._groups.get(r["GROUP_ID"], 0) + 1
         return self._rows
 
+    def listing(self, q: str, offset: int, limit: int) -> dict:
+        """Companies for the picker, in file order; q is a case-insensitive substring of the id or the OKVED name."""
+        q = q.strip().lower()
+        hits = [{"id": uid, "okved_name": r["MAINOKVED_NAME"]} for uid, r in self._load().items()
+                if not q or q in uid.lower() or q in r["MAINOKVED_NAME"].lower()]
+        return {"total": len(hits), "items": hits[offset:offset + limit]}
+
     def _payments(self, uid):
         """One pass over the payments: top OKVED names of suppliers (uid pays) and customers (pay uid), and uid's incoming payers."""
         rows, suppliers, customers, incoming = self._load(), defaultdict(float), defaultdict(float), defaultdict(float)

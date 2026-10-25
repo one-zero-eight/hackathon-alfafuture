@@ -47,8 +47,13 @@ def build_page(key: str, company: str, company_id: str, role: str, region: str, 
     else:
         profile = {"label": company, "region": region}
         query_company = company
+    store.progress(key, "search")
     found = _post(f"{config.NEWS_SEARCH_URL}/search", {"company": query_company, "line": role, "region": region, "method": method,
                                                         "anonymised": bool(company_id)}, "news_search")
+    stats = found.get("stats", {})
+    # shortcut: news_search ranks inside one /search call, so "rank" is only reported once it returns; upgrade when /search streams progress
+    store.progress(key, "rank", stats.get("candidates") or stats.get("unique") or len(found["top"]))
+    store.progress(key, "analysis", selected=len(found["top"]))
     page = _post(f"{config.ANALYTICS_URL}/page", {"profile": profile, "role": focus.role or "CFO", "sphere": focus.sphere,
                                                   "news": found["top"], "pairs": found["pairs"]}, "analytics")
     meta = {"method": method, "search_cost": found["cost"], "search_stats": found.get("stats", {}), "facts": profile.get("facts", ""), "journal": page.get("journal", [])}
