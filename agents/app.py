@@ -134,6 +134,10 @@ AGENTS: dict[str, Agent] = {
     "queries": Agent(DEEPSEEK, ("company", "line"),
                      lambda i: render("queries", today=today(), company=i["company"] + where(i.get("region", "")), line=i["line"]),
                      key="company_self", finish=lambda out, _: {b: strings(v) for b, v in out.items() if isinstance(v, list)}),
+    # an anonymised bank record: no name, so company_self stays empty and regional queries are required (#37)
+    "queries_anonymised": Agent(DEEPSEEK, ("company", "line"),
+                                lambda i: render("queries_anonymised", today=today(), company=i["company"] + where(i.get("region", "")), line=i["line"]),
+                                key="competitors_direct", finish=lambda out, _: {b: strings(v) for b, v in out.items() if isinstance(v, list)}),
     "needs": Agent(DEEPSEEK, ("company", "line"), lambda i: render("needs", company=i["company"], where=where(i.get("region", "")), line=i["line"]),
                    key="needs", finish=lambda out, _: {"needs": strings(out["needs"])}),
     "hyde": Agent(DEEPSEEK, ("company", "line"), lambda i: render("hyde", company=i["company"], where=where(i.get("region", "")), line=i["line"]),
