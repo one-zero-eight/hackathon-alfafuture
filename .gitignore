@@ -78,3 +78,4 @@ Thumbs.db
 # agent tool state
 .claude/
 agents_memory/
+.run/

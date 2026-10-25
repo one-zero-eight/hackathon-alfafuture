@@ -24,3 +24,4 @@
 - 2026-10-24 agents: registry.py, llm.py и HTTP-слой объединены в один app.py; расход по запросу считается точно, а не разницей счётчиков.
 - 2026-10-24 docs: Задачи из backlog/ перенесены в GitHub Issues (#16–#22), папка backlog/ удалена; AGENTS.md разрешает мелкие правки без отдельной ветки.
 - 2026-10-25 docs: AGENTS.md запрещает закрывать фичу и issue до закрытия её PR.
+- 2026-10-25 docker: docker/up.sh выбирает устройство (CUDA-образ для NVIDIA, news_search на хосте с MPS для Mac, иначе CPU); news_search считает векторы в fp16 на GPU.

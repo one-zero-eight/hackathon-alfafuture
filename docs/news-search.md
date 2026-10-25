@@ -57,7 +57,7 @@ curl -s -X POST localhost:8002/search -H 'Content-Type: application/json' -d '{"
 
 ## Настройки и проверка
 
-`DATABASE_URL`, `AGENTS_URL`, `NEWS_SEARCH_DATA` (папка кэшей, в compose — том `search_data`), `HF_HOME` (модели, том `hf_cache`). Первый поиск скачивает модели: bge-m3 (около 2,3 ГБ) и для `dense_llm` ещё e5-large-instruct. На CPU первый расчёт векторов по всему корпусу долгий (порядка 45 минут на 110 тыс. статей), на GPU — минуты.
+`DATABASE_URL`, `AGENTS_URL`, `NEWS_SEARCH_DATA` (папка кэшей, в compose — том `search_data`), `HF_HOME` (модели, том `hf_cache`). Первый поиск скачивает модели: bge-m3 (около 2,3 ГБ) и для `dense_llm` ещё e5-large-instruct. На CPU первый расчёт векторов по всему корпусу долгий (порядка 45 минут на 110 тыс. статей), на GPU — минуты. Замер на MacBook (arm64) по 512 случайным статьям: CPU 14,7 статей/с, MPS fp32 126,5, MPS fp16 172,5 (корпус из 75 тыс. статей примерно за 7 минут вместо 85); векторы fp16 и CPU совпадают с косинусом не ниже 0,9997. Запуск на GPU: `docker/up.sh`, см. docs/docker.md.
 
 ```bash
 TEST_DATABASE_URL='postgres://news_test:news_test@127.0.0.1:55432/news_test?sslmode=disable' uv run pytest news_search
