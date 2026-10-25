@@ -1,0 +1,14 @@
+.timeline { list-style:none; margin:0; padding:0; }
+.timeline li { position:relative; display:flex; align-items:flex-start; gap:14px; padding-bottom:28px; color:var(--muted); }
+.timeline li:last-child { padding-bottom:0; }
+.timeline li::before { content:""; position:absolute; left:11px; top:24px; bottom:0; width:2px; background:var(--line); }
+.timeline li:last-child::before { display:none; }
+.timeline li.tl-done::before { background:var(--accent); }
+.tl-dot { flex:none; width:24px; height:24px; border-radius:50%; border:2px solid var(--line); background:var(--bg); display:grid; place-items:center; font-size:13px; color:#fff; }
+.tl-label { padding-top:2px; }
+.tl-done { color:var(--ink); }
+.tl-done .tl-dot { background:var(--accent); border-color:var(--accent); }
+.tl-active { color:var(--ink); }
+.tl-active .tl-dot { border-color:var(--accent-hi); border-top-color:transparent; animation:tl-spin 0.9s linear infinite; }
+@keyframes tl-spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .tl-active .tl-dot { animation-duration:3s; } }

@@ -8,7 +8,14 @@ export interface Tags { confidence?: Confidence; source?: Source; industry?: str
 export interface WidgetSkeleton { id: string; column: Column; title: string; url?: string; tags?: Tags }
 export interface LinkSkeleton { id: string; from: string; to: string }
 export interface Company { name: string; okved: string; role: string; date: string }
-export interface ProfileStatus { key: string; status: "queued" | "running" | "ready" | "failed"; error: string }
+export type Stage = "search" | "rank" | "analysis";
+export interface ProfileStatus {
+  key: string; status: "queued" | "running" | "ready" | "failed"; error: string;
+  cached?: boolean; // POST /profile only: the page was already in the database
+  stage?: Stage; found?: number | null; selected?: number | null; // GET /profile/{key} only: progress of a running profile
+}
+export interface CompanyItem { id: string; okved_name: string }
+export interface CompanyList { total: number; items: CompanyItem[] }
 export interface Page { version: number; company: Company; widgets: WidgetSkeleton[]; links: LinkSkeleton[] }
 
 export interface Series { name: string; color: string; values: number[] }
