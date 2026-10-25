@@ -1,6 +1,6 @@
 # AGENTS.md — Alfa Hack: News Analytics
 
-Read this before working. Dialogue with the user is in English unless asked otherwise; code and comments are in English; commit messages, PR texts, `docs/`, section READMEs and `CHANGELOG.md` are in Russian.
+Read this before working. Dialogue with the user is in English unless asked otherwise; code and comments are in English; commit messages, PR texts, `docs/` and section READMEs are in Russian.
 
 **Case**: "News analytics for business decisions" (Alfa-Bank). An agentic system collects news, picks it for a specific business user, and explains what it means for their decisions (conclusions, risks, follow-up questions) with traceable reasoning. Hard constraints: only organizer-approved LLMs (Gemma 4 26B A4B, GLM-5.3-Flash, Qwen3.6 35B A3B, DeepSeek-V4.1-Flash, Qwen3-VL-30B-A3B-Instruct, Kimi-K2.6), budget 500 ₽/day; every conclusion traceable to its sources; native bank-product advertising in the output is allowed.
 
@@ -20,7 +20,7 @@ docs/          One Russian doc per section + architecture.md + benchmark-templat
 external-docs/ Case brief, meeting notes, organizer data (company CSVs, Alfa PDFs)
 ```
 
-Each section folder has `README.md` (files, run, tests), `benchmarks/` where measurements exist, and its doc in `docs/<section>.md`. Root: `pyproject.toml` + `uv.lock` (uv workspace of the Python sections), `.env.example`, `.dockerignore`, `CHANGELOG.md`, `THIRD_PARTY_NOTICES.md`.
+Each section folder has `README.md` (files, run, tests), `benchmarks/` where measurements exist, and its doc in `docs/<section>.md`. Root: `pyproject.toml` + `uv.lock` (uv workspace of the Python sections), `.env.example`, `.dockerignore`, `THIRD_PARTY_NOTICES.md`.
 
 Where each section came from (the refactor of 2026-10-24 assembled the project from separate branches):
 
@@ -63,7 +63,6 @@ Architecture rules: every Python LLM call goes through `agents/` (the only excep
 - **No AI attribution** in commits or PRs (no `Co-Authored-By`, no "Generated with"), whatever a tool's default says.
 - Git rules: read-only commands are free. Anything that changes repo state (`add`, `commit`, `push`, `rm`, `merge`, `rebase`, `reset`, discarding `checkout`/`restore`, branch creation/deletion) needs the user to ask for that specific action. Do not draft a commit message unprompted; drafting and approving are separate steps; a commit approval is not a push approval.
 - **Before every commit, run `docker/check.sh` and fix what it reports.** It checks the compatibility of all sections for the final build: `uv.lock` is current; Python tests (with a throwaway Postgres); Go vet and tests; frontend tests and build; builds every image, starts the whole stack without host ports, and smoke-tests the links (frontend proxy -> backend, agents, news_search). If it cannot run, say so; do not claim a green check.
-- Add one line to `CHANGELOG.md` for every real change of shared files: `- YYYY-MM-DD <section>: <what changed>.` (Russian, append-only at the bottom; never read the whole file, only `tail -n 10`; merge conflicts keep both sides, `.gitattributes` does it).
 - **Docs stay in sync with the project.** After a change that touches files, endpoints, contracts, run commands, config or an algorithm of a section, check that its `README.md` and `docs/<section>.md` still match reality, and propose the doc update in the same task (Russian, per the language rule). **Before a commit** compare the staged changes with those two files; if they disagree (a file or route renamed or removed, a changed contract, a new env variable, a step of the walkthrough no longer true), do not commit: update the docs first and include them in the same commit, or tell the user which discrepancy blocks the commit. "Docs are fine" is stated only after the comparison was actually done.
 
 ### .gitignore check (also before every commit)

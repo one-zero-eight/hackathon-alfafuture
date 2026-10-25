@@ -43,4 +43,4 @@ RSS + Google News ──► collector (Go) ──► Postgres ◄── news_sea
 
 ## История
 
-Ход разработки — в [CHANGELOG.md](../CHANGELOG.md) и в истории git. Исследования, из которых выбран метод `dense_xquad`, сведены в [news_search/benchmarks/retrieval-methods.md](../news_search/benchmarks/retrieval-methods.md).
+Ход разработки — в истории git. Исследования, из которых выбран метод `dense_xquad`, сведены в [news_search/benchmarks/retrieval-methods.md](../news_search/benchmarks/retrieval-methods.md).
