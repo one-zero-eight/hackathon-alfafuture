@@ -37,6 +37,10 @@ export type Op =
   | { op: "remove_link"; id: string };
 export interface Patch { base_version: number; version: number; ops: Op[] }
 
+// Scenario recognised by the server (docs/backend.md); the UI infers one from the patch when the field is absent
+export type ScenarioKind = "question" | "extend" | "perspective" | "edit" | "remove" | "link" | "proposal";
+export interface Scenario { kind: ScenarioKind; reason?: string }
+
 export type ChatContext = { type: "widget" | "link"; id: string };
 export interface ChatReply { text: string; basis: string[]; followups: string[] }
-export interface ChatResponse { session_id: string; reply: ChatReply; patch: Patch | null }
+export interface ChatResponse { session_id: string; reply: ChatReply; patch: Patch | null; scenario?: Scenario }
