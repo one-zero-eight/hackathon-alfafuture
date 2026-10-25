@@ -28,3 +28,4 @@
 - 2026-10-25 news_search: допоиск получил вид perspective (без нового вызова queries) и склейку пересказов по косинусу ≥ 0,8; замер в news_search/benchmarks/refine.md.
 - 2026-10-25 news_search: в perspective-допоиске до 3 мест из 10 отдаются новостям с названием нового региона и сходством с темой ≥ 0,42.
 - 2026-10-25 docs: AGENTS.md запрещает закрывать фичу и issue до закрытия её PR.
+- 2026-10-25 docker: docker/up.sh выбирает устройство (CUDA-образ для NVIDIA, news_search на хосте с MPS для Mac, иначе CPU); news_search считает векторы в fp16 на GPU.

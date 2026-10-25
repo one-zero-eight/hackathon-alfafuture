@@ -1,0 +1,5 @@
+# macOS override: Docker on a Mac cannot reach the Apple GPU, so docker/up.sh runs news_search on the host (MPS) and points the backend at it.
+services:
+  backend:
+    environment:
+      NEWS_SEARCH_URL: http://host.docker.internal:8002

@@ -20,7 +20,9 @@ def sentence_transformer(name, max_seq_length):
     device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     model = SentenceTransformer(HF_IDS[name], device=device)
     model.max_seq_length = max_seq_length
-    return lambda texts: model.encode(list(texts), batch_size=64, normalize_embeddings=True, convert_to_numpy=True,
+    if device != "cpu":
+        model.half()  # fp16 is about twice as fast on a GPU; vectors are stored as float16 anyway
+    return lambda texts: model.encode(list(texts), batch_size=128 if device == "cuda" else 64, normalize_embeddings=True, convert_to_numpy=True,
                                       show_progress_bar=False).astype(np.float32)
 
 
