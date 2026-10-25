@@ -19,7 +19,7 @@
 | `needs` | DeepSeek | `company`, `line`, `region?` | `{"needs": [20 вопросов]}` | news_search |
 | `hyde` | DeepSeek | `company`, `line`, `region?` | `{"headlines": [40 заголовков]}` | news_search |
 | `pick` | GLM-5.3-Flash | `company`, `line`, `candidates`, `top?` | `{"top": [номера]}` | news_search (`dense_llm`) |
-| `analytics_step` | DeepSeek | `company`, `kinds`, `title`, `thoughts`, `materials`, `facts?`, `sphere?`, `text?` | одно рассуждение с цитатой | analytics |
+| `analytics_step` | Gemma 4 26B A4B | `company`, `kinds`, `title`, `thoughts`, `materials`, `facts?`, `sphere?`, `text?` | одно рассуждение с цитатой | analytics |
 | `decision` | DeepSeek | `role`, `moves`, `title`, `notes`, `sphere?` | решение с рисками | analytics |
 | `verify` | Qwen3.6 35B | `claims` | `{"verdicts": [...]}` | analytics |
 | `reply` | DeepSeek | `question`, `title?`, `text?`, `risks?`, `facts?` | ответ на вопрос по разбору | analytics |

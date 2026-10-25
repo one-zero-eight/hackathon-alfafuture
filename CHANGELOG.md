@@ -29,3 +29,4 @@
 - 2026-10-25 news_search: в perspective-допоиске до 3 мест из 10 отдаются новостям с названием нового региона и сходством с темой ≥ 0,42.
 - 2026-10-25 docs: AGENTS.md запрещает закрывать фичу и issue до закрытия её PR.
 - 2026-10-25 docker: docker/up.sh выбирает устройство (CUDA-образ для NVIDIA, news_search на хосте с MPS для Mac, иначе CPU); news_search считает векторы в fp16 на GPU.
+- 2026-10-25 analytics: цепочки новостей и пакеты verify идут параллельно (ANALYTICS_WORKERS, по умолчанию 6); шаг аналитики пишет Gemma 4 26B A4B вместо DeepSeek (agents), замер в analytics/benchmarks/parallel-and-models.md.
