@@ -88,10 +88,12 @@ export function StartMenu({ onReady, onDemo }: { onReady: (key: string) => void;
         <h2>Ваша роль в компании</h2>
         <textarea value={role} onChange={e => setRole(e.target.value)} maxLength={200} required rows={6}
                   placeholder="Например: отвечаю за выбор поставщиков для магазинов в ЦФО" aria-label="Роль сотрудника" />
-        <button disabled={!picked || !role.trim()}>Сбор новостей</button>
+        <div className="menu-actions">
+          <button disabled={!picked || !role.trim()}>Сбор новостей</button>
+          <button type="button" onClick={onDemo}>Демо</button>
+        </div>
         {!picked && <span className="menu-hint">Выберите компанию в списке слева</span>}
         {error && <span className="menu-error">{error}</span>}
-        <button type="button" className="menu-demo" onClick={onDemo}>Посмотреть демо</button>
       </form>
     </main>
   );
