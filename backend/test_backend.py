@@ -272,3 +272,36 @@ def test_locality_falls_with_revenue_and_foreign_trade(tmp_path):
     book = companies.CompanyBook(tmp_path)
     small, mid, big, exporter, unknown = (book.profile(u)["locality"] for u, _, _ in rows)
     assert small == 0.8 and small >= mid > big and exporter == round(big / 2, 2) and unknown == 0.8  # staff "Менее 15" caps at 0.8
+
+
+def test_ad_offer_follows_client_type_and_products():
+    assert companies.ad_offer("PROSPECT", [])[1].startswith("стать клиентом")
+    assert "вернуться" in companies.ad_offer("CLOSE_CLIENT", ["кредиты"])[1]
+    assert "открыть расчётный счёт" in companies.ad_offer("CLIENT", ["кредиты"])[1]
+    status, goal = companies.ad_offer("CLIENT", ["расчётный счёт", "кредиты", "лизинг"])
+    assert "расчётный счёт" in status and goal.endswith("депозиты, зарплатный проект") and "кредиты" not in goal
+    assert "новых возможностях" in companies.ad_offer("CLIENT", ["расчётный счёт", *companies.UPSELL])[1]
+    assert "стать его клиентом" in companies.ad_offer(None, [])[1]
+
+
+def test_ad_tip_uses_the_bank_record_and_is_cached(tmp_path, monkeypatch):
+    fixture_csv(tmp_path)
+    monkeypatch.setattr(worker, "book", companies.CompanyBook(tmp_path))
+    app_module._ad_tips.clear()
+    sent = []
+
+    class FakeAgents:
+        def __init__(self, *a, **k): pass
+
+        def run(self, name, data):
+            sent.append((name, data))
+            return {"text": "Совет."}
+
+    monkeypatch.setattr(app_module, "Agents", FakeAgents)
+    r = client.post("/api/ad-tip", json={"company": "U_1", "role": "Финансовый директор"})
+    assert r.json() == {"text": "Совет.", "cl_type": None} and sent[0][0] == "ad_tip"  # the fixture has no CL_TYPE column
+    assert "U_1" not in sent[0][1]["company"] and "Иркутск" in sent[0][1]["company"] and "стать его клиентом" in sent[0][1]["goal"]
+    client.post("/api/ad-tip", json={"company": "U_1", "role": "Финансовый директор"})
+    assert len(sent) == 1  # the same company and role are served from the cache
+    assert client.post("/api/ad-tip", json={"company": "U_404", "role": "CFO"}).status_code == 404
+    assert client.post("/api/ad-tip", json={"company": " ", "role": "CFO"}).status_code == 422
