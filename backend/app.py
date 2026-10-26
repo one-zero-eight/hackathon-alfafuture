@@ -92,8 +92,8 @@ def set_profile(req: ProfileRequest) -> dict:
     company, role, region, company_id = (" ".join(x.split()) for x in (req.company, req.role, req.region, req.company_id))
     if worker.COMPANY_ID.fullmatch(company):
         company, company_id = "", company_id or company
-    if not (company or company_id) or not role or any(len(x) > 200 for x in (company, role, region, company_id)) or (company_id and not worker.COMPANY_ID.fullmatch(company_id)):
-        raise HTTPException(422, "role and company (or company_id U_<digits>) are required; fields at most 200 characters")
+    if not (company or company_id) or not role or len(role) > 500 or any(len(x) > 200 for x in (company, region, company_id)) or (company_id and not worker.COMPANY_ID.fullmatch(company_id)):
+        raise HTTPException(422, "role and company (or company_id U_<digits>) are required; role at most 500 characters, other fields at most 200")
     key = worker.profile_key(company, company_id, role, region, config.NEWS_SEARCH_METHOD)
     k, status, error = store.submit(key=key, company=company, company_id=company_id, role=role, region=region, method=config.NEWS_SEARCH_METHOD)
     return {"key": k, "status": status, "error": error, "cached": status == "ready"}  # ready right at submit = served from the database

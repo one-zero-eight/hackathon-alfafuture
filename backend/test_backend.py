@@ -167,7 +167,8 @@ def test_demo_page_is_the_default_and_its_edits_do_not_touch_the_database():
 
 
 def test_profile_input_is_validated():
-    for body in ({"company": "X", "role": ""}, {"role": "CFO"}, {"company": "X", "role": "CFO", "company_id": "abc"}, {"company": "X" * 201, "role": "CFO"}):
+    for body in ({"company": "X", "role": ""}, {"role": "CFO"}, {"company": "X", "role": "CFO", "company_id": "abc"},
+                 {"company": "X" * 201, "role": "CFO"}, {"company": "X", "role": "а" * 501}):
         assert client.post("/api/profile", json=body).status_code == 422, body
 
 
@@ -219,6 +220,7 @@ def test_company_profile_serves_search_and_analytics_and_hides_the_id(tmp_path):
     assert "основные поставщики: Производство цемента" in p["description"] and "основные покупатели: Торговля топливом" in p["description"]
     assert "ведёт внешнеэкономическую деятельность (Китай)" in p["description"] and "сотрудников: 101-250" in p["description"]
     assert p["okved"] == "F" and p["products"] == ["credit"] and p["products_ru"] == ["кредиты"] and p["region"] == "Иркутская область"
+    assert p["workers"] == "101-250" and p["suppliers"] == ["Производство цемента"] and "Торговля топливом" in p["customers"]
     assert "20.0 млрд руб." in p["facts"] and "2 комп." in p["facts"] and "U_2" in p["facts"] and "75%" in p["facts"] and "Внешняя торговля: Китай." in p["facts"]
     assert p["date_label"] == "выручка 20.0 млрд руб., Иркутск"
     with pytest.raises(companies.CompanyUnavailable):

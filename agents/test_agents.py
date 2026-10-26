@@ -34,10 +34,15 @@ def test_every_agent_builds_a_prompt_from_minimal_input():
         "pick": {"company": "Ромашка", "line": "Закупки", "candidates": [{"id": 1, "title": "Заголовок", "date": "", "outlets": ["РБК"]}]},
         "analytics_step": {"company": "ОКВЭД 49.41 (Перевозки), регион Тверь, продукты банка: кредит", "kinds": ["direct"],
                            "title": "Ставка выросла", "thoughts": [], "materials": "[A1] текст"},
-        "decision": {"role": {"title": "CFO", "authority": "бюджет", "playbook": "правила"}, "moves": {}, "title": "Ставка", "notes": []},
+        "decision": {"role": {"title": "CFO", "authority": "бюджет", "playbook": "правила"}, "moves": {}, "title": "Ставка", "notes": [], "facts": "выручка 1 млрд"},
+        "role_brief": {"line": "отвечаю за лизинг", "fallback_title": "Финансовый директор", "fallback_playbook": "правила"},
         "verify": {"claims": [{"text": "вывод", "quote": "цитата"}]},
         "reply": {"question": "Почему?", "title": "Заголовок", "text": "Текст"},
         "alfa_page": {"page": 3, "text": "текст страницы"},
+        "synthesis": {"sphere": "ОКВЭД 49.41 (Перевозки), регион Тверь", "materials": "[N1] ставка"},
+        "synthesis_decision": {"sphere": "ОКВЭД 49.41 (Перевозки), регион Тверь", "conclusion": "долг дорогой",
+                               "facts": "выручка 1 млрд", "role": {"title": "CFO", "authority": "бюджет", "playbook": "правила"},
+                               "moves": {}},
     }
     assert set(inputs) == set(agents_app.AGENTS)
     for name, data in inputs.items():
