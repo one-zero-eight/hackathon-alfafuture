@@ -28,6 +28,7 @@ from news_search.text import match_items, norm_title
 METHODS = ("lexical", "dense_llm", "dense_xquad")
 DEFAULT_METHOD = "dense_xquad"
 CORPUS_DAYS, CACHE_TTL = 365, 24 * 3600  # corpus window; a finished result is reused for a day
+EMBED_DAYS = 10  # background embedding covers only fresh news; older ones missing from the file are embedded by the search itself
 PER_QUERY_CORPUS = 30  # lexical matches per query
 N_DENSE, TOP_CAND = 100, 150  # v2: dense candidates, and with the lexical second source
 TOP_EMB, MAX_CAND = 50, 200  # v1: per embedder, and after interleaving
@@ -287,6 +288,10 @@ class NewsSearch:
         if self._bge is None:
             self._bge = self.encoder_factory("bge-m3", 128)
         return self._bge
+
+    def embed_corpus(self):
+        """Embed the last EMBED_DAYS of news (and undated ones) missing from the vector file, without a search; returns how many were added."""
+        return VectorCache(os.path.join(self.data_dir, "vectors_bgem3.npz")).update(self.corpus(EMBED_DAYS), lambda texts: self.bge()(texts))[2]  # the model loads only if something is new
 
     def _dense_xquad(self, run, needs):
         """Dense candidates from the whole corpus window, no lexical gate (the lexical match alone reached ~45% of relevant news)."""

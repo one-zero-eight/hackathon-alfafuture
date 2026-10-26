@@ -9,10 +9,10 @@
 | `dedup.py` | склейка дубликатов |
 | `text.py` | токены и лексическое совпадение |
 | `cache.py` | кэш шагов и результатов поиска в таблице `search_cache` (PostgreSQL) и его версия в памяти для тестов |
-| `embed.py` | кодировщики и кэш векторов статей |
+| `embed.py` | кодировщики и кэш векторов статей (новые статьи встраиваются частями по 1000, файл сохраняется после каждой части) |
 | `corpus.py` | чтение корпуса из Postgres |
 | `region.py`, `regions.json`, `regions_build.py` | регион новости без LLM (регион издания, названия регионов и городов) для доли федеральных новостей по размеру компании в `dense_xquad`; словарь пересобирается `python news_search/regions_build.py` |
-| `app.py` | HTTP: `POST /search`, `POST /refine`, `GET /methods` |
+| `app.py` | HTTP: `POST /search`, `POST /refine`, `GET /methods`; фоновое встраивание новых статей (`NEWS_SEARCH_EMBED_EVERY`) |
 | `benchmarks/` | сравнение методов; замер допоиска и его драйвер `refine_bench.py`; регион и `locality` (`region-boost.md`, `region_boost_bench.py`) |
 
 ```bash
