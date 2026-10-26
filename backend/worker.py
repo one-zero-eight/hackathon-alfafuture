@@ -8,7 +8,7 @@ import time
 import httpx
 
 from backend import config, pages, store
-from backend.companies import CompanyBook, CompanyUnavailable
+from backend.companies import NAMED_LOCALITY, CompanyBook, CompanyUnavailable
 from backend.focus import interpret, page_key_bits
 
 log = logging.getLogger("backend.worker")
@@ -45,11 +45,11 @@ def build_page(key: str, company: str, company_id: str, role: str, region: str, 
             raise ProfileError(str(e)) from e
         query_company, region = profile["description"], profile["region"]
     else:
-        profile = {"label": company, "region": region}
+        profile = {"label": company, "region": region, "locality": NAMED_LOCALITY}
         query_company = company
     store.progress(key, "search")
     found = _post(f"{config.NEWS_SEARCH_URL}/search", {"company": query_company, "line": role, "region": region, "method": method,
-                                                        "anonymised": bool(company_id)}, "news_search")
+                                                        "anonymised": bool(company_id), "locality": profile["locality"]}, "news_search")
     stats = found.get("stats", {})
     # shortcut: news_search ranks inside one /search call, so "rank" is only reported once it returns; upgrade when /search streams progress
     store.progress(key, "rank", stats.get("candidates") or stats.get("unique") or len(found["top"]))

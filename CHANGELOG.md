@@ -34,3 +34,4 @@
 - 2026-10-25 analytics: цепочки новостей и пакеты verify идут параллельно (ANALYTICS_WORKERS, по умолчанию 6); шаг аналитики пишет Gemma 4 26B A4B вместо DeepSeek (agents), замер в analytics/benchmarks/parallel-and-models.md.
 - 2026-10-25 news_search: кэш шагов запуска и результатов поиска (queries, needs, hyde, result, refine) перенесён из JSON-файлов в таблицу search_cache; папка NEWS_SEARCH_DATA хранит только векторы статей.
 - 2026-10-25 docs: .gitignore переведён на разрешающий список с сохранением исходных данных и материалов организаторов; описание в AGENTS.md синхронизировано.
+- 2026-10-26 news_search: регион новости без LLM (region.py, regions.json: регион издания, названия регионов и городов); по locality компании (backend, из выручки и штата) крупной компании добавляются федеральные новости, вес NEWS_SEARCH_NONLOCAL_WEIGHT; замер в news_search/benchmarks/region-boost.md.

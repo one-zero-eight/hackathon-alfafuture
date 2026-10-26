@@ -21,6 +21,7 @@ from news_search import scoring
 from news_search.cache import MemoryCache
 from news_search.dedup import UnionFind, dd_hybrid
 from news_search.embed import VectorCache, sentence_transformer, wrap_query
+from news_search.region import RegionIndex
 from news_search.scoring import TOP_OUT, age_days, fresh, mean_top3, norm01
 from news_search.text import match_items, norm_title
 
@@ -38,6 +39,11 @@ PARAPHRASE_SIM = 0.8
 # shortcut: threshold picked by eye on 6 topics (relevant regional news 0.39-0.50), region found by its name only, not by
 # the capital or the outlet's region; add source_regions of the collector when the corpus has it
 REGION_SLOTS, REGION_SIM = 3, 0.42
+# dense_xquad with a locality: in the final selection a news outside the profile's region gets a constant extra gain of
+# NONLOCAL_WEIGHT x (1 - locality) on the 0..1 relevance scale (an aspect coverage would fade after one or two federal news).
+# A large company trades more relevance for federal news; no fixed count. Tunable (NEWS_SEARCH_NONLOCAL_WEIGHT in the service,
+# 0 = off); 0.5 is not proven by benchmarks/region-boost.md: the judge there favours regional news by its prompt.
+NONLOCAL_WEIGHT = 0.5
 REGION_GENERIC = {"область", "край", "республика", "автономный", "автономная", "округ", "город"}
 # Names of companies the pipeline was tuned on; any other company falls back to its name stems (see own_pattern).
 ALIASES = {"Магазин Мать и Дитя": r"мать и дит|мать и дочь|\bмд мед", "Инарктика": r"инарктик|интарктик|\baqua\b|inarctica",
@@ -74,7 +80,7 @@ def dedup_filter(pool, company, anonymised=False):
                       "methods": sorted({m["method"] for m in members}),
                       "blocks": dict(collections.Counter(b for m in members for b in m["blocks"])),
                       "queries": sorted({q for m in members for q in m["queries"]}),
-                      **{k: first[k] for k in ("score", "aspects", "vec") if k in first}})  # ranking data of the best copy
+                      **{k: first[k] for k in ("score", "aspects", "vec", "source") if k in first}})  # ranking data of the best copy
     return items, own
 
 
@@ -86,15 +92,20 @@ class NewsSearch:
         self.cache = cache or MemoryCache()
         self.encoder_factory, self._now = encoder_factory, now
         self._bge = None
+        self._regions = None  # RegionIndex, built on the first search with a locality
+        self.nonlocal_weight = NONLOCAL_WEIGHT  # an attribute so the benchmark can sweep it
 
     def now(self):
         return self._now() if self._now else datetime.datetime.now(datetime.timezone.utc)
 
-    def search(self, company, line, region="", method=DEFAULT_METHOD, anonymised=False):
+    def search(self, company, line, region="", method=DEFAULT_METHOD, anonymised=False, locality=None):
+        """locality (0..1, from the company's size; None = not given): in dense_xquad the shown news must also cover news that are
+        not about the profile's region, with weight NONLOCAL_WEIGHT x (1 - locality): a large company gets more federal news."""
         if method not in METHODS:
             raise ValueError(f"method must be one of {METHODS}")
         run_key = self.run_key(company, line, region)
-        if (done := self.cache.get(run_key, f"result_{method}", CACHE_TTL)) is not None:
+        result = f"result_{method}" + ("" if locality is None else f"_l{locality:.2f}")
+        if (done := self.cache.get(run_key, result, CACHE_TTL)) is not None:
             return done
         cost0 = self.agents.cost
         ask = dict(company=company, line=line, region=region)
@@ -102,14 +113,23 @@ class NewsSearch:
         if method == "dense_xquad":
             needs = self._cached(run_key, "needs", lambda: self.agents.run("needs", ask))["needs"]
         headlines = None if method == "lexical" else self._cached(run_key, "hyde", lambda: self.agents.run("hyde", ask))["headlines"]
-        run = dict(company=company, line=line, region=region, anonymised=anonymised, queries=queries, headlines=headlines, now=self.now())
+        run = dict(company=company, line=line, region=region, anonymised=anonymised, queries=queries, headlines=headlines, now=self.now(),
+                   locality=locality)
         if method == "dense_xquad":
             res = self._dense_xquad(run, needs)
         else:
             res = getattr(self, "_" + method)(run)
         res.update(company=company, line=line, region=region, method=method, date=datetime.date.today().isoformat(), cost=round(self.agents.cost - cost0, 4))
-        self.cache.put(run_key, f"result_{method}", res)
+        self.cache.put(run_key, result, res)
         return res
+
+    def in_region(self, items, region):
+        """1.0 for items of the profile's region, else 0.0 (region.py: precision 0.61, recall 0.87). shortcut: outlet region + names only, the collector's geotags
+        (an LLM check that a regional outlet's news is really regional) are not read yet; add them when the corpus has them."""
+        if self._regions is None:
+            self._regions = RegionIndex()
+        wanted = self._regions.find(region)
+        return np.array([1.0 if wanted & self._regions.of(it) else 0.0 for it in items])
 
     @staticmethod
     def run_key(company, line, region):
@@ -157,7 +177,7 @@ class NewsSearch:
                         top.append(int(j))
         blocks = [b for b in queries if b != "company_self"]
         B = np.stack([(X[top] @ encode(queries[b]).T).max(1) for b in blocks], 1)
-        pool = [{**{k: items[j][k] for k in ("aid", "title", "link", "date", "outlet", "summary")}, "method": "D", "queries": [], "score": float(s[j]),
+        pool = [{**{k: items[j][k] for k in ("aid", "title", "link", "date", "outlet", "summary")}, "source": items[j].get("source"), "method": "D", "queries": [], "score": float(s[j]),
                  "blocks": [blocks[int(B[r].argmax())]], "aspects": B[r].round(4).tolist(), "vec": X[j]} for r, j in enumerate(top)]
         # duplicates and paraphrases (cosine >= PARAPHRASE_SIM) of shown or removed news are dropped, and of each other
         # only the best scored copy is kept: dedup the pool together with the seen news
@@ -219,7 +239,7 @@ class NewsSearch:
 
     @staticmethod
     def public(item):
-        return {k: v for k, v in item.items() if k not in ("vec", "aspects")}
+        return {k: v for k, v in item.items() if k not in ("vec", "aspects", "source")}
 
     # ---------------- lexical ----------------
     def _lexical(self, run):
@@ -276,9 +296,12 @@ class NewsSearch:
         top = np.array(dense + sorted(lex - set(dense), key=lambda j: -s[j])[:TOP_CAND - N_DENSE])
         blocks = [b for b in run["queries"] if b != "company_self"]
         B = np.stack([(X[top] @ encode(run["queries"][b]).T).max(1) for b in blocks], 1)  # aspect score: best keyword query of each block
-        pool = [{**{k: items[j][k] for k in ("aid", "title", "link", "date", "outlet", "summary")}, "method": "D", "queries": [], "score": float(s[j]),
+        pool = [{**{k: items[j][k] for k in ("aid", "title", "link", "date", "outlet", "summary")}, "source": items[j].get("source"), "method": "D", "queries": [], "score": float(s[j]),
                  "blocks": [blocks[int(B[r].argmax())]], "aspects": B[r].round(4).tolist(), "vec": X[j]} for r, j in enumerate(top)]
         unique, own = self.unique(pool, run)
-        shown = [unique[i] for i in scoring.xquad(unique)]
+        bonus = None
+        if run.get("locality") is not None and run["region"]:
+            bonus = self.nonlocal_weight * (1 - run["locality"]) * (1 - self.in_region(unique, run["region"]))
+        shown = [unique[i] for i in scoring.xquad(unique, bonus=bonus)]
         return {"top": [self.public(it) for it in shown], "pairs": scoring.pairs(shown), "blocks": blocks,
                 "stats": {"candidates": len(pool), "unique": len(unique), "own_removed": own}}
