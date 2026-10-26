@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from agents.client import AgentError
 from analytics import app as app_module, chain
 from analytics.alfa import keep
-from analytics.chain import ROLES, _analysis_text, bank_position, build, events_from, grounded, hide_loose_bank, make_page, plan, reply, sources
+from analytics.chain import ROLES, _analysis_text, bank_position, build, clip_title, events_from, grounded, hide_loose_bank, make_page, plan, reply, sources
 from analytics.search import Index
 
 QUOTE = "Банк России сохранит ставку"
@@ -53,6 +53,14 @@ def fake_for(news=NEWS, **kw):
     fake = Fake(**kw)
     fake.event_id = events_from(news, [])[0][0]["id"]
     return fake
+
+
+def test_card_title_stops_on_a_word_inside_120_characters():
+    long = " ".join(["новость"] * 30)
+    got = clip_title(long)
+    assert len(got) <= 120 and got.endswith("…") and got[:-1].split()[-1] == "новость"
+    assert clip_title("Короткий заголовок") == "Короткий заголовок"
+    assert len(clip_title("а" * 200)) <= 120
 
 
 def test_page_has_a_chain_for_relevant_news_and_arrows_between_columns():

@@ -13,9 +13,14 @@ test("nothing open: overview, nothing hidden", () => {
   expect(f.selected).toEqual([]); expect(f.hidden.size).toBe(0);
 });
 
-test("open analytics keeps its whole chain and hides the unrelated news", () => {
-  const f = computeFocus(page, new Set(["a1"]), null);
-  expect([...f.hidden]).toEqual(["n2"]);
+test("open analytics keeps every news card and only the chain of conclusions", () => {
+  const wider: Page = {
+    ...page,
+    widgets: [...page.widgets, { id: "a2", column: "analytics", title: "a2" }],
+    links: [...page.links, { id: "l3", from: "n2", to: "a2" }],
+  };
+  const f = computeFocus(wider, new Set(["a1"]), null);
+  expect([...f.hidden].sort()).toEqual(["a2"]);
   expect(f.visibleLinks.map(l => l.id)).toEqual(["l1", "l2"]);
 });
 

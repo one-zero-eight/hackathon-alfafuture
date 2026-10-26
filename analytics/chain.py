@@ -31,11 +31,25 @@ ROLE_RU = {"CEO": "Генеральный директор", "CFO": "Финан�
            "chief_accountant": "Главный бухгалтер", "treasury_head": "Руководитель казначейства"}
 MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"]
 EVENTS, STEPS = 10, 3  # news analysed per page; analytics iterations per news
+TITLE_MAX = 120  # card title length; the cut is on a word boundary, never mid-word unless the first word itself is longer
 WORKERS = int(os.environ.get("ANALYTICS_WORKERS", 6))  # news analysed at once; the chain of one news stays sequential (each thought feeds the next search)
 
 
 def norm(text: str) -> str:
     return " ".join(str(text).split())
+
+
+def clip_title(text: str, limit: int = TITLE_MAX) -> str:
+    """A card title of at most `limit` characters, ending on a word. The ellipsis counts toward the limit."""
+    text = norm(text)
+    if len(text) <= limit:
+        return text
+    room = max(1, limit - 1)
+    cut = text[:room]
+    space = cut.rfind(" ")
+    if space > 0:
+        cut = cut[:space]
+    return cut.rstrip(".,;:—-– ") + "…"
 
 
 def grounded(evidence: list, blobs: dict) -> list:
@@ -293,7 +307,7 @@ def build(profile: dict, role: dict, events: list[dict], items: dict, agents, re
         news_tags = {"kind": "fact"}
         if (card or {}).get("event_type"):
             news_tags["industry"] = card["event_type"]
-        widgets.append({"id": news_id, "column": "news", "title": event["title"], "url": event.get("url") or None,
+        widgets.append({"id": news_id, "column": "news", "title": clip_title(event["title"]), "url": event.get("url") or None,
                         "tags": news_tags,
                         "details": {"text": text, "src": event.get("source", ""), "date": event.get("date", "")},
                         "chat": {"text": text, "basis": [f"{event.get('source', '')}, {event.get('date', '')}".strip(", ")], "followups": []}})
@@ -302,7 +316,7 @@ def build(profile: dict, role: dict, events: list[dict], items: dict, agents, re
         src = "alfa" if any(note.get("role") == "alfa" for note in notes) else "ai"
         ana_id = f"a{n}"
         company = next((note["thought"] for note in notes if note.get("role") != "alfa"), notes[-1]["thought"])
-        widgets.append({"id": ana_id, "column": "analytics", "title": company[:120],
+        widgets.append({"id": ana_id, "column": "analytics", "title": clip_title(company),
                         "tags": {"confidence": "reliable" if src == "alfa" else "probable", "source": src},
                         "details": {"text": _analysis_text(notes, event)}})
         links.append({"id": f"l{n}a", "from": news_id, "to": ana_id, "text": notes[-1]["thought"]})
@@ -311,7 +325,7 @@ def build(profile: dict, role: dict, events: list[dict], items: dict, agents, re
         if not decision:
             continue
         dec_id = f"d{n}"
-        widgets.append({"id": dec_id, "column": "decisions", "title": decision["title"],
+        widgets.append({"id": dec_id, "column": "decisions", "title": clip_title(decision["title"]),
                         "tags": {"confidence": "possible" if decision.get("move") else "probable", "source": "ai",
                                  "urgency": HORIZON.get((card or {}).get("horizon"), "medium_term")},
                         "details": {"text": decision["text"] + (f" Приём: {decision['move']}." if decision.get("move") else "")},
