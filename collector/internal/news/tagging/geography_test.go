@@ -86,12 +86,12 @@ func TestPostgresWorkerAsksPlacesOncePerBatch(t *testing.T) {
 	w, client, _, _ := workerFixture(t)
 	queueArticle(t, w.db, "a", "Глава МИД провёл переговоры в Пекине.")
 	queueArticle(t, w.db, "b", "В Казани открыли новый завод.")
-	queueArticle(t, w.db, "c", "Регулятор сохранил ключевую ставку.")
+	queueArticle(t, w.db, "c", "Российские военные и Банк России.")
 	var prompt string
 	client.places = func(_ context.Context, p openai.ChatCompletionNewParams) (*openai.ChatCompletion, error) {
 		prompt = p.Messages[0].OfUser.Content.OfString.Value
 		return &openai.ChatCompletion{Choices: []openai.ChatCompletionChoice{{Message: openai.ChatCompletionMessage{
-			Content: "```json\n{\"places\": {\"0\": [\"Китай\", \"Атлантида\"], \"1\": [\"Татарстан\"]}}\n```"}}}}, nil
+			Content: "```json\n{\"places\": {\"0\": [\"Китай\", \"Атлантида\"], \"1\": [\"Татарстан\"], \"2\": [\"Украина\"]}}\n```"}}}}, nil
 	}
 	var shown [][]string
 	reply := fixtureReply(t, completionBody())
@@ -105,13 +105,17 @@ func TestPostgresWorkerAsksPlacesOncePerBatch(t *testing.T) {
 	if client.placesCalls.Load() != 1 || client.calls.Load() != 3 {
 		t.Fatalf("places calls %d, tagging calls %d", client.placesCalls.Load(), client.calls.Load())
 	}
-	if !strings.Contains(prompt, "0 | Глава МИД") || !strings.Contains(prompt, "2 | Регулятор") {
+	if !strings.Contains(prompt, "0 | Глава МИД") || !strings.Contains(prompt, "2 | Российские") {
 		t.Fatalf("batch prompt lacks queued articles: %q", prompt)
 	}
-	for i, want := range []string{"geography:country:CN", "geography:region:056", ""} {
-		has := slices.ContainsFunc(shown[i], func(id string) bool { return !strings.HasPrefix(id, "geography:scope:") })
-		if want == "" && has || want != "" && (!slices.Contains(shown[i], want) || len(shown[i]) != 3) {
-			t.Fatalf("article %d offered %v, want %q plus scope", i, shown[i], want)
+	// The third article has a name match (RU) and still gets the model's place (UA): the union is offered.
+	for i, want := range [][]string{{"geography:country:CN"}, {"geography:region:056"}, {"geography:country:RU", "geography:country:UA"}} {
+		want = append(want, "geography:scope:international", "geography:scope:russia")
+		slices.Sort(want)
+		got := slices.Clone(shown[i])
+		slices.Sort(got)
+		if !slices.Equal(got, want) {
+			t.Fatalf("article %d offered %v, want %v", i, got, want)
 		}
 	}
 	if len(w.places) != 0 {
