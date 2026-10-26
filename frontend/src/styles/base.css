@@ -1,8 +1,14 @@
-/* Dark theme in the InNoHassle palette */
+/* Alfa-Bank design tokens (@alfalab/core-components-vars, light bluetint theme); the old names below are aliases used by the section styles */
+@import "@alfalab/core-components-vars/colors-bluetint.css";
+@import "@alfalab/core-components-vars/shadows-bluetint.css";
+@import "@alfalab/core-components-vars/border-radius.css";
+@import "@alfalab/core-components-vars/typography-vars.css";
 :root {
-  --bg:#0e0c11; --card:#1b181f; --card2:#27232e; --line:#2d2933;
-  --ink:#fff; --muted:#a9a4b3; --accent:#8f4bf5; --accent-soft:rgba(143,75,245,.18); --accent-hi:#b78bff;
-  --red:#f0584b;
+  --bg:var(--color-light-base-bg-secondary); --card:var(--color-light-base-bg-primary); --card2:var(--color-light-neutral-100); --line:var(--color-light-neutral-300);
+  --ink:var(--color-light-text-primary); --muted:var(--color-light-text-secondary);
+  --accent:var(--color-light-accent-primary); --accent-soft:rgba(239,49,36,.1); --accent-hi:#c7241f;
+  --red:var(--color-light-status-negative); --on-accent:#fff;
+  --r-card:var(--border-radius-16); --r-ctl:var(--border-radius-12);
 }
 * { box-sizing:border-box; }
-body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 Inter, "Helvetica Neue", Arial, sans-serif; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 var(--font-family-system); }
