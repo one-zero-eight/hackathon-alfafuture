@@ -15,7 +15,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from backend import config, feedback, feedback_pages, feedback_store, pages, store, worker
-from backend.companies import CompanyUnavailable
+from agents.client import Agents
+from backend.companies import CompanyUnavailable, ad_offer
 
 logging.basicConfig(level=logging.INFO)
 DEMO = json.loads((Path(__file__).parent / "demo" / "seed.json").read_text(encoding="utf-8"))
@@ -55,6 +56,39 @@ class ProfileRequest(BaseModel):
     role: str
     region: str = ""
     company_id: str = ""
+
+
+class AdTipRequest(BaseModel):
+    company: str = Field("", max_length=200)  # a name, or U_<digits> from the bank data
+    role: str = Field(max_length=500)
+
+
+_ad_tips: dict[tuple[str, str], dict] = {}  # shortcut: in memory, lost on restart; move to Postgres if the tips must survive deploys
+
+
+@app.post("/api/ad-tip")
+def ad_tip(req: AdTipRequest) -> dict:
+    """A one-two sentence Alfa-Business tip shown while the page is being built. Depends on the company record and the client status (CL_TYPE)."""
+    company, role = " ".join(req.company.split()), " ".join(req.role.split())
+    if not company or not role:
+        raise HTTPException(422, "company and role are required")
+    if (company, role) in _ad_tips:
+        return _ad_tips[(company, role)]
+    cl_type, description = None, company
+    if worker.COMPANY_ID.fullmatch(company):
+        try:
+            card = worker.book.profile(company)
+        except CompanyUnavailable as e:
+            raise HTTPException(404, str(e))
+        cl_type, description = card["cl_type"], card["description"]
+    status, goal = ad_offer(cl_type, card["products_ru"] if cl_type else [])
+    try:
+        out = Agents(config.AGENTS_URL, timeout=60).run("ad_tip", {"company": description, "role": role, "status": status, "goal": goal})
+    except Exception as e:  # the widget is decoration: the UI hides it on any failure
+        logging.warning("ad tip failed: %s", e)
+        raise HTTPException(502, "ad tip unavailable")
+    _ad_tips[(company, role)] = result = {"text": out["text"], "cl_type": cl_type}
+    return result
 
 
 def locate(element_id: str) -> tuple[str, str, dict]:
