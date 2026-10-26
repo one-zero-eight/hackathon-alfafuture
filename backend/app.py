@@ -1,4 +1,5 @@
 """Backend: the API of the UI (docs/backend.md). Keeps profiles and pages, and orchestrates search and analytics."""
+
 import copy
 import json
 import logging
@@ -14,13 +15,26 @@ from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from backend import config, feedback, feedback_pages, feedback_store, pages, store, worker
+from backend import (
+    config,
+    feedback,
+    feedback_pages,
+    feedback_store,
+    pages,
+    store,
+    worker,
+)
 from agents.client import Agents
 from backend.companies import CompanyUnavailable, ad_offer
 
 logging.basicConfig(level=logging.INFO)
-DEMO = json.loads((Path(__file__).parent / "demo" / "seed.json").read_text(encoding="utf-8"))
-DEMO_PAGE = {"version": 1, **copy.deepcopy(DEMO)}  # in memory: edits of the demo page are lost on restart
+DEMO = json.loads(
+    (Path(__file__).parent / "demo" / "seed.json").read_text(encoding="utf-8")
+)
+DEMO_PAGE = {
+    "version": 1,
+    **copy.deepcopy(DEMO),
+}  # in memory: edits of the demo page are lost on restart
 KEY = re.compile(r"([0-9a-f]{12})_")
 
 
@@ -29,8 +43,12 @@ async def lifespan(_: FastAPI):
     store.init()
     stop = threading.Event()
     if config.WORKER_ENABLED:
-        threading.Thread(target=worker.run_forever, args=(stop,), daemon=True, name="profiles").start()
-        threading.Thread(target=feedback.run_forever, args=(stop,), daemon=True, name="feedback").start()
+        threading.Thread(
+            target=worker.run_forever, args=(stop,), daemon=True, name="profiles"
+        ).start()
+        threading.Thread(
+            target=feedback.run_forever, args=(stop,), daemon=True, name="feedback"
+        ).start()
     yield
     stop.set()
 
@@ -48,7 +66,9 @@ class ChatRequest(BaseModel):
     session_id: str | None = None
     message: str | None = None  # null = open the chat
     page_version: int
-    request_id: str | None = Field(None, max_length=64)  # retries with the same id return the first operation instead of paying twice
+    request_id: str | None = Field(
+        None, max_length=64
+    )  # retries with the same id return the first operation instead of paying twice
 
 
 class ProfileRequest(BaseModel):
@@ -63,7 +83,9 @@ class AdTipRequest(BaseModel):
     role: str = Field(max_length=500)
 
 
-_ad_tips: dict[tuple[str, str], dict] = {}  # shortcut: in memory, lost on restart; move to Postgres if the tips must survive deploys
+_ad_tips: dict[
+    tuple[str, str], dict
+] = {}  # shortcut: in memory, lost on restart; move to Postgres if the tips must survive deploys
 
 
 @app.post("/api/ad-tip")
@@ -83,7 +105,10 @@ def ad_tip(req: AdTipRequest) -> dict:
         cl_type, description = card["cl_type"], card["description"]
     status, goal = ad_offer(cl_type, card["products_ru"] if cl_type else [])
     try:
-        out = Agents(config.AGENTS_URL, timeout=60).run("ad_tip", {"company": description, "role": role, "status": status, "goal": goal})
+        out = Agents(config.AGENTS_URL, timeout=60).run(
+            "ad_tip",
+            {"company": description, "role": role, "status": status, "goal": goal},
+        )
     except Exception as e:  # the widget is decoration: the UI hides it on any failure
         logging.warning("ad tip failed: %s", e)
         raise HTTPException(502, "ad tip unavailable")
@@ -114,7 +139,9 @@ def health() -> dict:
 
 
 @app.get("/api/companies")
-def companies(q: str = "", offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=200)) -> dict:
+def companies(
+    q: str = "", offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=200)
+) -> dict:
     """The company picker of the start menu: a page of bank-data companies, optionally filtered by id or OKVED name."""
     try:
         return worker.book.listing(q, offset, limit)
@@ -124,14 +151,39 @@ def companies(q: str = "", offset: int = Query(0, ge=0), limit: int = Query(50, 
 
 @app.post("/api/profile")
 def set_profile(req: ProfileRequest) -> dict:
-    company, role, region, company_id = (" ".join(x.split()) for x in (req.company, req.role, req.region, req.company_id))
+    company, role, region, company_id = (
+        " ".join(x.split()) for x in (req.company, req.role, req.region, req.company_id)
+    )
     if worker.COMPANY_ID.fullmatch(company):
         company, company_id = "", company_id or company
-    if not (company or company_id) or not role or any(len(x) > 200 for x in (company, role, region, company_id)) or (company_id and not worker.COMPANY_ID.fullmatch(company_id)):
-        raise HTTPException(422, "role and company (or company_id U_<digits>) are required; fields at most 200 characters")
-    key = worker.profile_key(company, company_id, role, region, config.NEWS_SEARCH_METHOD)
-    k, status, error = store.submit(key=key, company=company, company_id=company_id, role=role, region=region, method=config.NEWS_SEARCH_METHOD)
-    return {"key": k, "status": status, "error": error, "cached": status == "ready"}  # ready right at submit = served from the database
+    if (
+        not (company or company_id)
+        or not role
+        or len(role) > 500
+        or any(len(x) > 200 for x in (company, region, company_id))
+        or (company_id and not worker.COMPANY_ID.fullmatch(company_id))
+    ):
+        raise HTTPException(
+            422,
+            "role and company (or company_id U_<digits>) are required; role at most 500 characters, other fields at most 200",
+        )
+    key = worker.profile_key(
+        company, company_id, role, region, config.NEWS_SEARCH_METHOD
+    )
+    k, status, error = store.submit(
+        key=key,
+        company=company,
+        company_id=company_id,
+        role=role,
+        region=region,
+        method=config.NEWS_SEARCH_METHOD,
+    )
+    return {
+        "key": k,
+        "status": status,
+        "error": error,
+        "cached": status == "ready",
+    }  # ready right at submit = served from the database
 
 
 @app.get("/api/profile/{key}")
@@ -139,7 +191,14 @@ def profile_status(key: str) -> dict:
     row = store.status(key)
     if not row:
         raise HTTPException(404, f"profile {key} not found")
-    return {"key": key, "status": row[0], "error": row[1], "stage": row[2], "found": row[3], "selected": row[4]}
+    return {
+        "key": key,
+        "status": row[0],
+        "error": row[1],
+        "stage": row[2],
+        "found": row[3],
+        "selected": row[4],
+    }
 
 
 @app.get("/api/page")
@@ -177,7 +236,11 @@ def chat(req: ChatRequest, response: Response) -> dict:
     ctx = req.context
     if ctx.type == "page":
         key, prefix, page = ctx.id, "", store.load_page(ctx.id)
-        card = {"text": "Спросите о странице целиком или попросите изменить её.", "basis": [], "followups": []}
+        card = {
+            "text": "Спросите о странице целиком или попросите изменить её.",
+            "basis": [],
+            "followups": [],
+        }
         if page is None:
             raise HTTPException(404, f"profile {ctx.id} has no page yet")
     else:
@@ -194,10 +257,22 @@ def chat(req: ChatRequest, response: Response) -> dict:
     if not message or len(message) > 4000:
         raise HTTPException(422, "message must be 1..4000 characters")
     if req.page_version != page["version"]:
-        raise HTTPException(409, f"page version is {page['version']}, client has {req.page_version}")
-    payload = {"context": ctx.model_dump(), "message": message, "session_id": session_id, "page_version": req.page_version}
-    op, created = feedback_store.enqueue(key, req.request_id or uuid.uuid4().hex, payload)
-    if not created and (op["payload"]["message"], op["payload"]["context"]) != (message, payload["context"]):
+        raise HTTPException(
+            409, f"page version is {page['version']}, client has {req.page_version}"
+        )
+    payload = {
+        "context": ctx.model_dump(),
+        "message": message,
+        "session_id": session_id,
+        "page_version": req.page_version,
+    }
+    op, created = feedback_store.enqueue(
+        key, req.request_id or uuid.uuid4().hex, payload
+    )
+    if not created and (op["payload"]["message"], op["payload"]["context"]) != (
+        message,
+        payload["context"],
+    ):
         raise HTTPException(409, "request_id was already used for another request")
     response.status_code = 202 if created else 200
     return {"session_id": session_id, "operation_id": op["id"], "status": op["status"]}
@@ -227,20 +302,38 @@ def undo(key: str, req: UndoRequest) -> dict:
         raise HTTPException(404, "nothing to undo")
     old, restored = done
     ops, changes = feedback_pages.diff(old, restored)
-    return {"patch": {"base_version": old["version"], "version": restored["version"], "ops": ops}, "changes": changes, "version": restored["version"]}
+    return {
+        "patch": {
+            "base_version": old["version"],
+            "version": restored["version"],
+            "ops": ops,
+        },
+        "changes": changes,
+        "version": restored["version"],
+    }
 
 
 def demo_chat(req, prefix, page, session_id):
     """The demo page (no profile): canned edits in memory, as before the feedback queue."""
     ctx = req.context
     if req.page_version != page["version"]:
-        raise HTTPException(409, f"page version is {page['version']}, client has {req.page_version}")
+        raise HTTPException(
+            409, f"page version is {page['version']}, client has {req.page_version}"
+        )
     reply_text, ops = pages.edit(page, prefix, ctx.type, ctx.id, req.message)
     patch = None
     if ops:
         page["version"] += 1
-        patch = {"base_version": req.page_version, "version": page["version"], "ops": ops}
-    return {"session_id": session_id, "reply": {"text": reply_text, "basis": [], "followups": []}, "patch": patch}
+        patch = {
+            "base_version": req.page_version,
+            "version": page["version"],
+            "ops": ops,
+        }
+    return {
+        "session_id": session_id,
+        "reply": {"text": reply_text, "basis": [], "followups": []},
+        "patch": patch,
+    }
 
 
 if os.path.isdir(config.PAPERS_DIR):

@@ -37,24 +37,36 @@ def init() -> None:
         conn.execute(DDL)
         conn.execute(MIGRATE)
         from backend import feedback_store
+
         feedback_store.init(conn)
-        conn.execute("UPDATE profiles SET status = 'queued' WHERE status = 'running'")  # the previous process died mid-run
+        conn.execute(
+            "UPDATE profiles SET status = 'queued' WHERE status = 'running'"
+        )  # the previous process died mid-run
 
 
 def submit(**fields) -> tuple[str, str, str]:
     with connect() as conn:
-        return conn.execute(SUBMIT, {**fields, "ttl": config.PROFILE_TTL_HOURS}).fetchone()
+        return conn.execute(
+            SUBMIT, {**fields, "ttl": config.PROFILE_TTL_HOURS}
+        ).fetchone()
 
 
 def status(key: str):
     with connect() as conn:
-        return conn.execute("SELECT status, error, stage, news_found, news_selected FROM profiles WHERE key = %s", (key,)).fetchone()
+        return conn.execute(
+            "SELECT status, error, stage, news_found, news_selected FROM profiles WHERE key = %s",
+            (key,),
+        ).fetchone()
 
 
-def progress(key: str, stage: str, found: int | None = None, selected: int | None = None) -> None:
+def progress(
+    key: str, stage: str, found: int | None = None, selected: int | None = None
+) -> None:
     with connect() as conn:
-        conn.execute("UPDATE profiles SET stage = %s, news_found = coalesce(%s, news_found), news_selected = coalesce(%s, news_selected) WHERE key = %s",
-                     (stage, found, selected, key))
+        conn.execute(
+            "UPDATE profiles SET stage = %s, news_found = coalesce(%s, news_found), news_selected = coalesce(%s, news_selected) WHERE key = %s",
+            (stage, found, selected, key),
+        )
 
 
 def take():
@@ -65,16 +77,23 @@ def take():
 def finish(key: str, page: dict, state: dict | None = None) -> None:
     """A recomputed profile starts again from its own search: user edits of the older page are not carried over (docs/backend.md)."""
     with connect() as conn:
-        conn.execute("UPDATE profiles SET status = 'ready', page = %s, feedback_state = %s, error = '', updated_at = now() WHERE key = %s",
-                     (Jsonb(page), Jsonb(state) if state is not None else None, key))
+        conn.execute(
+            "UPDATE profiles SET status = 'ready', page = %s, feedback_state = %s, error = '', updated_at = now() WHERE key = %s",
+            (Jsonb(page), Jsonb(state) if state is not None else None, key),
+        )
 
 
 def fail(key: str, error: str) -> None:
     with connect() as conn:
-        conn.execute("UPDATE profiles SET status = 'failed', error = %s, updated_at = now() WHERE key = %s", (error[:500], key))
+        conn.execute(
+            "UPDATE profiles SET status = 'failed', error = %s, updated_at = now() WHERE key = %s",
+            (error[:500], key),
+        )
 
 
 def load_page(key: str):
     with connect() as conn:
-        row = conn.execute("SELECT page FROM profiles WHERE key = %s AND page IS NOT NULL", (key,)).fetchone()
+        row = conn.execute(
+            "SELECT page FROM profiles WHERE key = %s AND page IS NOT NULL", (key,)
+        ).fetchone()
     return row[0] if row else None

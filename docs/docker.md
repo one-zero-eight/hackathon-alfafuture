@@ -57,21 +57,54 @@ docker compose --env-file .env -f docker/compose.yaml up -d
 
 ### Снимок: дамп и векторы вместе
 
-Чтобы первый поиск не встраивал весь корпус, вместе с дампом переносится `vectors_bgem3.npz`. Векторы привязаны к `articles.id` и верны только с дампом той же базы: у базы, собранной коллектором заново, id другие, и поиск молча сопоставит не те векторы. Файлы в git не лежат (`*.dump` и `*.npz` в `.gitignore`), их передают отдельно. На ветке `main` снимок корпуса уже с полным файлом векторов.
+Чтобы первый поиск не встраивал весь корпус, вместе с дампом переносится `vectors_bgem3.npz`. Векторы привязаны к `articles.id` и верны только с дампом той же базы: у базы, собранной коллектором заново, id другие, и поиск молча сопоставит не те векторы. В git файлы не лежат (`*.dump` и `*.npz` в `.gitignore`, файл векторов больше 100 МБ) — они в релизе GitHub [`snapshot-2026-10-26`](https://github.com/one-zero-eight/hackathon-alfafuture/releases/tag/snapshot-2026-10-26): `alfa-2026-10-26b.dump` (37 МБ, 141 317 статей), `vectors_bgem3-2026-10-26b.npz` (290 МБ), `SHA256SUMS`.
 
-Развернуть на чистой машине:
+**1. Скачать** в папку `snapshot/` в корне репозитория.
+
+С `gh` (нужен `gh auth login` с доступом к репозиторию):
 
 ```bash
-cp .env.example .env
-docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres
-docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner' < snapshot/alfa.dump
-docker compose --env-file .env -f docker/compose.yaml up -d --build --wait
-docker compose --env-file .env -f docker/compose.yaml cp snapshot/vectors_bgem3.npz news_search:/data/vectors_bgem3.npz
+gh release download snapshot-2026-10-26 -R one-zero-eight/hackathon-alfafuture -D snapshot
 ```
+
+Без `gh`, через `curl`. Репозиторий закрытый, поэтому нужен токен GitHub с правом чтения репозитория (classic с `repo` или fine-grained с `Contents: read`) в `GITHUB_TOKEN`:
+
+```bash
+mkdir -p snapshot && cd snapshot
+R=one-zero-eight/hackathon-alfafuture TAG=snapshot-2026-10-26
+curl -fsS -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/repos/$R/releases/tags/$TAG" \
+  | python3 -c 'import json,sys; [print(a["id"], a["name"]) for a in json.load(sys.stdin)["assets"]]' \
+  | while read id name; do curl -fsSL -o "$name" -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/octet-stream" "https://api.github.com/repos/$R/releases/assets/$id"; done
+cd ..
+```
+
+Без `gh` и без токена: откройте страницу релиза в браузере под учётной записью с доступом к репозиторию и скачайте три файла в `snapshot/`. Если репозиторий станет открытым, подойдут и прямые ссылки `https://github.com/one-zero-eight/hackathon-alfafuture/releases/download/snapshot-2026-10-26/<файл>` (`curl -fLO` без токена).
+
+Проверить целостность: `(cd snapshot && shasum -a 256 -c SHA256SUMS)`.
+
+**2. Развернуть.** Быстрее всего — собирать образы, пока качается снимок (шаг 3 в [README](../README.md)), затем:
+
+```bash
+docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres
+docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --clean --if-exists' < snapshot/alfa-2026-10-26b.dump
+docker compose --env-file .env -f docker/compose.yaml up -d --build --wait
+docker compose --env-file .env -f docker/compose.yaml cp snapshot/vectors_bgem3-2026-10-26b.npz news_search:/data/vectors_bgem3.npz
+docker compose --env-file .env -f docker/compose.yaml restart news_search   # фоновое встраивание начнёт с восстановленного файла
+```
+
+`--clean --if-exists` позволяет восстановить и в базу, которую коллектор уже успел создать. Проверка: `select count(*) from articles` — около 141 300. Если ключ в `.env` повторяется, действует последнее значение.
 
 При `docker/up.sh` на macOS `news_search` работает на хосте, и файл кладётся в `.run/search_data/vectors_bgem3.npz`.
 
-Замер 2026-10-26 (MacBook, Docker без GPU, снимок 137 тыс. статей): копирование векторов 1 с. Первый профиль готов через 22 мин: вызовы LLM поиска около 2 мин, скачивание bge-m3 и встраивание 4 348 статей, которых в снимке ещё не было, около 15 мин, аналитика около 4,5 мин. Весь корпус заново не считается.
+Снять новый снимок (сначала дамп, потом векторы — тогда в векторах нет статей, которых нет в дампе) и выложить его новым релизом `snapshot-<дата>`:
+
+```bash
+mkdir -p snapshot
+docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > snapshot/alfa.dump
+docker compose --env-file .env -f docker/compose.yaml cp news_search:/data/vectors_bgem3.npz snapshot/vectors_bgem3.npz
+```
+
+Замер 2026-10-26 (MacBook, Docker без GPU, кэш сборки тёплый): скачивание снимка из релиза 18–21 с, восстановление дампа 1 с, старт стека 22 с, копирование векторов 1 с. Первый профиль был готов через 22 мин: вызовы LLM поиска ~2 мин, скачивание bge-m3 и встраивание 4 348 статей новее снимка ~15 мин, аналитика ~4,5 мин. Теперь модель и новые статьи `news_search` берёт фоново сразу после старта, а не в первом поиске. Сборка без кэша не замерялась.
 
 Пароль БД применяется только при создании тома `postgres_data`: если том уже создан с другим `POSTGRES_PASSWORD`, смените пароль в `.env` на прежний или удалите том.
 

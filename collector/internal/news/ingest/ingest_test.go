@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -102,5 +103,26 @@ func TestBackfillResumesFinishedWindows(t *testing.T) {
 	var count int64
 	if err := db.Model(&store.Article{}).Where("source_id = ?", "site").Count(&count).Error; err != nil || count != 2 {
 		t.Fatalf("articles under the curated source: %d err=%v", count, err)
+	}
+}
+
+func TestBackfillStopsWhenGoogleBlocks(t *testing.T) {
+	db, _ := testdb.New(t)
+	if err := store.Bootstrap(t.Context(), db); err != nil {
+		t.Fatal(err)
+	}
+	var hits atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer srv.Close()
+	r := &Runner{db: db, sources: []Source{{ID: "site", Name: "Сайт", Host: "site.ru"}}, gn: gnews.NewAt(srv.URL, time.Second).NoPause()}
+	err := r.Backfill(t.Context(), "gnsite", 20, 1, false, false)
+	if !errors.Is(err, gnews.ErrBlocked) {
+		t.Fatalf("err=%v, want ErrBlocked", err)
+	}
+	if hits.Load() >= 20*5 { // 20 windows x 5 attempts if the pass went on
+		t.Fatalf("%d requests: the pass did not stop", hits.Load())
 	}
 }
