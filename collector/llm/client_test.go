@@ -355,3 +355,19 @@ func TestCancellationAndTransportFailure(t *testing.T) {
 		t.Fatal("transport error lost/retried", err)
 	}
 }
+
+func TestBaseURLFromEnv(t *testing.T) {
+	t.Setenv("LLM_BASE_URL", "")
+	t.Setenv("LLM_BASE_URL_BACKUP", "")
+	if got := baseURL(); got != BaseURL {
+		t.Fatalf("default: %q", got)
+	}
+	t.Setenv("LLM_BASE_URL_BACKUP", "https://backup.example/v1")
+	if got := baseURL(); got != "https://backup.example/v1/" {
+		t.Fatalf("backup: %q", got)
+	}
+	t.Setenv("LLM_BASE_URL", "https://api.alfahack-gateway26.ru/v1/")
+	if got := baseURL(); got != "https://api.alfahack-gateway26.ru/v1/" {
+		t.Fatalf("primary: %q", got)
+	}
+}

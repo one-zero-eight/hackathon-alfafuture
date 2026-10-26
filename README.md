@@ -2,16 +2,73 @@
 
 Агентная система: собирает новости, подбирает их под бизнес пользователя и объясняет, что они значат для его решений (выводы, риски, вопросы), с трассировкой до источников.
 
-- Архитектура и правила: [docs/architecture.md](docs/architecture.md)
-- Запуск всего стека: [docs/docker.md](docs/docker.md)
-- Разделы: [сбор](docs/collector.md), [агенты](docs/agents.md), [поиск новостей](docs/news-search.md), [аналитика](docs/analytics.md), [backend](docs/backend.md), [frontend](docs/frontend.md)
+> Материалы носят информационный характер и не являются индивидуальной инвестиционной рекомендацией.
 
-## Быстрый старт
+## Для проверяющих
 
-```bash
-cp .env.example .env        # задайте POSTGRES_PASSWORD, LLM_API_KEY, LLM_BASE_URL
-docker compose --env-file .env -f docker/compose.yaml up -d --build
-open http://127.0.0.1:3000
+<!-- TODO(команда): название команды; хостим ли решение (если да — ссылка и просьба переактивировать ключ на время проверки); демо-логин, если появится вход. -->
+
+- Команда: _TODO_
+- Развёрнутая версия: _TODO_
+- Вход: пользователь считается авторизованным, логин не нужен. Роль выбирается вручную в стартовом меню.
+
+## Требования к окружению
+
+- Docker с Compose v2; для Docker выделено не меньше 8 ГБ памяти (эмбеддеры). Модели эмбеддеров занимают на диске около 4,5 ГБ.
+- Видеокарта не нужна: по умолчанию всё работает на CPU.
+- Доступ в интернет: шлюз LLM организаторов, Hugging Face (модели эмбеддеров при первом запуске), RSS-источники.
+- Ключ API шлюза организаторов.
+
+## Локальный запуск в Docker
+
+1. Настройки. Скопируйте пример и впишите только ключ — остальные параметры (адреса шлюзов, модель коллектора, метод поиска) уже заданы и меняются в `.env` без правки кода:
+   ```bash
+   cp .env.example .env
+   # в .env: LLM_API_KEY=<ключ>; при желании смените POSTGRES_PASSWORD (буквы и цифры)
+   ```
+2. Данные организаторов. CSV банка `df_Uid_data_hack.csv` и `df_Uid_payment_hack.csv` положите в `external-docs/company/`, PDF Альфа-Банка — в `external-docs/analytical-papers/` (compose монтирует их в backend и analytics только для чтения).
+3. Запуск:
+   ```bash
+   docker compose --env-file .env -f docker/compose.yaml up -d --build
+   docker compose --env-file .env -f docker/compose.yaml ps   # все сервисы Up
+   open http://127.0.0.1:3000
+   ```
+4. Проверка:
+   ```bash
+   curl -s localhost:3000/api/page | head -c 300        # демо-страница
+   curl -s localhost:8080/v1/status                     # collector
+   curl -s localhost:8001/agents | head -c 300          # agents
+   ```
+5. Необязательно: готовый корпус новостей из дампа ускоряет первый запуск — см. раздел «Готовый корпус из дампа» в [docs/docker.md](docs/docker.md).
+
+Первая аналитика профиля занимает минуты: скачиваются модели и считаются векторы статей (на CPU первый расчёт по всему корпусу долгий, дальше считаются только новые статьи). Порты, проверка и устранение проблем — [docs/docker.md](docs/docker.md).
+
+## Архитектура
+
 ```
+RSS + Google News ──► collector (Go) ──► Postgres ◄── news_search (поиск по корпусу)
+                          │ теги, геометки                   │ запросы, HyDE
+                          ▼                                  ▼
+                    словарь тегов            frontend ◄──► backend (FastAPI) ──► analytics ──► agents ──► LLM
+```
+
+| Сервис | Что делает | Документ |
+|---|---|---|
+| collector | каждые 15 минут собирает RSS и Google News, ставит теги и региональные метки (Gemma) | [docs/collector.md](docs/collector.md) |
+| agents | единственная точка вызова LLM из Python, промпты в `agents/prompts/` | [docs/agents.md](docs/agents.md) |
+| news_search | ищет новости под компанию и роль (bge-m3 + xQuAD), склеивает дубли | [docs/news-search.md](docs/news-search.md) |
+| analytics | цепочки «новость → вывод → решение» с цитатами-доказательствами и позицией банка из PDF | [docs/analytics.md](docs/analytics.md) |
+| backend | профили, очередь, страницы, чат, API для UI | [docs/backend.md](docs/backend.md) |
+| frontend | интерфейс (React) | [docs/frontend.md](docs/frontend.md) |
+
+Ход обработки профиля и правила — [docs/architecture.md](docs/architecture.md).
+
+## Как обрабатываются данные
+
+- **Новости.** Из открытых RSS и Google News сохраняются заголовок, дата, ссылка на оригинал и источник; хранятся в Postgres (том `postgres_data`).
+- **Данные банка.** CSV организаторов читает только backend (том только для чтения) для карточки компании.
+- **LLM.** Только модели из списка организаторов через их шлюз; ключ хранится в `.env`, который не попадает в git.
+- **Трассировка.** У каждой новости — ссылка на оригинал; у каждого вывода — дословная цитата-доказательство (проверяется кодом); у позиции банка — страница PDF.
+- **Кэши.** Векторы статей и результаты поиска — том `search_data`, модели — `hf_cache`, профили и страницы — Postgres.
 
 Правила работы над проектом (для людей и ИИ-агентов): [AGENTS.md](AGENTS.md).

@@ -50,6 +50,7 @@
 | `TAGGING_ENABLED` | `true` | `false`: без тегирования (дорогое, ~17 тыс. токенов на статью); геотеги остаются. Действует только при `LLM_ENABLED=true` |
 | `GEOTAG_ENABLED` | `true` | `false`: без геотегов региональных изданий. Действует только при `LLM_ENABLED=true` |
 | `LLM_API_KEY`, `LLM_MODEL` | —, Gemma 4 26B | ключ организатора и модель для тегов (в compose — `google/gemma-4-26b-a4b-it`) |
+| `LLM_BASE_URL`, `LLM_BASE_URL_BACKUP` | шлюз Railway | адрес шлюза; берётся первый заданный, без переключения при сбое |
 | `SOURCES_FILE`, `TOPICS_FILE` | `sources.json`, `topics.txt` | списки источников и тем |
 | `FEEDS_EVERY`, `DEEP_EVERY` | `15m`, `6h` | периоды проходов |
 

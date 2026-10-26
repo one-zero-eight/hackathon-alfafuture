@@ -19,7 +19,7 @@
 ## Подготовка
 
 1. Docker с Compose v2 и 8 ГБ памяти для Docker (эмбеддеры).
-2. Скопируйте [.env.example](../.env.example) в `.env` в корне репозитория: `POSTGRES_PASSWORD` (буквы и цифры), `LLM_API_KEY`, `LLM_BASE_URL`, при желании `LLM_BASE_URL_BACKUP`. `LLM_ENABLED=false` выключает теги и геотеги коллектора (сбор без расходов); `TAGGING_ENABLED=false` выключает только дорогое тегирование, геотеги остаются.
+2. Скопируйте [.env.example](../.env.example) в `.env` в корне репозитория и впишите `LLM_API_KEY`; адреса шлюзов `LLM_BASE_URL` и `LLM_BASE_URL_BACKUP`, модель коллектора `COLLECTOR_LLM_MODEL` и метод поиска уже заданы, `POSTGRES_PASSWORD` — буквы и цифры. `LLM_ENABLED=false` выключает теги и геотеги коллектора (сбор без расходов); `TAGGING_ENABLED=false` выключает только дорогое тегирование, геотеги остаются.
 3. Для профилей по `company_id` положите файлы организаторов `df_Uid_data_hack.csv` и `df_Uid_payment_hack.csv` в локальную папку, которую `docker/compose.yaml` монтирует в `/company` сервиса `backend`; PDF Альфа-Банка — в папку, монтируемую в `/papers`. Пути заданы в `volumes` compose-файла; в git эти файлы не входят.
 
 ## Запуск

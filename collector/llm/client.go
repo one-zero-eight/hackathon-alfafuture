@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	BaseURL      = "https://changellenge.up.railway.app/v1/"
+	BaseURL      = "https://changellenge.up.railway.app/v1/" // used when LLM_BASE_URL and LLM_BASE_URL_BACKUP are unset
 	DefaultModel = "deepseek/deepseek-v4.1-flash"
 )
 
@@ -54,10 +54,21 @@ func newClient(apiKey, model string, transport http.RoundTripper) (*Client, erro
 	}
 	// The service constructor avoids NewClient's ambient OPENAI_* configuration.
 	chat := openai.NewChatCompletionService(
-		option.WithAPIKey(apiKey), option.WithBaseURL(BaseURL),
+		option.WithAPIKey(apiKey), option.WithBaseURL(baseURL()),
 		option.WithHTTPClient(httpClient), option.WithMaxRetries(0),
 	)
 	return &Client{chat: chat, model: model}, nil
+}
+
+// baseURL picks LLM_BASE_URL, then LLM_BASE_URL_BACKUP, then BaseURL.
+// shortcut: the backup is used only when the primary is unset, not on request failure; add failover if the primary gateway goes down.
+func baseURL() string {
+	for _, name := range []string{"LLM_BASE_URL", "LLM_BASE_URL_BACKUP"} {
+		if v := strings.TrimSpace(os.Getenv(name)); v != "" {
+			return strings.TrimRight(v, "/") + "/"
+		}
+	}
+	return BaseURL
 }
 
 // Model returns the configured default for request construction and traceability.
