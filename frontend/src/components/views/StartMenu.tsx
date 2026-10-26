@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../../api";
 import type { CompanyItem, ProfileStatus } from "../../api";
 import { Timeline } from "../layout/Timeline";
+import { AdTip } from "../widgets/AdTip";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 const PAGE = 50;
@@ -59,6 +60,7 @@ export function StartMenu({ onReady, onDemo }: { onReady: (key: string) => void;
       <main className="menu menu-busy">
         <h2>Собираем аналитику</h2>
         <Timeline status={progress} />
+        {picked && <AdTip company={picked} role={role.trim()} />}
         <p className="menu-hint">Первый запуск компании занимает несколько минут, повторные берутся из базы.</p>
       </main>
     );

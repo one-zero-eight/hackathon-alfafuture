@@ -1,11 +1,11 @@
 .tags { display:flex; flex-wrap:wrap; gap:6px; }
-.tag { font-size:12px; border-radius:999px; padding:2px 10px; border:1px solid var(--line); background:var(--card2); color:#e6e3ec; }
-.tag-confidence-reliable { background:rgba(80,200,120,.25); border-color:rgba(80,200,120,.5); }
-.tag-confidence-probable { background:rgba(240,200,60,.22); border-color:rgba(240,200,60,.5); }
-.tag-confidence-possible { background:rgba(169,164,179,.2); border-color:rgba(169,164,179,.4); }
-.tag-source-ai { background:var(--accent); border-color:var(--accent); color:#fff; }
-.tag-source-alfa { background:var(--red); border-color:var(--red); color:#fff; }
-.tag-source-human { background:#fff; border-color:#fff; color:#111; }
-.tag-urgency-urgent { background:transparent; border-color:var(--red); color:#ff8a80; font-weight:600; }
-.tag-urgency-medium_term { background:transparent; border-color:#e0a63a; color:#f0c060; }
-.tag-urgency-not_urgent { background:transparent; border-color:#6d6779; color:var(--muted); }
+.tag { font-size:12px; border-radius:999px; padding:2px 10px; border:1px solid var(--line); background:var(--card2); color:var(--ink); }
+.tag-confidence-reliable { background:var(--color-light-status-muted-positive); border-color:var(--color-light-status-positive); }
+.tag-confidence-probable { background:var(--color-light-status-muted-attention); border-color:var(--color-light-status-attention); }
+.tag-confidence-possible { background:var(--card2); border-color:var(--line); }
+.tag-source-ai { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+.tag-source-alfa { background:var(--red); border-color:var(--red); color:var(--on-accent); }
+.tag-source-human { background:var(--color-light-neutral-1300); border-color:var(--color-light-neutral-1300); color:#fff; }
+.tag-urgency-urgent { background:transparent; border-color:var(--red); color:var(--color-light-text-negative); font-weight:600; }
+.tag-urgency-medium_term { background:transparent; border-color:var(--color-light-status-attention); color:var(--color-light-text-attention); }
+.tag-urgency-not_urgent { background:transparent; border-color:var(--color-light-neutral-500); color:var(--muted); }
