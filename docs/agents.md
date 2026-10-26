@@ -16,6 +16,7 @@
 
 | Имя | Модель | Вход | Выход | Кто вызывает |
 |---|---|---|---|---|
+| `feedback_intent` | Gemma 4 26B A4B | `message`, `context` (выбранный элемент, виджеты и связи страницы) | `kind` (`question`/`extend`/`perspective`/`edit`/`remove`/`link`/`proposal`/`clarify`), `reason`, `target_id`, `text`, `url`, `line`, `region`, `clarification`; проверено в [feedback.py](../agents/feedback.py) | backend (обратная связь) |
 | `queries` | DeepSeek-V4.1-Flash | `company`, `line`, `region?` | блоки поисковых запросов (11 блоков, ключ `company_self` обязателен) | news_search |
 | `queries_anonymised` | DeepSeek | `company` (описание из данных банка), `line`, `region?` | те же блоки, `company_self` всегда пуст (ключ `competitors_direct` обязателен) | news_search при `anonymised` |
 | `needs` | DeepSeek | `company`, `line`, `region?` | `{"needs": [20 вопросов]}` | news_search |
@@ -97,3 +98,7 @@ uv run pytest agents   # офлайн, без сети
 - Имя поля с рассуждениями зависит от шлюза: читаются `reasoning_content` и `reasoning`; проверено на DeepSeek через шлюз организаторов, остальные модели не проверялись. Если у модели рассуждений нет, `reasoning` пуст.
 - Журнал не знает, к какому запуску профиля относится вызов: идентификатора запуска в запросе нет.
 - Файл журнала в Compose не вынесен на том: без этого он живёт только до пересоздания контейнера (изменение `docker/compose.yaml` — отдельная задача секции docker).
+
+## Распознавание запроса пользователя (#26)
+
+`feedback_intent` определяет вид обращения к странице. Ответ модели проверяется в `agents/feedback.py`: неизвестный вид, цель вне страницы, пустой текст, ссылка не из сообщения или не `http(s)` превращаются в `clarify` с вопросом пользователю. Запроса по ключевым словам нет. Размеченный набор из 80 запросов и расчёт macro-F1: [benchmarks/feedback-intents.md](../agents/benchmarks/feedback-intents.md). Живой замер платный и ждёт подтверждения валюты и бюджета.

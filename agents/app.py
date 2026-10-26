@@ -20,6 +20,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from agents.calllog import CALL, emit
+from agents.feedback import validate as validate_intent
 
 PROMPTS = Path(__file__).parent / "prompts"
 GEMMA = "google/gemma-4-26b-a4b-it"
@@ -142,6 +143,8 @@ class Agent:
 
 
 AGENTS: dict[str, Agent] = {
+    "feedback_intent": Agent(GEMMA, ("message", "context"), lambda i: render("feedback_intent", message=i["message"], context=dump(i["context"])),
+                             key="kind", max_tokens=1500, read_timeout=60, finish=validate_intent),
     # search side
     "queries": Agent(DEEPSEEK, ("company", "line"),
                      lambda i: render("queries", today=today(), company=i["company"] + where(i.get("region", "")), line=i["line"]),

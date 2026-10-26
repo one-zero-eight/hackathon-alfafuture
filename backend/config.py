@@ -20,3 +20,4 @@ COMPANY_DIR = os.environ.get("COMPANY_DIR", "/company")  # df_Uid_data_hack.csv 
 PAPERS_DIR = os.environ.get("PAPERS_DIR", "/papers")  # Alfa-Bank PDFs, served under /api/papers
 WORKER_ENABLED = os.environ.get("WORKER_ENABLED", "true").lower() != "false"
 REQUEST_TIMEOUT = _int("REQUEST_TIMEOUT", 3600)  # seconds for one search or one analytics run
+AGENTS_URL = os.environ.get("AGENTS_URL", "http://agents:8000").rstrip("/")  # the feedback_intent agent

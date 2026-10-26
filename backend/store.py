@@ -36,6 +36,8 @@ def init() -> None:
     with connect() as conn:
         conn.execute(DDL)
         conn.execute(MIGRATE)
+        from backend import feedback_store
+        feedback_store.init(conn)
         conn.execute("UPDATE profiles SET status = 'queued' WHERE status = 'running'")  # the previous process died mid-run
 
 
@@ -60,9 +62,11 @@ def take():
         return conn.execute(TAKE).fetchone()
 
 
-def finish(key: str, page: dict) -> None:
+def finish(key: str, page: dict, state: dict | None = None) -> None:
+    """A recomputed profile starts again from its own search: user edits of the older page are not carried over (docs/backend.md)."""
     with connect() as conn:
-        conn.execute("UPDATE profiles SET status = 'ready', page = %s, error = '', updated_at = now() WHERE key = %s", (Jsonb(page), key))
+        conn.execute("UPDATE profiles SET status = 'ready', page = %s, feedback_state = %s, error = '', updated_at = now() WHERE key = %s",
+                     (Jsonb(page), Jsonb(state) if state is not None else None, key))
 
 
 def fail(key: str, error: str) -> None:
@@ -74,11 +78,3 @@ def load_page(key: str):
     with connect() as conn:
         row = conn.execute("SELECT page FROM profiles WHERE key = %s AND page IS NOT NULL", (key,)).fetchone()
     return row[0] if row else None
-
-
-def save_page(key: str, page: dict) -> None:
-    """Chat edits. shortcut: last write wins; add a version check here if two people edit one page at once."""
-    with connect() as conn:
-        conn.execute("UPDATE profiles SET page = %s WHERE key = %s", (Jsonb(page), key))
-
-

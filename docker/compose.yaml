@@ -108,6 +108,7 @@ services:
       DATABASE_URL: *database_url
       NEWS_SEARCH_URL: http://news_search:8000
       ANALYTICS_URL: http://analytics:8000
+      AGENTS_URL: http://agents:8000
       NEWS_SEARCH_METHOD: ${NEWS_SEARCH_METHOD:-dense_xquad}  # lexical | dense_llm | dense_xquad
       COMPANY_DIR: /company
       PAPERS_DIR: /papers

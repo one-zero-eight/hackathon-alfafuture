@@ -9,6 +9,7 @@ COPY news_search/pyproject.toml news_search/pyproject.toml
 COPY analytics/pyproject.toml analytics/pyproject.toml
 COPY backend/pyproject.toml backend/pyproject.toml
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --no-install-project --package alfa-backend
+COPY agents/__init__.py agents/client.py /app/agents/
 COPY backend /app/backend
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
     CMD ["python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
