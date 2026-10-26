@@ -57,6 +57,11 @@ def own_pattern(company):
     return "".join(f"(?=.*{s})" for s in stems) if stems else re.escape(company.lower())
 
 
+def queries_agent(anonymised):
+    """A bank record has a description instead of a name: its own prompt, without company_self and with regional queries (#37)."""
+    return "queries_anonymised" if anonymised else "queries"
+
+
 def dedup_filter(pool, company, anonymised=False):
     """Merge duplicates, drop news about the company itself. Returns (items, number of dropped own-company clusters)."""
     clusters = collections.defaultdict(list)
@@ -98,7 +103,7 @@ class NewsSearch:
             return done
         cost0 = self.agents.cost
         ask = dict(company=company, line=line, region=region)
-        queries = self._cached(run_key, "queries", lambda: self.agents.run("queries", ask))
+        queries = self._cached(run_key, "queries", lambda: self.agents.run(queries_agent(anonymised), ask))
         if method == "dense_xquad":
             needs = self._cached(run_key, "needs", lambda: self.agents.run("needs", ask))["needs"]
         headlines = None if method == "lexical" else self._cached(run_key, "hyde", lambda: self.agents.run("hyde", ask))["headlines"]
@@ -133,7 +138,7 @@ class NewsSearch:
         if (done := self.cache.get(run_key, f"refine_{key}", REFINE_TTL)) is not None:
             return done
         cost0 = self.agents.cost
-        queries = self._cached(run_key, "queries", lambda: self.agents.run("queries", dict(company=company, line=page_line, region=page_region)))
+        queries = self._cached(run_key, "queries", lambda: self.agents.run(queries_agent(anonymised), dict(company=company, line=page_line, region=page_region)))
         items = self.corpus(CORPUS_DAYS)
         encode = self.bge()
         X = VectorCache(os.path.join(self.data_dir, "vectors_bgem3.npz")).vectors(items, encode)

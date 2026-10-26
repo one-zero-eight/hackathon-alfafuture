@@ -48,7 +48,7 @@ class FakeAgents:
     def run(self, name, data):
         self.calls.append(name)
         self.cost += 0.1
-        if name == "queries":
+        if name in ("queries", "queries_anonymised"):
             blocks = {"company_self": ["Ромашка суд"]}
             for b in range(4):
                 blocks[f"block{b}"] = [VOCAB[b * 10 + k] + " " + VOCAB[b * 10 + k + 1] for k in range(8)]
@@ -89,8 +89,10 @@ def test_news_about_the_company_itself_are_dropped_unless_anonymised(tmp_path):
     own = {it["link"] for it in corpus if "Ромашка" in it["title"]}
     named = searcher(tmp_path / "a", corpus)[0].search("Ромашка", "Закупки", method="dense_xquad")
     assert not own & {it["link"] for it in named["top"]}
-    anon = searcher(tmp_path / "b", corpus)[0].search("компания, ОКВЭД 49", "Закупки", method="dense_xquad", anonymised=True)
+    s, agents = searcher(tmp_path / "b", corpus)
+    anon = s.search("компания, ОКВЭД 49", "Закупки", method="dense_xquad", anonymised=True)
     assert len(anon["top"]) == 30
+    assert "queries_anonymised" in agents.calls and "queries" not in agents.calls  # a description, not a name: its own prompt (#37)
 
 
 def test_too_few_news_and_unknown_method(tmp_path):
