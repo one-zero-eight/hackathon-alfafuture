@@ -70,9 +70,16 @@ curl -s -X POST localhost:8002/refine -H 'Content-Type: application/json' -d '{"
 ```python
 from agents.client import Agents
 from news_search import NewsSearch, postgres_corpus
-from news_search.cache import PgCache  # без cache= результаты хранятся только в памяти процесса
-search = NewsSearch(postgres_corpus(DATABASE_URL), Agents(), "/data", cache=PgCache(DATABASE_URL))
-result = search.search("Делимобиль", "Глава найма", region="Москва", method="dense_xquad")
+from news_search.cache import (
+    PgCache,
+)  # без cache= результаты хранятся только в памяти процесса
+
+search = NewsSearch(
+    postgres_corpus(DATABASE_URL), Agents(), "/data", cache=PgCache(DATABASE_URL)
+)
+result = search.search(
+    "Делимобиль", "Глава найма", region="Москва", method="dense_xquad"
+)
 ```
 
 Через HTTP:

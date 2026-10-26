@@ -54,9 +54,12 @@
 
 ```python
 from agents.client import Agents
-agents = Agents()                      # адрес берётся из AGENTS_URL
+
+agents = Agents()  # адрес берётся из AGENTS_URL
 out = agents.run("hyde", {"company": "Делимобиль", "line": "Закупки"})
-print(out["headlines"][:3], agents.cost)   # agents.cost, agents.tokens, agents.calls копятся по экземпляру
+print(
+    out["headlines"][:3], agents.cost
+)  # agents.cost, agents.tokens, agents.calls копятся по экземпляру
 ```
 
 `agents/client.py` копируется в образы news_search и analytics рядом с их кодом.

@@ -1,9 +1,13 @@
 """Sentence encoders (loaded on first use) and the on-disk vector cache of articles."""
+
 import os
 
 import numpy as np
 
-HF_IDS = {"bge-m3": "BAAI/bge-m3", "e5-large-instruct": "intfloat/multilingual-e5-large-instruct"}
+HF_IDS = {
+    "bge-m3": "BAAI/bge-m3",
+    "e5-large-instruct": "intfloat/multilingual-e5-large-instruct",
+}
 E5_TASK = "Instruct: Given a company profile or a news search query, retrieve relevant Russian news headlines\nQuery: "
 
 
@@ -17,13 +21,24 @@ def sentence_transformer(name, max_seq_length):
     from sentence_transformers import SentenceTransformer
     import torch
 
-    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+    device = (
+        "cuda"
+        if torch.cuda.is_available()
+        else "mps"
+        if torch.backends.mps.is_available()
+        else "cpu"
+    )
     model = SentenceTransformer(HF_IDS[name], device=device)
     model.max_seq_length = max_seq_length
     if device != "cpu":
         model.half()  # fp16 is about twice as fast on a GPU; vectors are stored as float16 anyway
-    return lambda texts: model.encode(list(texts), batch_size=128 if device == "cuda" else 64, normalize_embeddings=True, convert_to_numpy=True,
-                                      show_progress_bar=False).astype(np.float32)
+    return lambda texts: model.encode(
+        list(texts),
+        batch_size=128 if device == "cuda" else 64,
+        normalize_embeddings=True,
+        convert_to_numpy=True,
+        show_progress_bar=False,
+    ).astype(np.float32)
 
 
 def doc_text(item):

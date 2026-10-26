@@ -4,6 +4,7 @@ One line per event, written to stdout (docker logs) and, if AGENTS_LOG_FILE is s
 run() puts call_id, agent and attempt into CALL, so chat() can log its gateway tries without knowing about agents.
 Logging never raises: a broken log file must not fail an LLM call.
 """
+
 import contextvars
 import datetime
 import json
@@ -11,13 +12,22 @@ import os
 import sys
 import threading
 
-CALL: contextvars.ContextVar[dict | None] = contextvars.ContextVar("agent_call", default=None)
+CALL: contextvars.ContextVar[dict | None] = contextvars.ContextVar(
+    "agent_call", default=None
+)
 LOCK = threading.Lock()
 
 
 def emit(event: str, **fields) -> None:
     try:
-        row = {"ts": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds"), "event": event, **(CALL.get() or {}), **fields}
+        row = {
+            "ts": datetime.datetime.now(datetime.timezone.utc).isoformat(
+                timespec="milliseconds"
+            ),
+            "event": event,
+            **(CALL.get() or {}),
+            **fields,
+        }
         line = json.dumps(row, ensure_ascii=False, default=str)
         with LOCK:
             sys.stdout.write(line + "\n")

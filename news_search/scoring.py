@@ -1,4 +1,5 @@
 """Freshness, normalisation and the selection formulas shared by the search methods."""
+
 import collections
 import datetime
 from email.utils import parsedate_to_datetime
@@ -46,8 +47,12 @@ def xquad(items, lam=0.5, k=TOP_OUT, bonus=None):
     bonus = np.zeros(len(items)) if bonus is None else np.asarray(bonus, dtype=float)
     uncovered, chosen = np.ones(P.shape[1]) / P.shape[1], []
     for _ in range(min(k, len(items))):
-        best = max((i for i in range(len(items)) if i not in chosen),
-                   key=lambda i: (1 - lam) * rel[i] + lam * float(uncovered @ P[i]) + lam * bonus[i])
+        best = max(
+            (i for i in range(len(items)) if i not in chosen),
+            key=lambda i: (
+                (1 - lam) * rel[i] + lam * float(uncovered @ P[i]) + lam * bonus[i]
+            ),
+        )
         chosen.append(best)
         uncovered = uncovered * (1 - P[best])
     return chosen
@@ -62,7 +67,15 @@ def pairs(items, k=N_PAIRS):
     for i in range(len(items)):
         for j in range(i + 1, len(items)):
             if 0.6 <= S[i, j] < 0.8:
-                scored.append((0.5 * min(rel[i], rel[j]) + 0.3 * max(rel[i], rel[j]) + 0.8 * float(np.exp(-((S[i, j] - 0.7) / 0.1) ** 2)), i, j))
+                scored.append(
+                    (
+                        0.5 * min(rel[i], rel[j])
+                        + 0.3 * max(rel[i], rel[j])
+                        + 0.8 * float(np.exp(-(((S[i, j] - 0.7) / 0.1) ** 2))),
+                        i,
+                        j,
+                    )
+                )
     return [[i, j] for _, i, j in sorted(scored, reverse=True)[:k]]
 
 
@@ -74,6 +87,8 @@ def fuse(lists, items, now):
             score[i] += 1 / (RRF_K + rank)
     for i in score:
         it = items[i]
-        bonus = 0.01 * min(len(it["outlets"]) - 1, 3) + (0.03 if len(it["methods"]) > 1 else 0)
+        bonus = 0.01 * min(len(it["outlets"]) - 1, 3) + (
+            0.03 if len(it["methods"]) > 1 else 0
+        )
         score[i] = (score[i] + bonus) * fresh(age_days(it["date"], now))
     return sorted(score, key=lambda i: -score[i])[:TOP_OUT], score

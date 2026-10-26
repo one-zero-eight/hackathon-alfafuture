@@ -3,6 +3,7 @@
 The job picks the decision playbook. The sphere, if any, is passed to the writer as the subject to write about.
 The same sphere written with a typo or as a synonym ("закупкки", "снабжение") shares one page: see page_key.
 """
+
 from dataclasses import dataclass
 
 # Short names a person actually types. The official OKVED title is longer than this match needs.
@@ -25,7 +26,14 @@ _SECTIONS = {
     "R": ["культура", "спорт"],
 }
 _TOPICS = {
-    "procurement": ["закупки", "закупка", "снабжение", "поставщик", "поставки", "тендер"],
+    "procurement": [
+        "закупки",
+        "закупка",
+        "снабжение",
+        "поставщик",
+        "поставки",
+        "тендер",
+    ],
     "rates": ["ключевая ставка", "ставка"],
 }
 _ROLES = {
@@ -46,7 +54,9 @@ class Focus:
 
     @property
     def free(self) -> bool:
-        return bool(self.label) and not self.role and not self.section and not self.topic
+        return (
+            bool(self.label) and not self.role and not self.section and not self.topic
+        )
 
     @property
     def sphere(self) -> str:
@@ -57,7 +67,9 @@ class Focus:
 def _norm(text: str) -> str:
     out = []
     for ch in (text or "").lower().replace("ё", "е"):
-        out.append(ch if ("а" <= ch <= "я" or "a" <= ch <= "z" or ch.isdigit()) else " ")
+        out.append(
+            ch if ("а" <= ch <= "я" or "a" <= ch <= "z" or ch.isdigit()) else " "
+        )
     return " ".join("".join(out).split())
 
 
@@ -104,12 +116,22 @@ def interpret(text: str) -> Focus:
     query = _words(label)
     if not query:
         return Focus(None, None, None, (), "")
-    return Focus(_best(query, _ROLES), _best(query, _SECTIONS), _best(query, _TOPICS), tuple(query), label)
+    return Focus(
+        _best(query, _ROLES),
+        _best(query, _SECTIONS),
+        _best(query, _TOPICS),
+        tuple(query),
+        label,
+    )
 
 
 def page_key_bits(focus: Focus) -> str:
     """What makes two role lines the same request: the canonical sphere, or the first words of a free one, plus a non-default job."""
-    bits = [focus.topic or focus.section or ("".join(focus.words[:3])[:24] if focus.free else "")]
+    bits = [
+        focus.topic
+        or focus.section
+        or ("".join(focus.words[:3])[:24] if focus.free else "")
+    ]
     if focus.role and focus.role != "CFO":
         bits.append(focus.role)
     return "|".join(bits)
