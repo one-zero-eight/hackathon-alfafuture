@@ -13,7 +13,7 @@
 | `corpus.py` | чтение корпуса из Postgres |
 | `region.py`, `regions.json`, `regions_build.py` | регион новости без LLM (регион издания, названия регионов и городов) для доли федеральных новостей по размеру компании в `dense_xquad`; словарь пересобирается `python news_search/regions_build.py` |
 | `app.py` | HTTP: `POST /search`, `POST /refine`, `GET /methods` |
-| `benchmarks/` | сравнение методов; замер допоиска и его драйвер `refine_bench.py`; регион и `locality` (`region-boost.md`, `region_boost_bench.py`) |
+| `benchmarks/` | сравнение методов; замер допоиска и его драйвер `refine_bench.py`; регион и `locality` (`region-boost.md`, `region_boost_bench.py`); холодный поиск и суточный поток новостей (`embedding-backlog.md`) |
 
 ```bash
 uv sync --all-packages
