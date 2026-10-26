@@ -7,6 +7,7 @@
 | Файл | Что внутри |
 |---|---|
 | `app.py` | всё остальное: клиент шлюза LLM (поток, резервный шлюз, список разрешённых моделей), девять агентов, учёт расхода, HTTP: `POST /agents/{имя}`, `GET /agents`, `GET /usage`, `GET /health` |
+| `calllog.py` | журнал вызовов: JSON Lines в stdout и в `AGENTS_LOG_FILE`, вход, запрос, рассуждения, сырой и разобранный ответ |
 | `client.py` | клиент для других сервисов (копируется в их образы) |
 | `prompts/` | шаблоны запросов, `{поле}` подставляется из входа |
 | `benchmarks/` | отчёты о стоимости и качестве |
@@ -15,6 +16,7 @@
 uv sync --all-packages
 uv run pytest agents                                   # офлайн
 uv run uvicorn agents.app:app --port 8001              # нужны LLM_API_KEY и LLM_BASE_URL в окружении
+AGENTS_LOG_FILE=calls.jsonl uv run uvicorn ...          # дополнительно писать журнал вызовов в файл
 ```
 
 Новый агент — это новый шаблон в `prompts/` и запись в `AGENTS` в `app.py`, существующие не переписываются.

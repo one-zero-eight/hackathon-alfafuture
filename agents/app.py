@@ -8,13 +8,18 @@ import json
 import os
 import re
 import threading
+import time
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
+from urllib.parse import urlparse
 
 import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+
+from agents.calllog import CALL, emit
 
 PROMPTS = Path(__file__).parent / "prompts"
 GEMMA = "google/gemma-4-26b-a4b-it"
@@ -40,7 +45,7 @@ def chat(model: str, content, max_tokens: int, read_timeout: float = 600) -> tup
             "stream": True, "stream_options": {"include_usage": True}}
     err = None
     for base in bases if len(bases) > 1 else bases * 2:  # one gateway: a second try on the same one
-        text, usage = "", {}
+        text, reasoning, finish, usage, started = "", "", None, {}, time.monotonic()
         try:
             with httpx.stream("POST", base + "/chat/completions", json=body, timeout=httpx.Timeout(30.0, read=read_timeout),
                               headers={"Authorization": "Bearer " + os.environ["LLM_API_KEY"]}) as r:
@@ -51,10 +56,17 @@ def chat(model: str, content, max_tokens: int, read_timeout: float = 600) -> tup
                     event = json.loads(line[5:])
                     usage = event.get("usage") or usage
                     for choice in event.get("choices", []):
-                        text += (choice.get("delta") or {}).get("content") or ""
+                        delta = choice.get("delta") or {}
+                        text += delta.get("content") or ""
+                        reasoning += delta.get("reasoning_content") or delta.get("reasoning") or ""  # the field name depends on the gateway
+                        finish = choice.get("finish_reason") or finish
+            emit("gateway", ok=True, model=model, gateway=urlparse(base).netloc, ms=round((time.monotonic() - started) * 1000),
+                 finish_reason=finish, usage=usage, reasoning=reasoning, content=text)
             return text, usage
         except (httpx.HTTPError, json.JSONDecodeError) as e:
             err = e
+            emit("gateway", ok=False, model=model, gateway=urlparse(base).netloc, ms=round((time.monotonic() - started) * 1000),
+                 error=repr(e), finish_reason=finish, usage=usage, reasoning=reasoning, content=text)  # whatever arrived before the failure
     raise LLMError(f"LLM {model} failed: {err!r}")
 
 
@@ -174,20 +186,35 @@ def run(name: str, data: dict, usage: dict | None = None) -> dict:
     prompt, images = agent.build(data), data.get(agent.images) if agent.images else None
     content = [{"type": "text", "text": prompt}, *({"type": "image_url", "image_url": {"url": u}} for u in images)] if images else prompt
     budget, err = agent.max_tokens, "no JSON object in the answer"
-    for _ in range(3):
-        text, used = chat(agent.model, content, budget, agent.read_timeout)
-        count(name, used, usage if usage is not None else {})
-        match = re.search(r"\{.*\}", text, re.S)
-        try:
-            if match:
-                answer = json.loads(match.group(0))
-                if isinstance(answer, dict) and (agent.key is None or answer.get(agent.key)):
-                    return agent.finish(answer, data)
-                err = f"missing {agent.key!r}"
-        except json.JSONDecodeError as e:
-            err = repr(e)
-        budget = next_budget(budget, used)
-    raise LLMError(f"{agent.model} gave no valid JSON for {name}: {err}")
+    ctx = {"call_id": uuid.uuid4().hex[:12], "agent": name}
+    token, started = CALL.set(ctx), time.monotonic()
+    try:
+        emit("call", model=agent.model, max_tokens=agent.max_tokens, input={k: v for k, v in data.items() if k != agent.images},
+             images=len(images or []), prompt=prompt)
+        for attempt in range(1, 4):
+            ctx["attempt"] = attempt
+            text, used = chat(agent.model, content, budget, agent.read_timeout)
+            count(name, used, usage if usage is not None else {})
+            match, answer = re.search(r"\{.*\}", text, re.S), None
+            try:
+                if match:
+                    answer = json.loads(match.group(0))
+                    if isinstance(answer, dict) and (agent.key is None or answer.get(agent.key)):
+                        output = agent.finish(answer, data)
+                        emit("attempt", outcome="ok", budget=budget, usage=used, parsed=answer)
+                        emit("result", ms=round((time.monotonic() - started) * 1000), output=output)
+                        return output
+                    err = f"missing {agent.key!r}"
+            except json.JSONDecodeError as e:
+                err = repr(e)
+            emit("attempt", outcome="retry", reason=err, budget=budget, usage=used, parsed=answer)
+            budget = next_budget(budget, used)
+        raise LLMError(f"{agent.model} gave no valid JSON for {name}: {err}")
+    except Exception as e:
+        emit("error", ms=round((time.monotonic() - started) * 1000), error=repr(e))
+        raise
+    finally:
+        CALL.reset(token)
 
 
 # ---- HTTP ----

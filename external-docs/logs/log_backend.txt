@@ -1,0 +1,1500 @@
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/opt/venv/lib/python3.13/site-packages/starlette/routing.py", line 656, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/fastapi/routing.py", line 248, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/backend/app.py", line 31, in lifespan
+    store.init()
+    ~~~~~~~~~~^^
+  File "/app/backend/store.py", line 38, in init
+    with connect() as conn:
+         ~~~~~~~^^
+  File "/app/backend/store.py", line 34, in connect
+    return psycopg.connect(config.DATABASE_URL, connect_timeout=5, autocommit=True)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/psycopg/connection.py", line 126, in connect
+    raise last_ex.with_traceback(None)
+psycopg.OperationalError: connection failed: connection to server at "172.31.0.2", port 5432 failed: FATAL:  password authentication failed for user "news"
+
+ERROR:    Application startup failed. Exiting.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/opt/venv/lib/python3.13/site-packages/starlette/routing.py", line 656, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/fastapi/routing.py", line 248, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/backend/app.py", line 31, in lifespan
+    store.init()
+    ~~~~~~~~~~^^
+  File "/app/backend/store.py", line 38, in init
+    with connect() as conn:
+         ~~~~~~~^^
+  File "/app/backend/store.py", line 34, in connect
+    return psycopg.connect(config.DATABASE_URL, connect_timeout=5, autocommit=True)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/psycopg/connection.py", line 126, in connect
+    raise last_ex.with_traceback(None)
+psycopg.OperationalError: connection failed: connection to server at "172.31.0.2", port 5432 failed: FATAL:  password authentication failed for user "news"
+
+ERROR:    Application startup failed. Exiting.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/opt/venv/lib/python3.13/site-packages/starlette/routing.py", line 656, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/fastapi/routing.py", line 248, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/backend/app.py", line 31, in lifespan
+    store.init()
+    ~~~~~~~~~~^^
+  File "/app/backend/store.py", line 38, in init
+    with connect() as conn:
+         ~~~~~~~^^
+  File "/app/backend/store.py", line 34, in connect
+    return psycopg.connect(config.DATABASE_URL, connect_timeout=5, autocommit=True)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/psycopg/connection.py", line 126, in connect
+    raise last_ex.with_traceback(None)
+psycopg.OperationalError: connection failed: connection to server at "172.31.0.2", port 5432 failed: FATAL:  password authentication failed for user "news"
+
+ERROR:    Application startup failed. Exiting.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/opt/venv/lib/python3.13/site-packages/starlette/routing.py", line 656, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/fastapi/routing.py", line 248, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/backend/app.py", line 31, in lifespan
+    store.init()
+    ~~~~~~~~~~^^
+  File "/app/backend/store.py", line 38, in init
+    with connect() as conn:
+         ~~~~~~~^^
+  File "/app/backend/store.py", line 34, in connect
+    return psycopg.connect(config.DATABASE_URL, connect_timeout=5, autocommit=True)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/psycopg/connection.py", line 126, in connect
+    raise last_ex.with_traceback(None)
+psycopg.OperationalError: connection failed: connection to server at "172.31.0.2", port 5432 failed: FATAL:  password authentication failed for user "news"
+
+ERROR:    Application startup failed. Exiting.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/opt/venv/lib/python3.13/site-packages/starlette/routing.py", line 656, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/fastapi/routing.py", line 248, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/backend/app.py", line 31, in lifespan
+    store.init()
+    ~~~~~~~~~~^^
+  File "/app/backend/store.py", line 38, in init
+    with connect() as conn:
+         ~~~~~~~^^
+  File "/app/backend/store.py", line 34, in connect
+    return psycopg.connect(config.DATABASE_URL, connect_timeout=5, autocommit=True)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/psycopg/connection.py", line 126, in connect
+    raise last_ex.with_traceback(None)
+psycopg.OperationalError: connection failed: connection to server at "172.31.0.2", port 5432 failed: FATAL:  password authentication failed for user "news"
+
+ERROR:    Application startup failed. Exiting.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/opt/venv/lib/python3.13/site-packages/starlette/routing.py", line 656, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/fastapi/routing.py", line 248, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/backend/app.py", line 31, in lifespan
+    store.init()
+    ~~~~~~~~~~^^
+  File "/app/backend/store.py", line 38, in init
+    with connect() as conn:
+         ~~~~~~~^^
+  File "/app/backend/store.py", line 34, in connect
+    return psycopg.connect(config.DATABASE_URL, connect_timeout=5, autocommit=True)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/psycopg/connection.py", line 126, in connect
+    raise last_ex.with_traceback(None)
+psycopg.OperationalError: connection failed: connection to server at "172.31.0.2", port 5432 failed: FATAL:  password authentication failed for user "news"
+
+ERROR:    Application startup failed. Exiting.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/opt/venv/lib/python3.13/site-packages/starlette/routing.py", line 656, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/fastapi/routing.py", line 248, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/backend/app.py", line 31, in lifespan
+    store.init()
+    ~~~~~~~~~~^^
+  File "/app/backend/store.py", line 38, in init
+    with connect() as conn:
+         ~~~~~~~^^
+  File "/app/backend/store.py", line 34, in connect
+    return psycopg.connect(config.DATABASE_URL, connect_timeout=5, autocommit=True)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/psycopg/connection.py", line 126, in connect
+    raise last_ex.with_traceback(None)
+psycopg.OperationalError: connection failed: connection to server at "172.31.0.2", port 5432 failed: FATAL:  password authentication failed for user "news"
+
+ERROR:    Application startup failed. Exiting.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/opt/venv/lib/python3.13/site-packages/starlette/routing.py", line 656, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/fastapi/routing.py", line 248, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ~~~~~~~~~~~~~~~~^^^^^
+  File "/usr/local/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/backend/app.py", line 31, in lifespan
+    store.init()
+    ~~~~~~~~~~^^
+  File "/app/backend/store.py", line 38, in init
+    with connect() as conn:
+         ~~~~~~~^^
+  File "/app/backend/store.py", line 34, in connect
+    return psycopg.connect(config.DATABASE_URL, connect_timeout=5, autocommit=True)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.13/site-packages/psycopg/connection.py", line 126, in connect
+    raise last_ex.with_traceback(None)
+psycopg.OperationalError: connection failed: connection to server at "172.31.0.2", port 5432 failed: FATAL:  password authentication failed for user "news"
+
+ERROR:    Application startup failed. Exiting.
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:35786 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.1:61378 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:35028 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.1:60406 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53204 - "GET /api/companies HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33180 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56042 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34716 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53298 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55950 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36892 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40332 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33278 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35750 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38912 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54640 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39214 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50884 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48706 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42086 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43208 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56782 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59738 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60314 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58648 - "GET /api/page HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58632 - "GET /api/companies?q=&offset=0&limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60324 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36564 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57560 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34942 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46354 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56020 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53898 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34968 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44270 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57110 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34492 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60122 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38760 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43264 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50654 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35600 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35802 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39938 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52114 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34644 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40484 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43566 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39122 - "GET /api/companies?q=&offset=50&limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40376 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39136 - "GET /api/companies?q=&offset=100&limit=50 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39150 - "GET /api/companies?q=&offset=150&limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58968 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40964 - "GET /api/companies?q=&offset=200&limit=50 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40976 - "GET /api/companies?q=&offset=250&limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37044 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34296 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57724 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39700 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46624 - "GET /api/companies?q=&offset=300&limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43960 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43346 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39402 - "GET /api/companies?q=&offset=0&limit=50 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39416 - "GET /api/companies?q=%D0%B0%D0%B2&offset=0&limit=50 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39420 - "GET /api/companies?q=%D0%B0%D0%B2%D1%82%D0%BE&offset=0&limit=50 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39426 - "GET /api/companies?q=%D0%B0%D0%B2%D1%82%D0%BE%D0%BC%D0%BE%D0%B1&offset=0&limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54272 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36568 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50070 - "POST /api/profile HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50078 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:backend.worker:profile 3889b67d8f15: 'U_38' / 'работа с иностранными поставщиками' / '' via dense_xquad
+INFO:     172.31.0.6:50084 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50090 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.1:64428 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.1:64442 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50102 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60482 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60492 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60504 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38704 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50106 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50112 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39480 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39490 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39498 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39512 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39514 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47286 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39524 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39944 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39950 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39964 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39976 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39982 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51008 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39992 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39998 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42790 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42798 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42814 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42826 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42828 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:43156 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:43168 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49554 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42830 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56814 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56826 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56836 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56850 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56862 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56866 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42892 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56882 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57402 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57404 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57414 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57420 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57424 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41278 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57434 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57450 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47846 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47860 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47862 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47866 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47874 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43334 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47876 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50114 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50126 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50130 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50142 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50146 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50162 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50168 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42608 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42624 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42630 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42634 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42650 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52380 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42658 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50614 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50622 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50634 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50650 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50664 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50674 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46272 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50676 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44978 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44992 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45000 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45002 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45008 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53956 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45020 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60050 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60056 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60062 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60066 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60082 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60094 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41302 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54048 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54056 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54068 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.1:56966 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.1:56976 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54080 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54082 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54096 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60098 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60640 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60646 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60652 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60656 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60660 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60670 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59256 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60686 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:32826 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:32840 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:32852 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:32856 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:32862 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59280 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:32866 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51884 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51898 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51908 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51924 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51930 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51936 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43430 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.3:56020 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:56024 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51944 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34712 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34722 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34728 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34742 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34756 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34764 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57844 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49882 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49892 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49908 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49916 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49920 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49936 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41656 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49946 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60382 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60386 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60396 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60400 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60414 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60418 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54312 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51904 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46360 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46374 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46382 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.1:60628 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.1:60644 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46398 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46400 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46414 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51918 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51932 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51946 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51948 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51962 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51974 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51794 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52278 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52288 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52300 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52316 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52324 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52336 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34686 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52540 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34696 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34708 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34710 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45598 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45610 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45620 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48214 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38524 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38528 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38532 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38544 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38558 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38568 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39518 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47150 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39532 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39534 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39538 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39548 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37420 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37430 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37436 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38216 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37450 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37462 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.1:59078 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.1:59086 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37472 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45350 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45352 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45366 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.1:61774 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49318 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45380 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45382 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45390 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40474 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40490 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40498 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40776 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40506 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40510 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40516 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34908 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34916 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34918 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34920 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50868 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34924 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34934 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37968 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37970 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37972 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37976 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37980 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40532 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37982 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37996 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54060 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54072 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54074 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54082 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44228 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54098 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54104 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41810 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41824 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41830 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41838 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41852 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55414 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41866 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52574 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52582 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52596 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52612 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52616 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52628 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54824 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52636 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49798 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49814 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49826 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49834 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49846 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56908 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56914 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52816 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56916 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56932 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54522 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54526 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54530 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49748 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54540 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54544 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43134 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43146 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43148 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43160 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43170 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36056 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43180 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50538 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50554 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50570 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50586 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50592 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42558 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50608 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58510 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58524 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58534 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58548 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58562 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58564 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44770 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44920 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44926 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44938 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44954 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44962 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44970 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33366 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44694 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44710 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44718 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44720 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44734 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44740 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55430 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55822 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55440 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55446 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55450 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55460 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55472 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57322 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57330 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58360 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57340 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57354 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57364 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57370 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57372 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58702 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58706 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43060 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58710 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58714 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58724 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58726 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35870 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35884 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59354 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35894 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35896 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35900 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35908 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54432 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54438 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54444 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46100 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54454 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54470 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54484 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43082 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43090 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43104 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33514 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43120 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43126 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43128 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42558 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42570 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42576 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42580 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42594 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45390 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42598 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52552 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52558 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52572 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52578 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52586 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52992 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52594 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56256 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56266 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56268 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56282 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56292 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56306 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50972 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33138 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33146 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33158 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33160 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33172 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33174 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58716 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43256 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43272 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43278 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43290 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43302 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43304 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47808 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47824 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52692 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47832 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47840 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47850 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47866 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41180 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41182 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34136 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41192 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41202 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41210 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41224 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48958 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48962 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48974 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57894 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48978 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48992 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48998 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:49006 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54542 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54552 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54556 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35594 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54558 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54566 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57442 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57452 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57468 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57476 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57484 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54236 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57488 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48408 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48422 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48426 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48436 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48438 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:48440 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60048 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46328 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46344 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46352 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46356 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46370 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46378 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53354 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33330 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53356 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53364 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53366 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53374 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53378 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35694 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50604 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35710 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35720 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35726 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35738 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35740 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35742 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43652 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51368 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43666 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43678 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43692 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43700 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43714 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42440 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42448 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46418 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42456 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42462 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42474 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42486 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46548 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46550 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46554 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51718 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46560 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46572 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46582 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43366 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43382 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37522 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43396 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43410 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43426 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43442 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44828 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44840 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44850 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58330 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44864 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44866 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44870 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37958 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37972 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37988 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55322 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37990 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38006 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38022 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37774 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37786 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37798 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52210 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37800 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38144 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38156 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38172 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38182 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38190 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38202 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51128 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38216 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39182 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39196 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39200 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39216 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39230 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50978 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43964 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50984 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50986 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50998 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51014 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51026 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54738 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54754 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54758 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45248 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54768 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54776 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54790 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44676 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44686 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44698 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44710 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44716 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32984 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44718 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51894 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51900 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51910 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51920 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51928 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51944 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44342 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60766 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60772 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60774 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60784 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60798 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56124 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39276 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56128 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56132 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56136 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56138 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46676 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46690 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46700 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48302 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46716 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46724 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45200 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45212 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45218 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50156 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54470 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50168 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50184 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51146 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51152 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51162 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51176 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:59212 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36788 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:59218 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:59224 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:59240 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52406 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52416 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52424 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54460 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52432 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52444 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52538 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52544 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52560 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35810 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35812 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35820 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35830 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35834 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47754 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52426 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52428 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52446 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52458 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52462 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38652 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34956 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38660 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38666 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38682 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38688 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55008 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55012 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55376 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55014 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55016 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55030 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60112 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60114 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60128 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60140 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60148 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55398 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47302 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47314 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47322 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47324 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50928 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58400 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50934 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50942 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50948 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:50950 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33870 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57426 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33884 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33892 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33986 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33994 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34010 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34022 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34024 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55352 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40560 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40570 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40572 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40584 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38682 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47518 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53580 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47522 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47524 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:47536 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51100 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51102 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51108 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50878 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51122 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51128 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33718 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.1:57790 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.1:57792 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33722 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.1:57804 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.1:57816 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://host.docker.internal:8002/search "HTTP/1.1 200 OK"
+INFO:     172.31.0.6:33730 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33738 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46366 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.5:46430 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:46486 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:46478 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:46480 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:46446 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:46434 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:46462 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46102 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46084 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46090 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46092 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:36332 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46074 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46112 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46108 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46126 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46138 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46136 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46150 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46174 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46162 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46166 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46190 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46202 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46206 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46216 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:36334 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:36348 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:36360 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:36364 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:36374 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54664 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58480 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58482 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58492 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58504 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58516 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58518 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58526 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48230 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55378 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55394 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55400 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55406 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55412 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55422 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53140 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50818 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53142 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59074 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59054 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59086 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59084 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59060 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59048 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59092 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59088 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59106 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59126 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59120 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59128 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53148 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59134 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59146 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53150 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59138 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59148 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59152 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59164 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59178 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59190 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59188 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59200 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59202 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53160 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59212 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59220 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59246 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59230 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59242 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59210 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48654 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48650 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:51936 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:51944 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48660 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:51960 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:51994 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:51970 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:51978 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:52000 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:52012 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48676 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53270 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48680 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:52014 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48686 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48690 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:52022 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48700 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48704 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48714 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48712 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:52030 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48726 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48738 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48742 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48756 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48746 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48770 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48784 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48794 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48798 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53282 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46060 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53298 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53302 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53306 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:53310 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46322 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46332 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46344 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39336 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46348 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46360 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:46376 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56958 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56968 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56980 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47690 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56988 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56998 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34972 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41296 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41304 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34988 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41332 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41320 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41312 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41318 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41306 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41342 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41356 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41340 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35004 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41380 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41386 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41402 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35016 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41410 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39988 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41424 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41426 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41444 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41428 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41456 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41458 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41472 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:37858 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:35018 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.5:37872 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41486 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41488 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41492 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33814 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33822 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33824 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33834 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33838 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36548 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33840 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33850 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56478 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56490 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56498 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56514 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56530 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47134 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39504 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47148 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47162 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47166 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47178 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:40368 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47192 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:40376 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:40388 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47198 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:40402 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47200 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56546 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47214 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:47210 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:40886 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:40890 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51414 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:40904 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:40918 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:40934 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:52914 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:52924 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:40942 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:40958 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51428 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:40970 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51436 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51450 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51460 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:40984 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41000 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41006 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51464 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41010 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53528 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41026 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:41038 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:34032 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:41036 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33610 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:34034 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:34036 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:34046 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:41044 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:41058 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:34054 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:34058 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:34068 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33614 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33624 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33628 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33630 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:33638 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42218 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56448 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56458 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56462 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56468 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56480 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51426 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51434 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51438 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54856 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51444 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54096 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54872 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51454 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51460 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51470 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:44896 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51498 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51482 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:44908 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51500 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51504 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51514 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51516 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51538 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51522 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54880 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51548 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51546 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51556 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54888 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54894 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51570 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51578 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51584 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51598 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51600 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:51602 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54898 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39948 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39962 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45528 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59522 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59538 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39970 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39982 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59550 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59554 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39984 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59560 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:59570 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39986 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38760 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38762 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38772 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45830 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38788 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38804 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38820 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38832 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38142 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38146 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60622 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34160 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60628 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38158 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60644 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60654 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38172 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60670 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60682 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38180 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60702 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60694 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:45894 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60710 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60722 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60732 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:60748 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:38190 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.5:45904 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:43580 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39388 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39402 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39412 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39424 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60626 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39436 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39438 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:43596 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:43606 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39450 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39466 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39480 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60636 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60652 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59776 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60654 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39496 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:39512 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60666 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56566 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56582 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56594 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56606 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54592 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54602 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54604 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:49944 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43748 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56622 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:56624 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43174 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43190 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43204 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43218 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51274 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:43220 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55784 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55788 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:53284 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:53300 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55790 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:53316 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:53332 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55792 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55798 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60578 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:55800 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57036 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57042 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57044 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:49306 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:49312 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:49322 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:49324 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57048 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57056 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57064 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59972 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41258 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41270 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41286 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41300 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41314 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54114 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54126 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54130 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:49030 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41318 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34124 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46178 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34126 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34136 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48492 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48496 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34152 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:48512 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:60496 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34162 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:34174 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51988 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52004 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51410 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52020 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52022 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46538 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:46548 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52030 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:52044 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60674 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60688 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60690 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49172 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60704 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60712 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60714 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:60726 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37326 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37336 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59504 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37346 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37352 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37368 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55830 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55836 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55848 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:43392 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:43404 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55864 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55870 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55890 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55874 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:37384 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55896 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55910 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55906 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:55914 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54730 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54752 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54740 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:54744 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39318 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39322 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39338 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51462 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39348 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39356 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:39366 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57122 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57128 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57144 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57154 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51998 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57158 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57160 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54036 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54038 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54048 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54052 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54064 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58090 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54078 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57474 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:32972 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:32974 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:32992 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:32984 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:33002 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:33006 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:33016 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:33026 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57484 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57486 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57488 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57496 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57498 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43250 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.3:33046 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:33054 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:33032 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:57512 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52470 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52472 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52488 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52490 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52498 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52500 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52514 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44962 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52518 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52524 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.3:52526 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44976 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44978 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:44994 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:45000 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38102 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51254 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51270 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51284 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51288 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51292 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:51308 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58900 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58916 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41766 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:58920 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:40288 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46092 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:59440 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44168 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:59452 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:59456 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:59460 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.5:55174 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:     172.31.0.5:60838 - "POST /internal/trace/runs/8373a12669174112a03831c1e49f9477/events HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://analytics:8000/page "HTTP/1.1 200 OK"
+INFO:backend.worker:profile 3889b67d8f15: ready
+INFO:     172.31.0.6:42208 - "GET /api/profile/3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     172.31.0.6:42216 - "GET /api/page?profile=3889b67d8f15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46894 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54672 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34196 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54522 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43376 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43240 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44182 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38998 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54904 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56996 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38230 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56876 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59298 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33682 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51002 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46088 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38728 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43950 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36640 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39610 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:41598 - "GET /api/widgets/3889b67d8f15_n1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49122 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39262 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.6:54212 - "GET /api/widgets/3889b67d8f15_a1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52546 - "GET /health HTTP/1.1" 200 OK
