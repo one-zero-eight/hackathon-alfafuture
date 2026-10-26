@@ -41,12 +41,17 @@
    ```bash
    docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres
    docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --clean --if-exists' < snapshot/alfa-2026-10-26b.dump
-   docker compose --env-file .env -f docker/compose.yaml up -d --wait
+   docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres agents news_search analytics backend frontend   # всё, кроме коллектора
    docker compose --env-file .env -f docker/compose.yaml cp snapshot/vectors_bgem3-2026-10-26b.npz news_search:/data/vectors_bgem3.npz
    docker compose --env-file .env -f docker/compose.yaml restart news_search
-   docker compose --env-file .env -f docker/compose.yaml ps   # все сервисы Up
+   docker compose --env-file .env -f docker/compose.yaml ps   # шесть сервисов Up
    open http://127.0.0.1:3000
    ```
+   Коллектор запускается **после первой страницы**: пока он стоит, в базе нет статей новее снимка, и `news_search` нечего встраивать перед поиском. Когда первая страница готова:
+   ```bash
+   docker compose --env-file .env -f docker/compose.yaml up -d collector
+   ```
+   Новые статьи он встроит фоново, между поисками.
    `--env-file .env` обязателен: без него compose ищет `.env` в `docker/` и падает с `required variable POSTGRES_PASSWORD is missing`.
 5. Проверка:
    ```bash
@@ -55,7 +60,7 @@
    curl -s localhost:8001/agents | head -c 300          # agents
    ```
 
-После старта `news_search` сам скачивает модель bge-m3 (~3 ГБ, один раз) и встраивает статьи, которые коллектор добавил после снимка; дайте ему несколько минут до первого поиска. Первая аналитика профиля занимает минуты: поиск и вызовы LLM (~2 мин) и аналитика (~4–5 мин). Полный просчёт векторов нужен только без снимка. Порты, проверка и устранение проблем — [docs/docker.md](docs/docker.md).
+После старта `news_search` сам скачивает модель bge-m3 (~3 ГБ, один раз); дайте ему несколько минут до первого поиска. Страница профиля строится около 5 минут (замер: 4 мин 48 с): поиск и вызовы LLM (~2 мин) и аналитика (~2,5 мин). Полный просчёт векторов нужен только без снимка. Порты, проверка и устранение проблем — [docs/docker.md](docs/docker.md).
 
 ## Архитектура
 

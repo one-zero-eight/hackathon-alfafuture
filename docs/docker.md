@@ -87,10 +87,14 @@ cd ..
 ```bash
 docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres
 docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --clean --if-exists' < snapshot/alfa-2026-10-26b.dump
-docker compose --env-file .env -f docker/compose.yaml up -d --build --wait
+docker compose --env-file .env -f docker/compose.yaml up -d --build --wait postgres agents news_search analytics backend frontend   # всё, кроме коллектора
 docker compose --env-file .env -f docker/compose.yaml cp snapshot/vectors_bgem3-2026-10-26b.npz news_search:/data/vectors_bgem3.npz
 docker compose --env-file .env -f docker/compose.yaml restart news_search   # фоновое встраивание начнёт с восстановленного файла
+# после первой готовой страницы:
+docker compose --env-file .env -f docker/compose.yaml up -d collector
 ```
+
+Коллектор стартует последним, потому что первый его проход сразу добавляет тысячи статей новее снимка (замер: 4 348), и пока они не встроены, поиск ждёт под тем же замком. Без коллектора первый поиск идёт по снимку как есть.
 
 `--clean --if-exists` позволяет восстановить и в базу, которую коллектор уже успел создать. Проверка: `select count(*) from articles` — около 141 300. Если ключ в `.env` повторяется, действует последнее значение.
 
@@ -104,7 +108,7 @@ docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg
 docker compose --env-file .env -f docker/compose.yaml cp news_search:/data/vectors_bgem3.npz snapshot/vectors_bgem3.npz
 ```
 
-Замер 2026-10-26 (MacBook, Docker без GPU, кэш сборки тёплый): скачивание снимка из релиза 18–21 с, восстановление дампа 1 с, старт стека 22 с, копирование векторов 1 с. Первый профиль был готов через 22 мин: вызовы LLM поиска ~2 мин, скачивание bge-m3 и встраивание 4 348 статей новее снимка ~15 мин, аналитика ~4,5 мин. Теперь модель и новые статьи `news_search` берёт фоново сразу после старта, а не в первом поиске. Сборка без кэша не замерялась.
+Замер 2026-10-26 (MacBook, Docker без GPU, кэш сборки тёплый): скачивание снимка из релиза 18–21 с, восстановление дампа 1 с, старт стека 22 с, копирование векторов 1 с. Первый профиль был готов через 22 мин: вызовы LLM поиска ~2 мин, скачивание bge-m3 и встраивание 4 348 статей новее снимка ~15 мин, аналитика ~4,5 мин. Теперь модель и новые статьи `news_search` берёт фоново сразу после старта, а не в первом поиске. С коллектором, запущенным после первой страницы, и уже скачанной моделью новая страница (компания из данных банка `U_87`, «Финансовый директор») готова за 4 мин 48 с: вызовы LLM поиска 2 мин 14 с, ранжирование 11 с, аналитика ~2,5 мин. Сборка без кэша не замерялась.
 
 Пароль БД применяется только при создании тома `postgres_data`: если том уже создан с другим `POSTGRES_PASSWORD`, смените пароль в `.env` на прежний или удалите том.
 
