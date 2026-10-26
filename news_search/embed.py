@@ -52,18 +52,28 @@ class VectorCache:
         self.path = path
 
     def vectors(self, items, encode):
+        ids, X, _ = self.update(items, encode)
+        have = {int(i): k for k, i in enumerate(ids)}
+        return X[[have[it["aid"]] for it in items]].astype(np.float32)
+
+    def update(self, items, encode, chunk=1000):
+        """Encode the articles missing from the file, saving after every chunk so a crash keeps the finished ones. -> (ids, X, added)."""
         if os.path.exists(self.path):
             saved = np.load(self.path)
             ids, X = saved["ids"], saved["X"]
         else:
             ids, X = np.zeros(0, np.int64), None
-        have = {int(i): k for k, i in enumerate(ids)}
+        have = set(ids.tolist())
         new = [it for it in items if it["aid"] not in have]
-        if new:
-            ids = np.concatenate([ids, [it["aid"] for it in new]])
-            encoded = encode([doc_text(it) for it in new]).astype(np.float16)
+        for k in range(0, len(new), chunk):
+            part = new[k : k + chunk]
+            encoded = encode([doc_text(it) for it in part]).astype(np.float16)
+            ids = np.concatenate([ids, [it["aid"] for it in part]])
             X = encoded if X is None else np.vstack([X, encoded])
             os.makedirs(os.path.dirname(self.path), exist_ok=True)
-            np.savez(self.path, ids=ids, X=X)
-            have = {int(i): k for k, i in enumerate(ids)}
-        return X[[have[it["aid"]] for it in items]].astype(np.float32)
+            tmp = (
+                self.path + ".tmp.npz"
+            )  # savez keeps a .npz name as is; replace is atomic, so readers never see half a file
+            np.savez(tmp, ids=ids, X=X)
+            os.replace(tmp, self.path)
+        return ids, X, len(new)

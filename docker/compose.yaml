@@ -66,6 +66,7 @@ services:
       DATABASE_URL: *database_url
       AGENTS_URL: http://agents:8000
       NEWS_SEARCH_DATA: /data
+      NEWS_SEARCH_EMBED_EVERY: ${NEWS_SEARCH_EMBED_EVERY:-900}  # seconds between background embedding rounds, 0 = off
       NEWS_SEARCH_NONLOCAL_WEIGHT: ${NEWS_SEARCH_NONLOCAL_WEIGHT:-0.5}  # federal news for large companies, 0 = off; docs/news-search.md
     volumes:
       - hf_cache:/hf_cache

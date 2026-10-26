@@ -55,6 +55,33 @@ docker exec -i alfa-postgres-1 pg_restore -U news -d news --no-owner --exit-on-e
 docker compose --env-file .env -f docker/compose.yaml up -d
 ```
 
+### Снимок: дамп и векторы вместе
+
+Чтобы первый поиск на новой машине не встраивал весь корпус (часы на CPU), вместе с дампом переносится файл векторов `vectors_bgem3.npz`. Векторы привязаны к `articles.id`, поэтому они верны **только с дампом той же базы**: с базой, собранной коллектором заново, id другие, и поиск молча сопоставит не те векторы (ошибки не будет).
+
+Снять снимок (сначала дамп, потом векторы — тогда в векторах нет статей, которых нет в дампе):
+
+```bash
+mkdir -p snapshot
+docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > snapshot/alfa.dump
+docker compose --env-file .env -f docker/compose.yaml cp news_search:/data/vectors_bgem3.npz snapshot/vectors_bgem3.npz
+```
+
+Развернуть на чистой машине (`snapshot/` в `.gitignore`, файлы передаются отдельно):
+
+```bash
+cp .env.example .env        # POSTGRES_PASSWORD, LLM_API_KEY, LLM_BASE_URL
+docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres
+docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner' < snapshot/alfa.dump
+docker compose --env-file .env -f docker/compose.yaml up -d --build --wait
+docker compose --env-file .env -f docker/compose.yaml cp snapshot/vectors_bgem3.npz news_search:/data/vectors_bgem3.npz
+open http://127.0.0.1:3000
+```
+
+При `docker/up.sh` на macOS `news_search` работает на хосте, и файл векторов кладётся в `.run/search_data/vectors_bgem3.npz`.
+
+Замер 2026-10-26 (MacBook, Docker без GPU, кэш сборки тёплый, снимок 137 тыс. статей): клон 1 с, Postgres 17 с, восстановление дампа 1 с, сборка и старт стека 22 с, копирование векторов 1 с. Первый профиль готов через 22 мин: LLM поиска ~2 мин, скачивание bge-m3 (~3 ГБ) и встраивание 4 348 статей, которые коллектор успел добавить после снимка, ~15 мин, аналитика ~4,5 мин. Чем свежее снимок, тем меньше хвост: фоновое встраивание `news_search` догоняет его само, но первые минуты после старта поиск ждёт его под тем же замком.
+
 Пароль БД применяется только при создании тома `postgres_data`: если том уже создан с другим `POSTGRES_PASSWORD`, смените пароль в `.env` на прежний или удалите том.
 
 Если порты 3000, 5433, 8000–8003 или 8080 заняты, добавьте второй файл compose с `ports: !override [...]` для нужных сервисов (`-f docker/compose.yaml -f мой-порты.yaml`).

@@ -1,7 +1,9 @@
 """News search service: POST /search runs one NewsSearch method over the corpus. One search at a time (encoders need the memory)."""
 
+import logging
 import os
 import threading
+import time
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -11,6 +13,7 @@ from news_search.cache import PgCache
 from news_search import DEFAULT_METHOD, METHODS, NewsSearch, TooFewNews, postgres_corpus
 from news_search.search import NONLOCAL_WEIGHT, REFINE_LIMIT
 
+log = logging.getLogger("uvicorn.error")
 app = FastAPI(title="News search")
 _lock = threading.Lock()
 _search: list[NewsSearch] = []
@@ -59,6 +62,28 @@ def search_instance() -> NewsSearch:
             os.environ.get("NEWS_SEARCH_NONLOCAL_WEIGHT", NONLOCAL_WEIGHT)
         )
     return _search[0]
+
+
+def embed_loop(every: float) -> None:
+    """Embed new corpus articles at start and then every `every` seconds, so a search never meets a backlog."""
+    while True:
+        try:
+            with (
+                _lock
+            ):  # the vector file has one writer at a time: this loop or a search
+                added = search_instance().embed_corpus()
+            if added:
+                log.info("embedded %d new articles", added)
+        except Exception:
+            log.exception("background embedding failed")
+        time.sleep(every)
+
+
+@app.on_event("startup")
+def start_embedding() -> None:
+    every = float(os.environ.get("NEWS_SEARCH_EMBED_EVERY", 900))
+    if every > 0:
+        threading.Thread(target=embed_loop, args=(every,), daemon=True).start()
 
 
 @app.get("/health")

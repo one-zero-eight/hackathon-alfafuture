@@ -341,6 +341,47 @@ def test_vector_cache_encodes_only_new_articles(tmp_path):
     assert len(seen) == 7 and np.allclose(a, b[:5], atol=1e-2) and b.shape == (7, 64)
 
 
+def test_vector_cache_saves_every_chunk_so_a_crash_keeps_finished_ones(tmp_path):
+    calls = []
+
+    def encode(texts):
+        calls.append(len(texts))
+        if len(calls) == 3:
+            raise RuntimeError("crash")
+        return hash_encoder("x", 1)(texts)
+
+    cache, items = VectorCache(str(tmp_path / "v.npz")), make_corpus(5)
+    with pytest.raises(RuntimeError):
+        cache.update(items, encode, chunk=2)
+    assert (
+        len(np.load(tmp_path / "v.npz")["ids"]) == 4
+        and not (tmp_path / "v.npz.tmp.npz").exists()
+    )
+    assert cache.update(items, hash_encoder("x", 1), chunk=2)[2] == 1
+
+
+def test_embed_corpus_adds_only_new_articles_and_skips_the_model_when_nothing_is_new(
+    tmp_path,
+):
+    loads = []
+
+    def factory(name, n):
+        loads.append(name)
+        return hash_encoder(name, n)
+
+    s = NewsSearch(
+        lambda days: make_corpus(5), None, str(tmp_path), encoder_factory=factory
+    )
+    assert (
+        s.embed_corpus() == 5
+        and NewsSearch(
+            lambda days: make_corpus(5), None, str(tmp_path), encoder_factory=factory
+        ).embed_corpus()
+        == 0
+    )
+    assert loads == ["bge-m3"]
+
+
 @pytest.mark.skipif(
     not os.environ.get("TEST_DATABASE_URL"),
     reason="set TEST_DATABASE_URL to read a real PostgreSQL corpus",
