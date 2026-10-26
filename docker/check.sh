@@ -31,7 +31,7 @@ step "frontend: tests and build"
 (cd frontend && npm ci --silent && npm test && npm run build)
 
 step "compose: build every image and start the stack (collector LLM off, no host ports)"
-export POSTGRES_PASSWORD=check LLM_ENABLED=false
+export POSTGRES_PASSWORD=check LLM_ENABLED=false NEWS_SEARCH_EMBED_EVERY=0  # no model download in the check
 { echo "services:"; for s in postgres collector agents news_search analytics backend frontend; do echo "  $s: {ports: !override []}"; done; } > "$tmp/override.yaml"
 dc() { docker compose -p alfa-check -f docker/compose.yaml -f "$tmp/override.yaml" "$@"; }
 dc config --quiet

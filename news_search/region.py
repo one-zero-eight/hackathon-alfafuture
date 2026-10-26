@@ -3,11 +3,22 @@
 regions.json is built by regions_build.py from the collector's vocabulary (82 regions of Russia and their aliases), the collector's
 sources.json (the region of each regional outlet) and the bank company data (city -> region). Rebuild it when those files change.
 """
+
 import json
 import os
 import re
 
-GENERIC = {"область", "край", "республика", "автономный", "автономная", "округ", "город", "г", "аобл"}
+GENERIC = {
+    "область",
+    "край",
+    "республика",
+    "автономный",
+    "автономная",
+    "округ",
+    "город",
+    "г",
+    "аобл",
+}
 DEFAULT_PATH = os.path.join(os.path.dirname(__file__), "regions.json")
 
 
@@ -19,7 +30,10 @@ def capitalized(text):
     """Lowercased words written with a capital letter inside a sentence (a sentence-initial capital says nothing:
     «Выборы прошли» is not Выборг). shortcut: a city named first in a sentence counts only through its outlet; fine for titles
     like «В Казани…», misses «Казань получит…»; upgrade with a list of cities that are also common words if recall matters."""
-    return {w.lower().replace("ё", "е") for w in re.findall(r"(?<![.!?«\"]\s)(?<!^)(?<=\s)[A-ZА-ЯЁ][a-zа-яё0-9]*", text)}
+    return {
+        w.lower().replace("ё", "е")
+        for w in re.findall(r"(?<![.!?«\"]\s)(?<!^)(?<=\s)[A-ZА-ЯЁ][a-zа-яё0-9]*", text)
+    }
 
 
 def stem(word):
@@ -40,7 +54,9 @@ class RegionIndex:
         for key, capital in (("regions", False), ("cities", True)):
             for label, names in data[key].items():
                 for name in names:
-                    stems = tuple(stem(w) for w in words(name) if w not in GENERIC and len(w) > 2)
+                    stems = tuple(
+                        stem(w) for w in words(name) if w not in GENERIC and len(w) > 2
+                    )
                     if stems:
                         self.names.append((stems, label, capital))
         self.prefixes = {s for stems, _, _ in self.names for s in stems}
@@ -56,7 +72,11 @@ class RegionIndex:
                     found.add(w[:k])
                     if w in caps:
                         upper.add(w[:k])
-        return {label for stems, label, capital in self.names if all(s in (upper if capital else found) for s in stems)}
+        return {
+            label
+            for stems, label, capital in self.names
+            if all(s in (upper if capital else found) for s in stems)
+        }
 
     def of(self, item):
         """Regions of a corpus item: the regions named in the title and summary; if none is named, its outlet's region.

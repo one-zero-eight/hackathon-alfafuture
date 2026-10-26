@@ -16,7 +16,7 @@
 ## Требования к окружению
 
 - Docker с Compose v2; для Docker выделено не меньше 8 ГБ памяти (эмбеддеры). Модели эмбеддеров занимают на диске около 4,5 ГБ.
-- Видеокарта не нужна: по умолчанию всё работает на CPU. Векторы bge-m3 по корпусу уже посчитаны и лежат в снимке вместе с дампом базы (`vectors_bgem3.npz`). На стенде https://alfa-news.alo.quest этот файл уже на месте, расчёт всего корпуса не нужен. На чистой машине файл копируется за секунды; заново считаются только статьи новее снимка (замер 2026-10-26: 4 348 статей, около 15 минут на CPU, плюс одно скачивание модели). Без снимка поиск по словам включается так: `NEWS_SEARCH_METHOD=lexical`.
+- Видеокарта не нужна: по умолчанию всё работает на CPU. Векторы bge-m3 по корпусу уже посчитаны: снимок (дамп базы + `vectors_bgem3.npz`) лежит в релизе GitHub [`snapshot-2026-10-26`](https://github.com/one-zero-eight/hackathon-alfafuture/releases/tag/snapshot-2026-10-26), в git он не входит. На стенде https://alfa-news.alo.quest всё уже на месте. На чистой машине снимок скачивается и поднимается за минуту; заново считаются только статьи новее снимка — их фоново встраивает `news_search`, не поиск пользователя. Без снимка поиск по словам включается так: `NEWS_SEARCH_METHOD=lexical`.
 - Доступ в интернет: шлюз LLM организаторов, Hugging Face (модели эмбеддеров при первом запуске), RSS-источники.
 - Ключ API шлюза организаторов.
 
@@ -28,21 +28,34 @@
    # в .env: LLM_API_KEY=<ключ>; при желании смените POSTGRES_PASSWORD (буквы и цифры)
    ```
 2. Данные организаторов. CSV банка `df_Uid_data_hack.csv` и `df_Uid_payment_hack.csv` положите в `external-docs/company/`, PDF Альфа-Банка — в `external-docs/analytical-papers/` (compose монтирует их в backend и analytics только для чтения).
-3. Запуск:
+3. Сборка и снимок — параллельно (сборка образов не зависит от снимка; без снимка корпус собирается с нуля, а векторы на CPU считаются часами). Снимок — три файла релиза [`snapshot-2026-10-26`](https://github.com/one-zero-eight/hackathon-alfafuture/releases/tag/snapshot-2026-10-26) в папку `snapshot/`, любым способом:
    ```bash
-   docker compose --env-file .env -f docker/compose.yaml up -d --build
+   docker compose --env-file .env -f docker/compose.yaml build &
+   # с gh (gh auth login с доступом к репозиторию):
+   gh release download snapshot-2026-10-26 -R one-zero-eight/hackathon-alfafuture -D snapshot
+   wait
+   (cd snapshot && shasum -a 256 -c SHA256SUMS)   # оба файла OK
+   ```
+   Без `gh`: `curl` с токеном GitHub (репозиторий закрытый) или скачать три файла со страницы релиза в браузере — команды в [docs/docker.md](docs/docker.md#снимок-дамп-и-векторы-вместе).
+4. Восстановление и запуск (образы уже собраны, поэтому это секунды):
+   ```bash
+   docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres
+   docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --clean --if-exists' < snapshot/alfa-2026-10-26b.dump
+   docker compose --env-file .env -f docker/compose.yaml up -d --wait
+   docker compose --env-file .env -f docker/compose.yaml cp snapshot/vectors_bgem3-2026-10-26b.npz news_search:/data/vectors_bgem3.npz
+   docker compose --env-file .env -f docker/compose.yaml restart news_search
    docker compose --env-file .env -f docker/compose.yaml ps   # все сервисы Up
    open http://127.0.0.1:3000
    ```
-4. Проверка:
+   `--env-file .env` обязателен: без него compose ищет `.env` в `docker/` и падает с `required variable POSTGRES_PASSWORD is missing`.
+5. Проверка:
    ```bash
    curl -s localhost:3000/api/page | head -c 300        # демо-страница
    curl -s localhost:8080/v1/status                     # collector
    curl -s localhost:8001/agents | head -c 300          # agents
    ```
-5. Чтобы не считать векторы по всему корпусу, поднимите снимок: дамп базы и `vectors_bgem3.npz`. Команды — раздел «Снимок: дамп и векторы вместе» в [docs/docker.md](docs/docker.md).
 
-Первая аналитика профиля занимает минуты: поиск и вызовы LLM. Полный просчёт векторов нужен только если базы и файла `vectors_bgem3.npz` нет. Порты, проверка и устранение проблем — [docs/docker.md](docs/docker.md).
+После старта `news_search` сам скачивает модель bge-m3 (~3 ГБ, один раз) и встраивает статьи, которые коллектор добавил после снимка; дайте ему несколько минут до первого поиска. Первая аналитика профиля занимает минуты: поиск и вызовы LLM (~2 мин) и аналитика (~4–5 мин). Полный просчёт векторов нужен только без снимка. Порты, проверка и устранение проблем — [docs/docker.md](docs/docker.md).
 
 ## Архитектура
 
@@ -72,6 +85,6 @@ RSS + Google News ──► collector (Go) ──► Postgres ◄── news_sea
 - **LLM.** Только модели из списка организаторов. Адреса шлюзов и id моделей уже в `.env.example`; пустым остаётся только `LLM_API_KEY`, в git он не попадает. Коллектор читает `LLM_BASE_URL`, затем запасной адрес.
 - **Трассировка.** У новости — ссылка на оригинал и метка «факт». У вывода — дословная цитата (проверяется кодом) и подпись «Вывод модели, не позиция банка». Тезис банка помечен «Позиция банка» и ведёт на страницу PDF; если год тезиса и год новости разные, обе даты стоят в тексте, старый тезис текущим взглядом банка не считается. Вторая модель не подтвердила вывод — метка «гипотеза». У решения риски со шкалой 1–4: вероятность и влияние заданы отдельно, уровни не складываются ([docs/backend.md](docs/backend.md)).
 - **Метрики.** Шесть чисел и порядок контроля без живых пользователей: [docs/product-metrics.md](docs/product-metrics.md). Модели, библиотеки, версии и данные: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-- **Кэши.** Векторы статей — `vectors_bgem3.npz` в томе `search_data`. В снимке корпуса на `main` этот файл уже заполнен; на стенде он тоже уже есть. Результаты поиска лежат в том же томе, модели — `hf_cache`, профили и страницы — Postgres. В git файл не входит: его передают вместе с дампом той же базы, потому что векторы привязаны к `articles.id`.
+- **Кэши.** Векторы статей — `vectors_bgem3.npz` в томе `search_data`. Заполненный файл лежит в релизе [`snapshot-2026-10-26`](https://github.com/one-zero-eight/hackathon-alfafuture/releases/tag/snapshot-2026-10-26) вместе с дампом; на стенде он уже есть. Результаты поиска лежат в том же томе, модели — `hf_cache`, профили и страницы — Postgres. В git файл не входит: его передают вместе с дампом той же базы, потому что векторы привязаны к `articles.id`.
 
 Правила работы над проектом (для людей и ИИ-агентов): [AGENTS.md](AGENTS.md).

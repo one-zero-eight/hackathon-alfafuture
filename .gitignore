@@ -5,12 +5,13 @@
 
 # --- allowlist ---
 
-# git and project documentation
+# git and project documentation and presenation
 !.gitignore
 !.gitattributes
 !*.md
 !docs/**
 !LICENSE
+!alfa-hack-presentation.pdf
 
 # Go
 !*.go

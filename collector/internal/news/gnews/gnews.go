@@ -20,6 +20,9 @@ const (
 	userAgent = "Mozilla/5.0 (compatible; NewsResearchBot/0.1)"
 )
 
+// ErrBlocked means Google kept answering 429/503 after every retry: it treats us as a bot, so further requests only prolong it.
+var ErrBlocked = errors.New("google news is blocking requests")
+
 type Item struct {
 	Title       string
 	Link        string
@@ -40,6 +43,12 @@ func NewAt(base string, timeout time.Duration) *Client {
 	return &Client{http: &http.Client{Timeout: timeout}, base: base, sleep: sleep}
 }
 
+// NoPause drops the retry pauses (tests of other packages).
+func (c *Client) NoPause() *Client {
+	c.sleep = func(context.Context, time.Duration) {}
+	return c
+}
+
 func sleep(ctx context.Context, d time.Duration) {
 	t := time.NewTimer(d)
 	defer t.Stop()
@@ -58,7 +67,7 @@ type rss struct {
 	} `xml:"channel>item"`
 }
 
-// Search returns up to limit items. HTTP 429/503 are retried with a growing pause; any other failure is returned.
+// Search returns up to limit items. HTTP 429/503 are retried with a growing pause, then reported as ErrBlocked; any other failure is returned.
 func (c *Client) Search(ctx context.Context, query string, limit int) ([]Item, error) {
 	q := url.Values{"q": {query}, "hl": {"ru"}, "gl": {"RU"}, "ceid": {"RU:ru"}}
 	var lastErr error
@@ -71,7 +80,7 @@ func (c *Client) Search(ctx context.Context, query string, limit int) ([]Item, e
 		case err == nil && status == http.StatusOK:
 			return parse(body, limit)
 		case err == nil && (status == http.StatusTooManyRequests || status == http.StatusServiceUnavailable):
-			lastErr = fmt.Errorf("google news returned HTTP %d", status)
+			lastErr = fmt.Errorf("%w: HTTP %d", ErrBlocked, status)
 			c.sleep(ctx, time.Duration(5*(attempt+1))*time.Second)
 		case err == nil:
 			return nil, fmt.Errorf("google news returned HTTP %d", status)

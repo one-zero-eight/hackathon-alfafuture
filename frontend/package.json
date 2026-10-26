@@ -8,6 +8,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@alfalab/core-components-vars": "^11.4.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

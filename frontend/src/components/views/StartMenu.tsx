@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../../api";
 import type { CompanyItem, ProfileStatus } from "../../api";
 import { Timeline } from "../layout/Timeline";
+import { AdTip } from "../widgets/AdTip";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 const PAGE = 50;
@@ -59,6 +60,7 @@ export function StartMenu({ onReady, onDemo }: { onReady: (key: string) => void;
       <main className="menu menu-busy">
         <h2>Собираем аналитику</h2>
         <Timeline status={progress} />
+        {picked && <AdTip company={picked} role={role.trim()} />}
         <p className="menu-hint">Первый запуск компании занимает несколько минут, повторные берутся из базы.</p>
       </main>
     );
@@ -86,10 +88,12 @@ export function StartMenu({ onReady, onDemo }: { onReady: (key: string) => void;
         <h2>Ваша роль в компании</h2>
         <textarea value={role} onChange={e => setRole(e.target.value)} maxLength={200} required rows={6}
                   placeholder="Например: отвечаю за выбор поставщиков для магазинов в ЦФО" aria-label="Роль сотрудника" />
-        <button disabled={!picked || !role.trim()}>Сбор новостей</button>
+        <div className="menu-actions">
+          <button disabled={!picked || !role.trim()}>Сбор новостей</button>
+          <button type="button" onClick={onDemo}>Демо</button>
+        </div>
         {!picked && <span className="menu-hint">Выберите компанию в списке слева</span>}
         {error && <span className="menu-error">{error}</span>}
-        <button type="button" className="menu-demo" onClick={onDemo}>Посмотреть демо</button>
       </form>
     </main>
   );
