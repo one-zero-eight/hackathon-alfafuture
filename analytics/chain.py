@@ -196,8 +196,26 @@ def verify(agents, claims: list[dict]) -> set[int]:
     return bad
 
 
-def _analysis_text(notes: list[dict]) -> str:
-    return " ".join(f"{'Позиция банка' if note.get('role') == 'alfa' else 'Для компании'}: {note['thought']}" for note in notes)
+def _years(text: str) -> set[str]:
+    return set(re.findall(r"20\d\d", text or ""))
+
+
+def _analysis_text(notes: list[dict], event: dict) -> str:
+    """Bank thesis and model conclusion stay separate. A year clash is written out and is not treated as the current view."""
+    parts = []
+    news_years = _years(event.get("date", "")) | _years(event.get("title", ""))
+    for note in notes:
+        if note.get("role") == "alfa":
+            body = note.get("thought", "") + " " + " ".join(e.get("quote", "") for e in note.get("evidence") or [])
+            bank_years = _years(body)
+            line = "Позиция банка: " + note["thought"]
+            if bank_years and news_years and bank_years.isdisjoint(news_years):
+                line += (f" Расхождение по дате: тезис банка {min(bank_years)}, новость {max(news_years)}. "
+                         "Устаревшую позицию банка не считаем текущей.")
+            parts.append(line)
+        else:
+            parts.append("Вывод модели, не позиция банка: " + note["thought"])
+    return " ".join(parts)
 
 
 # ---------------- page ----------------
@@ -272,8 +290,11 @@ def build(profile: dict, role: dict, events: list[dict], items: dict, agents, re
                         "move": (decision or {}).get("move"), "evidence": [e["id"] for note in notes for e in note["evidence"]]})
         news_id = f"n{n}"
         text = event.get("text") or event["title"]
+        news_tags = {"kind": "fact"}
+        if (card or {}).get("event_type"):
+            news_tags["industry"] = card["event_type"]
         widgets.append({"id": news_id, "column": "news", "title": event["title"], "url": event.get("url") or None,
-                        "tags": {"industry": (card or {}).get("event_type", "")} if (card or {}).get("event_type") else {},
+                        "tags": news_tags,
                         "details": {"text": text, "src": event.get("source", ""), "date": event.get("date", "")},
                         "chat": {"text": text, "basis": [f"{event.get('source', '')}, {event.get('date', '')}".strip(", ")], "followups": []}})
         if not notes:
@@ -283,7 +304,7 @@ def build(profile: dict, role: dict, events: list[dict], items: dict, agents, re
         company = next((note["thought"] for note in notes if note.get("role") != "alfa"), notes[-1]["thought"])
         widgets.append({"id": ana_id, "column": "analytics", "title": company[:120],
                         "tags": {"confidence": "reliable" if src == "alfa" else "probable", "source": src},
-                        "details": {"text": _analysis_text(notes)}})
+                        "details": {"text": _analysis_text(notes, event)}})
         links.append({"id": f"l{n}a", "from": news_id, "to": ana_id, "text": notes[-1]["thought"]})
         for note in notes:
             claims.append({"widget": ana_id, "text": note["thought"], "quote": note["evidence"][0]["quote"]})
@@ -301,8 +322,15 @@ def build(profile: dict, role: dict, events: list[dict], items: dict, agents, re
     # so a failed second opinion lowers confidence and stays on the page.
     weak = {claims[i]["widget"] for i in verify(agents, claims) if i < len(claims)}
     for w in widgets:
+        tags = w.setdefault("tags", {})
         if w["id"] in weak:
-            w.setdefault("tags", {})["confidence"] = "possible"
+            tags["confidence"] = "possible"
+        if w.get("column") == "news":
+            tags["kind"] = "fact"
+        elif tags.get("confidence") == "possible":
+            tags["kind"] = "hypothesis"
+        else:
+            tags["kind"] = "conclusion"
     today = datetime.date.today()
     page = {
         "version": 1,
@@ -369,14 +397,14 @@ def hide_loose_bank(page: dict) -> dict:
         if not ana or not text.startswith("Позиция банка:"):
             continue
         rest = text[len("Позиция банка:"):].strip()
-        clause, sep, tail = rest.partition(" Для компании:")
+        clause, sep, tail = rest.partition(" Вывод модели, не позиция банка:")
         if bank_related(news.get("title") or "", clause):
             continue
         ana.pop("url", None)
         if ana.get("tags", {}).get("source") == "alfa":
             ana["tags"]["source"] = "ai"
         if sep and tail:
-            ana["details"]["text"] = "Для компании: " + tail.strip()
+            ana["details"]["text"] = "Вывод модели, не позиция банка: " + tail.strip()
         else:
             ana["details"]["text"] = "В материалах банка нет тезиса по этой новости. Ниже вывод модели по тексту новости и карточке компании."
     return page

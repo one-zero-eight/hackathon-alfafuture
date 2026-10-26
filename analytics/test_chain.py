@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from agents.client import AgentError
 from analytics import app as app_module, chain
 from analytics.alfa import keep
-from analytics.chain import ROLES, bank_position, build, events_from, grounded, hide_loose_bank, make_page, plan, reply, sources
+from analytics.chain import ROLES, _analysis_text, bank_position, build, events_from, grounded, hide_loose_bank, make_page, plan, reply, sources
 from analytics.search import Index
 
 QUOTE = "Банк России сохранит ставку"
@@ -62,6 +62,8 @@ def test_page_has_a_chain_for_relevant_news_and_arrows_between_columns():
     assert {l["from"] + l["to"] for l in page["links"]} == {"n1a1", "a1d1"}
     news, ana, dec = page["widgets"][0], page["widgets"][1], page["widgets"][2]
     assert news["url"] == "https://rbc.ru/1" and news["details"]["src"] == "РБК" and ana["tags"]["source"] == "ai"
+    assert news["tags"]["kind"] == "fact" and ana["tags"]["kind"] == "conclusion" and dec["tags"]["kind"] == "hypothesis"
+    assert "Вывод модели, не позиция банка" in ana["details"]["text"]
     assert dec["tags"]["confidence"] == "possible" and len(dec["risks"]["risks"]) == 1  # the risk with probability 9 is dropped
     assert dec["chat"]["followups"] == ["Что меняется, если ставка всё же снизится?"] and dec["chat"]["basis"] == ["РБК, 23.10.2026"]
     assert page["company"]["role"] == "Финансовый директор" and page["company"]["okved"] == "06.10 Добыча"
@@ -156,13 +158,22 @@ def test_embedding_hit_does_not_need_shared_words_but_still_drops_another_year()
     assert bank_position(Index({}), old, items, Hit("alfa:old")) is None
 
 
+def test_a_dated_bank_thesis_is_not_treated_as_the_current_view():
+    text = _analysis_text([
+        {"role": "alfa", "thought": "ставка в 2024 году", "evidence": [{"quote": "в 2024 году ставка"}]},
+        {"thought": "долг останется дорогим", "evidence": []},
+    ], {"date": "23.10.2026", "title": "Банк России сохранит ставку"})
+    assert "Позиция банка:" in text and "тезис банка 2024" in text and "новость 2026" in text
+    assert "не считаем текущей" in text and "Вывод модели, не позиция банка:" in text
+
+
 def test_loose_bank_sentence_is_removed():
     page = {"widgets": [
         {"id": "n1", "column": "news", "title": "В Китае введут сертификацию стройматериалов"},
         {"id": "a1", "column": "analytics", "tags": {"source": "alfa"}, "url": "x.pdf",
-         "details": {"text": "Позиция банка: Китай копит золото Для компании: закупки станут проще"}}]}
+         "details": {"text": "Позиция банка: Китай копит золото Вывод модели, не позиция банка: закупки станут проще"}}]}
     hide_loose_bank(page)
-    assert page["widgets"][1]["details"]["text"] == "Для компании: закупки станут проще"
+    assert page["widgets"][1]["details"]["text"] == "Вывод модели, не позиция банка: закупки станут проще"
     assert "url" not in page["widgets"][1] and page["widgets"][1]["tags"]["source"] == "ai"
 
 
