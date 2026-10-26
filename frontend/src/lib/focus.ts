@@ -32,6 +32,10 @@ export function computeFocus(page: Page, open: Set<string>, hover: Hover): Focus
     };
     selected.forEach(id => { walk(id, "to", "from"); walk(id, "from", "to"); });
     page.widgets.forEach(w => { if (!keep.has(w.id)) hidden.add(w.id); });
+    // An analytics card is about the whole set of news, so the news column stays complete.
+    if (selected.some(id => page.widgets.find(w => w.id === id)?.column === "analytics")) {
+      page.widgets.forEach(w => { if (w.column === "news") hidden.delete(w.id); });
+    }
   }
   return { hlLinks, hlWidgets, selected, hidden, visibleLinks: page.links.filter(l => !hidden.has(l.from) && !hidden.has(l.to)) };
 }

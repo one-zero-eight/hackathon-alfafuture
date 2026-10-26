@@ -525,7 +525,7 @@ API пакета не является отдельным HTTP-сервисом.
 не расходилась с отправленным запросом. Остальные обычные параметры SDK
 передаются без собственного набора DTO.
 
-Endpoint фиксирован: `https://changellenge.up.railway.app/v1/`;
+Endpoint — первый заданный из `LLM_BASE_URL`, `LLM_BASE_URL_BACKUP`, иначе `https://changellenge.up.railway.app/v1/`;
 обычный запрос — `POST /v1/chat/completions`. Другие провайдеры и резервные модели
 не выбираются. Используется SDK `NewChatCompletionService`, который сам не
 читает ambient `OPENAI_*` настройки: сторонний `OPENAI_BASE_URL`, ключи,

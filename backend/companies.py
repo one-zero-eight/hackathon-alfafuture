@@ -45,10 +45,18 @@ SECTIONS = (
 
 
 def _revenue(r: dict) -> float:
+    """1000 is the bank file's placeholder for a missing revenue, not a thousand rubles."""
     try:
-        return float(r.get("REVENUE_COMPANY") or 0)
+        value = float(r.get("REVENUE_COMPANY") or 0)
     except ValueError:
         return 0.0
+    return 0.0 if value == 1000 else value
+
+
+def _client(r: dict) -> bool:
+    """The case serves clients. A prospect or a closed client is left out. A row with no type stays, so older extracts still load."""
+    kind = (r.get("CL_TYPE") or "").strip().upper()
+    return kind in ("", "CLIENT")
 
 
 class CompanyUnavailable(LookupError):
@@ -160,7 +168,8 @@ class CompanyBook:
         hits = [
             {"id": uid, "okved_name": r["MAINOKVED_NAME"]}
             for uid, r in self._load().items()
-            if not q or q in uid.lower() or q in r["MAINOKVED_NAME"].lower()
+            if _client(r)
+            and (not q or q in uid.lower() or q in r["MAINOKVED_NAME"].lower())
         ]
         return {"total": len(hits), "items": hits[offset : offset + limit]}
 
@@ -216,7 +225,7 @@ class CompanyBook:
         if uid in self._profiles:
             return self._profiles[uid]
         r = self._load().get(uid)
-        if r is None:
+        if r is None or not _client(r):
             raise CompanyUnavailable(f"company {uid} not found")
         suppliers, customers, incoming = self._payments(uid)
         marks = [(ru, key) for col, (ru, key) in PRODUCTS.items() if _flag(r.get(col))]
@@ -243,8 +252,9 @@ class CompanyBook:
         if customers:
             parts.append("основные покупатели: " + "; ".join(customers))
         group = r.get("GROUP_ID") or ""
+        money = f"выручка {_money(revenue)}" if revenue else "выручка не указана"
         facts = (
-            f"{uid}: ОКВЭД {r['MAINOKVED_CODE']} {r['MAINOKVED_NAME']}, {r['CITY']}, {r['REGION']}, выручка {_money(revenue)}, "
+            f"{uid}: ОКВЭД {r['MAINOKVED_CODE']} {r['MAINOKVED_NAME']}, {r['CITY']}, {r['REGION']}, {money}, "
             f"группа {group or 'нет'} ({self._groups.get(group, 1) if group else 1} комп.), продукты: {', '.join(ru for ru, _ in marks) or 'нет'}."
         )
         if incoming:
@@ -271,7 +281,9 @@ class CompanyBook:
             "workers": size or "",
             "suppliers": suppliers,
             "customers": customers,
-            "date_label": f"выручка {_money(revenue)}, {r['CITY']}".strip(" ,"),
+            "date_label": (
+                f"выручка {_money(revenue)}, {r['CITY']}" if revenue else (r["CITY"] or "")
+            ).strip(" ,"),
             "locality": self.locality(r),
             "cl_type": r.get("CL_TYPE") or None,
         }

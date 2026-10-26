@@ -4,7 +4,8 @@ export type Column = "news" | "analytics" | "decisions";
 export type Confidence = "reliable" | "probable" | "possible";
 export type Source = "ai" | "alfa" | "human";
 export type Urgency = "urgent" | "medium_term" | "not_urgent";
-export interface Tags { confidence?: Confidence; source?: Source; industry?: string; urgency?: Urgency }
+export type Kind = "fact" | "conclusion" | "hypothesis";
+export interface Tags { confidence?: Confidence; source?: Source; industry?: string; urgency?: Urgency; kind?: Kind }
 export interface WidgetSkeleton { id: string; column: Column; title: string; url?: string; tags?: Tags }
 export interface LinkSkeleton { id: string; from: string; to: string }
 export interface Company { name: string; okved: string; role: string; date: string }

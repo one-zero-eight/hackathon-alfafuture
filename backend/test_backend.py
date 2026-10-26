@@ -499,6 +499,22 @@ def test_company_list_is_paged_and_searchable(tmp_path, monkeypatch):
     assert client.get("/api/companies").status_code == 503
 
 
+def test_placeholder_revenue_is_not_shown_and_only_clients_are_served(tmp_path):
+    fixture_csv(tmp_path)
+    path = tmp_path / "df_Uid_data_hack.csv"
+    text = path.read_text(encoding="utf-8")
+    path.write_text(text.replace("SYNTHETIC_U;", "SYNTHETIC_U;CL_TYPE;", 1).replace("\nU_1;", "\nU_1;CLIENT;", 1)
+                    .replace("\nU_2;", "\nU_2;PROSPECT;", 1).replace("\nU_3;", "\nU_3;CLOSE_CLIENT;", 1)
+                    .replace("20000000000", "1000"), encoding="utf-8")
+    book = companies.CompanyBook(tmp_path)
+    client_row = book.profile("U_1")
+    assert "1000" not in client_row["facts"] and "выручка не указана" in client_row["facts"]
+    assert "выручка" not in client_row["date_label"]
+    assert book.listing("", 0, 10)["items"] == [{"id": "U_1", "okved_name": "Строительство"}]
+    with pytest.raises(companies.CompanyUnavailable):
+        book.profile("U_2")
+
+
 def test_okved_sections():
     assert (
         companies.okved_section("42.99") == "F"

@@ -29,8 +29,9 @@ export function Overview({ widgets, details, section, onSection, onToggle }: Pro
         </div>
         <p>
           Мы собираем новости, объясняем, что они значат для вашей компании, и предлагаем решения. Каждая карточка связана с теми, из которых она следует
-          или к которым ведёт. Листайте разделы заголовками ниже, а чтобы увидеть цепочку, нажмите на любую карточку: останутся только связанные с ней,
-          а стрелки покажут, что из чего вытекает. Можно выбрать несколько карточек сразу; чтобы вернуться, снимите выбор.
+          или к которым ведёт. Листайте разделы заголовками ниже. В разделе «Аналитика» видны все новости и все выводы.
+          Нажмите на карточку, чтобы открыть доску: стрелки покажут, что из чего вытекает, и если открыта аналитика, колонка новостей остаётся целиком.
+          Можно выбрать несколько карточек сразу; чтобы вернуться, снимите выбор.
         </p>
       </div>
       <div className="ring">
@@ -45,7 +46,9 @@ export function Overview({ widgets, details, section, onSection, onToggle }: Pro
         })}
       </div>
       <div className="grid2" key={section}>
-        {widgets.filter(w => w.column === section).map(w => (
+        {(section === "analytics"
+          ? [...widgets.filter(w => w.column === "news"), ...widgets.filter(w => w.column === "analytics")]
+          : widgets.filter(w => w.column === section)).map(w => (
           <Widget
             key={w.id} w={w} details={details[w.id]} open={false} highlighted={false}
             nodeRef={() => {}} onToggle={() => onToggle(w.id)} onRetry={() => {}} onChat={() => {}} onRisks={() => {}} onHover={() => {}}

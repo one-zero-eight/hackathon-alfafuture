@@ -6,7 +6,6 @@ These PDFs are slide images, so a page with no text layer is rendered (poppler's
 the agents service. A text page keeps a thesis only when its quote is a verbatim fragment of the page. An image page keeps a
 short quote with no second check. Results are cached per page, so a rerun only reads new pages.
 """
-
 import base64
 import hashlib
 import json
@@ -17,12 +16,7 @@ from pathlib import Path
 
 from agents.client import Agents
 
-PAPERS_DIR = Path(
-    os.environ.get(
-        "PAPERS_DIR",
-        Path(__file__).resolve().parents[1] / "external-docs" / "analytical-papers",
-    )
-)
+PAPERS_DIR = Path(os.environ.get("PAPERS_DIR", Path(__file__).resolve().parents[1] / "external-docs" / "analytical-papers"))
 DATA_DIR = Path(os.environ.get("ANALYTICS_DATA", Path(__file__).parent / "data"))
 THESES = DATA_DIR / "theses.jsonl"
 CACHE = DATA_DIR / "alfa-cache.jsonl"
@@ -41,9 +35,7 @@ def pages_text(path: Path) -> list[tuple[int, str]]:
     os.dup2(devnull, 2)
     try:
         reader = PdfReader(str(path))
-        return [
-            (i + 1, page.extract_text() or "") for i, page in enumerate(reader.pages)
-        ]
+        return [(i + 1, page.extract_text() or "") for i, page in enumerate(reader.pages)]
     finally:
         os.dup2(old, 2)
         os.close(old)
@@ -54,26 +46,9 @@ def render(path: Path, page: int, dest: Path) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
     prefix = dest.parent / dest.stem
     try:
-        subprocess.run(
-            [
-                "pdftoppm",
-                "-jpeg",
-                "-r",
-                "80",
-                "-f",
-                str(page),
-                "-l",
-                str(page),
-                str(path),
-                str(prefix),
-            ],
-            check=True,
-            capture_output=True,
-        )
+        subprocess.run(["pdftoppm", "-jpeg", "-r", "80", "-f", str(page), "-l", str(page), str(path), str(prefix)], check=True, capture_output=True)
     except FileNotFoundError as e:
-        raise RuntimeError(
-            "pdftoppm (poppler) is required to read image-only PDFs"
-        ) from e
+        raise RuntimeError("pdftoppm (poppler) is required to read image-only PDFs") from e
     next(dest.parent.glob(dest.stem + "-*.jpg")).replace(dest)
     return dest
 
@@ -93,11 +68,7 @@ def keep(theses: list[dict], page_text: dict[tuple[str, int], str]) -> list[dict
 def _cache() -> dict[str, list[dict]]:
     if not CACHE.exists():
         return {}
-    rows = (
-        json.loads(line)
-        for line in CACHE.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    )
+    rows = (json.loads(line) for line in CACHE.read_text(encoding="utf-8").splitlines() if line.strip())
     return {row["key"]: row["theses"] for row in rows}
 
 
@@ -107,9 +78,7 @@ def _remember(key: str, theses: list[dict]) -> None:
         f.write(json.dumps({"key": key, "theses": theses}, ensure_ascii=False) + "\n")
 
 
-def read_page(
-    agents: Agents, path: Path, page: int, text: str, cache: dict
-) -> list[dict]:
+def read_page(agents: Agents, path: Path, page: int, text: str, cache: dict) -> list[dict]:
     key = hashlib.sha256(path.read_bytes()).hexdigest()[:12] + f"-{page}"
     if key in cache:
         return cache[key]
@@ -119,16 +88,7 @@ def read_page(
         transcript = text
     else:
         jpg = render(path, page, PAGES / f"{key}.jpg")
-        ans = agents.run(
-            "alfa_page",
-            {
-                "page": page,
-                "images": [
-                    "data:image/jpeg;base64,"
-                    + base64.b64encode(jpg.read_bytes()).decode()
-                ],
-            },
-        )
+        ans = agents.run("alfa_page", {"page": page, "images": ["data:image/jpeg;base64," + base64.b64encode(jpg.read_bytes()).decode()]})
         transcript = None  # shortcut: no text layer to check the quote against; a second OCR would replace this
     theses = []
     for i, t in enumerate(ans.get("theses") or [], 1):
@@ -153,11 +113,7 @@ def read_page(
 def load_theses() -> list[dict]:
     if not THESES.exists():
         return []
-    return [
-        json.loads(line)
-        for line in THESES.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    ]
+    return [json.loads(line) for line in THESES.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
 def main(folder: Path) -> None:
@@ -170,20 +126,11 @@ def main(folder: Path) -> None:
         try:
             kept = read_page(agents, path, page, text, cache)
             rows.extend(kept)
-            print(
-                f"alfa {i}/{len(plan)} {path.name} p{page}: {len(kept)} theses, total {len(rows)}",
-                flush=True,
-            )
+            print(f"alfa {i}/{len(plan)} {path.name} p{page}: {len(kept)} theses, total {len(rows)}", flush=True)
         except Exception as e:  # one unreadable page must not stop the rest
             print(f"alfa {i}/{len(plan)} {path.name} p{page}: FAILED {e}", flush=True)
-    THESES.write_text(
-        "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows),
-        encoding="utf-8",
-    )
-    print(
-        f"alfa done: {len(rows)} theses, LLM cost {agents.cost:.2f} -> {THESES}",
-        flush=True,
-    )
+    THESES.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8")
+    print(f"alfa done: {len(rows)} theses, LLM cost {agents.cost:.2f} -> {THESES}", flush=True)
 
 
 if __name__ == "__main__":

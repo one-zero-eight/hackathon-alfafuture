@@ -5,6 +5,7 @@ const LABELS = {
   confidence: { title: "Уверенность", values: { reliable: "достоверно", probable: "вероятно", possible: "возможно" } },
   source: { title: "Источник анализа", values: { ai: "ИИ", alfa: "Альфа", human: "человек" } },
   urgency: { title: "Срочность", values: { urgent: "срочно", medium_term: "среднесрочно", not_urgent: "не срочно" } },
+  kind: { title: "Тип высказывания", values: { fact: "факт", conclusion: "вывод модели", hypothesis: "гипотеза" } },
 } as const;
 
 export function Tags({ tags }: { tags?: TagsData }) {
@@ -17,6 +18,7 @@ export function Tags({ tags }: { tags?: TagsData }) {
       {tags.confidence && chip("confidence", LABELS.confidence.title, tags.confidence, LABELS.confidence.values[tags.confidence])}
       {tags.source && chip("source", LABELS.source.title, tags.source, LABELS.source.values[tags.source])}
       {tags.urgency && chip("urgency", LABELS.urgency.title, tags.urgency, LABELS.urgency.values[tags.urgency])}
+      {tags.kind && chip("kind", LABELS.kind.title, tags.kind, LABELS.kind.values[tags.kind])}
     </div>
   );
 }

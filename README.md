@@ -2,19 +2,94 @@
 
 Агентная система: собирает новости, подбирает их под бизнес пользователя и объясняет, что они значат для его решений (выводы, риски, вопросы), с трассировкой до источников.
 
-- Архитектура и правила: [docs/architecture.md](docs/architecture.md)
-- Запуск всего стека: [docs/docker.md](docs/docker.md)
-- Разделы: [сбор](docs/collector.md), [агенты](docs/agents.md), [поиск новостей](docs/news-search.md), [аналитика](docs/analytics.md), [backend](docs/backend.md), [frontend](docs/frontend.md)
+> Материалы носят информационный характер и не являются индивидуальной инвестиционной рекомендацией.
 
-## Тестовый стенд
-https://alfa-news.alo.quest
+## Для проверяющих
 
-## Быстрый старт
+- Команда: one-zero-eight (репозиторий `github.com/one-zero-eight/hackathon-alfafuture`).
+- Развёрнутая версия: https://alfa-news.alo.quest — решение хостим мы. Просим переактивировать ключ API на время проверки.
+- Вход: логина нет. Пользователь считается уже авторизованным. Компанию выбирают в стартовом меню, роль вводят текстом. Кнопка «Посмотреть демо» открывает демо-страницу без профиля.
+- Локальный запуск в разделе ниже остаётся обязательным и при работающем хостинге: Docker, данные организаторов и ключ в `.env`.
 
-```bash
-cp .env.example .env        # задайте POSTGRES_PASSWORD, LLM_API_KEY, LLM_BASE_URL
-docker compose --env-file .env -f docker/compose.yaml up -d --build
-open http://127.0.0.1:3000
+На экране всегда видна красная полоса «Альфа-Бизнес / Новостная аналитика» и дисклеймер в шапке: материалы не являются индивидуальной инвестиционной рекомендацией. Кнопка «Спросить ИИ» есть на каждом экране.
+
+## Требования к окружению
+
+- Docker с Compose v2; для Docker выделено не меньше 8 ГБ памяти (эмбеддеры). Модели эмбеддеров занимают на диске около 4,5 ГБ.
+- Видеокарта не нужна: по умолчанию всё работает на CPU. Векторы bge-m3 по корпусу уже посчитаны: снимок (дамп базы + `vectors_bgem3.npz`) лежит в релизе GitHub [`snapshot-2026-10-26`](https://github.com/one-zero-eight/hackathon-alfafuture/releases/tag/snapshot-2026-10-26), в git он не входит. На стенде https://alfa-news.alo.quest всё уже на месте. На чистой машине снимок скачивается и поднимается за минуту; заново считаются только статьи новее снимка — их фоново встраивает `news_search`, не поиск пользователя. Без снимка поиск по словам включается так: `NEWS_SEARCH_METHOD=lexical`.
+- Доступ в интернет: шлюз LLM организаторов, Hugging Face (модели эмбеддеров при первом запуске), RSS-источники.
+- Ключ API шлюза организаторов.
+
+## Локальный запуск в Docker
+
+1. Настройки. Скопируйте пример и впишите только ключ — остальные параметры (адреса шлюзов, модель коллектора, метод поиска) уже заданы и меняются в `.env` без правки кода:
+   ```bash
+   cp .env.example .env
+   # в .env: LLM_API_KEY=<ключ>; при желании смените POSTGRES_PASSWORD (буквы и цифры)
+   ```
+2. Данные организаторов. CSV банка `df_Uid_data_hack.csv` и `df_Uid_payment_hack.csv` положите в `external-docs/company/`, PDF Альфа-Банка — в `external-docs/analytical-papers/` (compose монтирует их в backend и analytics только для чтения).
+3. Сборка и снимок — параллельно (сборка образов не зависит от снимка; без снимка корпус собирается с нуля, а векторы на CPU считаются часами). Снимок — три файла релиза [`snapshot-2026-10-26`](https://github.com/one-zero-eight/hackathon-alfafuture/releases/tag/snapshot-2026-10-26) в папку `snapshot/`, любым способом:
+   ```bash
+   docker compose --env-file .env -f docker/compose.yaml build &
+   # с gh (gh auth login с доступом к репозиторию):
+   gh release download snapshot-2026-10-26 -R one-zero-eight/hackathon-alfafuture -D snapshot
+   wait
+   (cd snapshot && shasum -a 256 -c SHA256SUMS)   # оба файла OK
+   ```
+   Без `gh`: `curl` с токеном GitHub (репозиторий закрытый) или скачать три файла со страницы релиза в браузере — команды в [docs/docker.md](docs/docker.md#снимок-дамп-и-векторы-вместе).
+4. Восстановление и запуск (образы уже собраны, поэтому это секунды):
+   ```bash
+   docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres
+   docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --clean --if-exists' < snapshot/alfa-2026-10-26b.dump
+   docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres agents news_search analytics backend frontend   # всё, кроме коллектора
+   docker compose --env-file .env -f docker/compose.yaml cp snapshot/vectors_bgem3-2026-10-26b.npz news_search:/data/vectors_bgem3.npz
+   docker compose --env-file .env -f docker/compose.yaml restart news_search
+   docker compose --env-file .env -f docker/compose.yaml ps   # шесть сервисов Up
+   open http://127.0.0.1:3000
+   ```
+   Коллектор запускается **после первой страницы**: пока он стоит, в базе нет статей новее снимка, и `news_search` нечего встраивать перед поиском. Когда первая страница готова:
+   ```bash
+   docker compose --env-file .env -f docker/compose.yaml up -d collector
+   ```
+   Новые статьи он встроит фоново, между поисками.
+   `--env-file .env` обязателен: без него compose ищет `.env` в `docker/` и падает с `required variable POSTGRES_PASSWORD is missing`.
+5. Проверка:
+   ```bash
+   curl -s localhost:3000/api/page | head -c 300        # демо-страница
+   curl -s localhost:8080/v1/status                     # collector
+   curl -s localhost:8001/agents | head -c 300          # agents
+   ```
+
+После старта `news_search` сам скачивает модель bge-m3 (~3 ГБ, один раз); дайте ему несколько минут до первого поиска. Страница профиля строится около 5 минут (замер: 4 мин 48 с): поиск и вызовы LLM (~2 мин) и аналитика (~2,5 мин). Полный просчёт векторов нужен только без снимка. Порты, проверка и устранение проблем — [docs/docker.md](docs/docker.md).
+
+## Архитектура
+
 ```
+RSS + Google News ──► collector (Go) ──► Postgres ◄── news_search (поиск по корпусу)
+                          │ теги, геометки                   │ запросы, HyDE
+                          ▼                                  ▼
+                    словарь тегов            frontend ◄──► backend (FastAPI) ──► analytics ──► agents ──► LLM
+```
+
+| Сервис | Что делает | Документ |
+|---|---|---|
+| collector | каждые 15 минут собирает RSS и Google News, ставит теги и региональные метки (Gemma) | [docs/collector.md](docs/collector.md) |
+| agents | единственная точка вызова LLM из Python, промпты в `agents/prompts/` | [docs/agents.md](docs/agents.md) |
+| news_search | ищет новости под компанию и роль (bge-m3 + xQuAD), склеивает дубли | [docs/news-search.md](docs/news-search.md) |
+| analytics | для каждой из первых 10 новостей своя цепочка «новость → вывод → решение»: дословная цитата, позиция банка из PDF, риски по шкале 1–4 | [docs/analytics.md](docs/analytics.md) |
+| backend | профили, очередь, страницы, чат и обратная связь, карточка компании из CSV | [docs/backend.md](docs/backend.md) |
+| frontend | интерфейс (React): полоса Альфа-Бизнес, три колонки, метки на карточках, «Спросить ИИ» | [docs/frontend.md](docs/frontend.md) |
+
+Ход обработки профиля и правила — [docs/architecture.md](docs/architecture.md).
+
+## Как обрабатываются данные
+
+- **Новости.** Из RSS, который отдаёт само издание, и из Google News по запросу `site:` этого издания. Страница сайта целиком не обходится. Сохраняются заголовок, дата, ссылка на оригинал и источник (Postgres, том `postgres_data`). Отдельной сверки пользовательских соглашений всех изданий не было.
+- **Данные банка.** CSV организаторов читает только backend (том только для чтения). В списке и в карточке — компании с `CL_TYPE = CLIENT` (пустой тип тоже остаётся, чтобы старые выгрузки открывались). `PROSPECT` и `CLOSE_CLIENT` не показываются. Выручка `1000` в файле банка — это пустое значение, на экране «выручка не указана». Порога «отсечь компанию меньше 15 млрд» нет: размер юрлица смотрится само по себе, число компаний в группе только пишется в фактах.
+- **Поиск.** По умолчанию `dense_xquad` (bge-m3). Крупной компании чаще попадают федеральные новости, небольшой — местные. Готовые векторы корпуса берутся из снимка, с нуля корпус не встраивается.
+- **LLM.** Только модели из списка организаторов. Адреса шлюзов и id моделей уже в `.env.example`; пустым остаётся только `LLM_API_KEY`, в git он не попадает. Коллектор читает `LLM_BASE_URL`, затем запасной адрес.
+- **Трассировка.** У новости — ссылка на оригинал и метка «факт». У вывода — дословная цитата (проверяется кодом) и подпись «Вывод модели, не позиция банка». Тезис банка помечен «Позиция банка» и ведёт на страницу PDF; если год тезиса и год новости разные, обе даты стоят в тексте, старый тезис текущим взглядом банка не считается. Вторая модель не подтвердила вывод — метка «гипотеза». У решения риски со шкалой 1–4: вероятность и влияние заданы отдельно, уровни не складываются ([docs/backend.md](docs/backend.md)).
+- **Метрики.** Шесть чисел и порядок контроля без живых пользователей: [docs/product-metrics.md](docs/product-metrics.md). Модели, библиотеки, версии и данные: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- **Кэши.** Векторы статей — `vectors_bgem3.npz` в томе `search_data`. Заполненный файл лежит в релизе [`snapshot-2026-10-26`](https://github.com/one-zero-eight/hackathon-alfafuture/releases/tag/snapshot-2026-10-26) вместе с дампом; на стенде он уже есть. Результаты поиска лежат в том же томе, модели — `hf_cache`, профили и страницы — Postgres. В git файл не входит: его передают вместе с дампом той же базы, потому что векторы привязаны к `articles.id`.
 
 Правила работы над проектом (для людей и ИИ-агентов): [AGENTS.md](AGENTS.md).

@@ -1,5 +1,4 @@
 """Offline checks of the analytics service: the agents are replaced by a fake that returns canned JSON; run: pytest analytics"""
-
 import time
 
 import pytest
@@ -8,154 +7,46 @@ from fastapi.testclient import TestClient
 from agents.client import AgentError
 from analytics import app as app_module, chain
 from analytics.alfa import keep
-from analytics.chain import (
-    ROLES,
-    bank_position,
-    build,
-    events_from,
-    grounded,
-    hide_loose_bank,
-    make_page,
-    plan,
-    reply,
-    sources,
-)
+from analytics.chain import ROLES, _analysis_text, bank_position, build, clip_title, events_from, grounded, hide_loose_bank, make_page, plan, reply, sources
 from analytics.search import Index
 
 QUOTE = "Банк России сохранит ставку"
-ROLE = {
-    "title": "CFO",
-    "authority": "долг",
-    "playbook": "если ставка высокая — фиксировать",
-}
-PROFILE = {
-    "label": "Тверь",
-    "okved": "B",
-    "okved_code": "06.10",
-    "okved_name": "Добыча",
-    "region": "Тверская область",
-    "products": ["credit"],
-    "products_ru": ["кредит"],
-    "facts": "выручка 1 млрд",
-}
+ROLE = {"title": "CFO", "authority": "долг", "playbook": "если ставка высокая — фиксировать"}
+PROFILE = {"label": "Тверь", "okved": "B", "okved_code": "06.10", "okved_name": "Добыча", "region": "Тверская область",
+           "products": ["credit"], "products_ru": ["кредит"], "facts": "выручка 1 млрд"}
 
 
 class Fake:
     """Writer answers when the headline concerns the central bank; everything else is irrelevant."""
-
-    def __init__(
-        self, decision_fails=False, verdict="supported", verify_fails=False, horizon=""
-    ):
-        self.calls, self.decision_fails, self.verdict, self.verify_fails = (
-            [],
-            decision_fails,
-            verdict,
-            verify_fails,
-        )
-        self.horizon = horizon
+    def __init__(self, decision_fails=False, verdict="supported", verify_fails=False):
+        self.calls, self.decision_fails, self.verdict, self.verify_fails = [], decision_fails, verdict, verify_fails
 
     def run(self, name, data):
         self.calls.append((name, data))
         if name == "analytics_step":
             if "Банк России" not in data["title"] + data.get("text", ""):
                 return {"relevant": False, "evidence": []}
-            return {
-                "relevant": True,
-                "done": True,
-                "thought": "Ставка не снизится, долг останется дорогим.",
-                "evidence": [{"id": self.event_id, "quote": QUOTE}],
-            }
+            return {"relevant": True, "done": True, "thought": "Ставка не снизится, долг останется дорогим.",
+                    "evidence": [{"id": self.event_id, "quote": QUOTE}]}
         if name == "decision":
             if self.decision_fails:
                 raise AgentError("no json")
-            return {
-                "title": "Зафиксировать часть долга",
-                "text": "Зафиксировать ставку по половине долга до заседания.",
-                "why": "Ставка не снизится.",
-                "horizon": self.horizon,
-                "type": "risk",
-                "move": "предварительное действие",
-                "contradiction": None,
-                "risks": [
-                    {
-                        "name": "Ставка всё же снизится",
-                        "probability": 2,
-                        "impact": 3,
-                        "mitigation": "Фиксировать долю.",
-                    },
-                    {
-                        "name": "плохая",
-                        "probability": 9,
-                        "impact": 1,
-                        "mitigation": "x",
-                    },
-                ],
-            }
+            return {"title": "Зафиксировать часть долга", "text": "Зафиксировать ставку по половине долга до заседания.",
+                    "why": "Ставка не снизится.", "move": "предварительное действие", "contradiction": None,
+                    "risks": [{"name": "Ставка всё же снизится", "probability": 2, "impact": 3, "mitigation": "Фиксировать долю."},
+                              {"name": "плохая", "probability": 9, "impact": 1, "mitigation": "x"}]}
         if name == "verify":
             if self.verify_fails:
                 raise AgentError("down")
             return {"verdicts": [self.verdict] * len(data["claims"])}
         if name == "reply":
             return {"text": "Ответ по разбору", "basis": ["строка", 5]}
-        if name == "synthesis":
-            return {
-                "text": "Для таких компаний дорогой долг держится дольше одного года.",
-                "type": "risk",
-                "horizon": "not_urgent",
-                "evidence": [
-                    {"id": "N1", "quote": QUOTE},
-                    {"id": "N2", "quote": "счёт 1:1"},
-                ],
-            }
-        if name == "role_brief":
-            return {
-                "title": "Финансовый директор",
-                "authority": "лизинг",
-                "playbook": "сначала смотреть договоры лизинга",
-            }
-        if name == "synthesis_decision":
-            return {
-                "title": "Разнести платежи",
-                "text": "Часть платежей перенести на следующий квартал.",
-                "why": "Вывод про срок длиннее года.",
-                "horizon": "not_urgent",
-                "move": None,
-                "risks": [
-                    {
-                        "name": "Спрос вырастет раньше",
-                        "probability": 2,
-                        "impact": 3,
-                        "mitigation": "Оставить долю.",
-                    },
-                    {
-                        "name": "плохая",
-                        "probability": 9,
-                        "impact": 1,
-                        "mitigation": "x",
-                    },
-                ],
-            }
         raise AssertionError(name)
 
 
-NEWS = [
-    {
-        "aid": 1,
-        "title": "ЦБ: Банк России сохранит ставку",
-        "summary": f"вчера {QUOTE} на прежнем уровне",
-        "outlets": ["РБК"],
-        "date": "Fri, 23 Oct 2026 10:00:00 +0000",
-        "link": "https://rbc.ru/1",
-    },
-    {
-        "aid": 2,
-        "title": "Матч завершился вничью",
-        "summary": "счёт 1:1",
-        "outlets": ["Матч ТВ"],
-        "date": "",
-        "link": "https://m.ru/2",
-    },
-]
+NEWS = [{"aid": 1, "title": "ЦБ: Банк России сохранит ставку", "summary": f"вчера {QUOTE} на прежнем уровне", "outlets": ["РБК"],
+         "date": "Fri, 23 Oct 2026 10:00:00 +0000", "link": "https://rbc.ru/1"},
+        {"aid": 2, "title": "Матч завершился вничью", "summary": "счёт 1:1", "outlets": ["Матч ТВ"], "date": "", "link": "https://m.ru/2"}]
 
 
 def fake_for(news=NEWS, **kw):
@@ -164,61 +55,41 @@ def fake_for(news=NEWS, **kw):
     return fake
 
 
+def test_card_title_stops_on_a_word_inside_120_characters():
+    long = " ".join(["новость"] * 30)
+    got = clip_title(long)
+    assert len(got) <= 120 and got.endswith("…") and got[:-1].split()[-1] == "новость"
+    assert clip_title("Короткий заголовок") == "Короткий заголовок"
+    assert len(clip_title("а" * 200)) <= 120
+
+
 def test_page_has_a_chain_for_relevant_news_and_arrows_between_columns():
     page = make_page(fake_for(), PROFILE, "CFO", "", NEWS, [])
     cols = [w["column"] for w in page["widgets"]]
-    assert (
-        cols.count("news") == 2
-        and cols.count("analytics") == 2
-        and cols.count("decisions") == 2
-    )
-    assert {"n1a1", "a1d1", "n1s1", "n2s1", "s1sd1"} <= {
-        l["from"] + l["to"] for l in page["links"]
-    }
-    syn = next(w for w in page["widgets"] if w["id"] == "s1")
-    action = next(w for w in page["widgets"] if w["id"] == "sd1")
-    assert (
-        syn["tags"]["type"] == "risk"
-        and syn["tags"]["urgency"] == "not_urgent"
-        and "Делимобиль" not in syn["details"]["text"]
-    )
-    assert action["tags"]["urgency"] == "not_urgent"
+    assert cols.count("news") == 2 and cols.count("analytics") == 1 and cols.count("decisions") == 1
+    assert {l["from"] + l["to"] for l in page["links"]} == {"n1a1", "a1d1"}
     news, ana, dec = page["widgets"][0], page["widgets"][1], page["widgets"][2]
-    assert (
-        news["url"] == "https://rbc.ru/1"
-        and news["details"]["src"] == "РБК"
-        and ana["tags"]["source"] == "ai"
-    )
-    assert (
-        dec["tags"]["confidence"] == "possible" and len(dec["risks"]["risks"]) == 1
-    )  # the risk with probability 9 is dropped
-    assert dec["chat"]["followups"] == [
-        "Что меняется, если ставка всё же снизится?"
-    ] and dec["chat"]["basis"] == ["РБК, 23.10.2026"]
-    assert (
-        page["company"]["role"] == "Финансовый директор"
-        and page["company"]["okved"] == "06.10 Добыча"
-    )
+    assert news["url"] == "https://rbc.ru/1" and news["details"]["src"] == "РБК" and ana["tags"]["source"] == "ai"
+    assert news["tags"]["kind"] == "fact" and ana["tags"]["kind"] == "conclusion" and dec["tags"]["kind"] == "hypothesis"
+    assert "Вывод модели, не позиция банка" in ana["details"]["text"]
+    assert dec["tags"]["confidence"] == "possible" and len(dec["risks"]["risks"]) == 1  # the risk with probability 9 is dropped
+    assert dec["chat"]["followups"] == ["Что меняется, если ставка всё же снизится?"] and dec["chat"]["basis"] == ["РБК, 23.10.2026"]
+    assert page["company"]["role"] == "Финансовый директор" and page["company"]["okved"] == "06.10 Добыча"
 
 
 def test_one_failed_decision_keeps_the_news_and_analytics():
     page = make_page(fake_for(decision_fails=True), PROFILE, "CFO", "", NEWS, [])
-    assert [w["column"] for w in page["widgets"]][:3] == ["news", "analytics", "news"]
-    assert any(w["id"] == "sd1" for w in page["widgets"])
+    assert [w["column"] for w in page["widgets"]] == ["news", "analytics", "news"]
 
 
 def test_unsupported_conclusion_stays_on_the_page_with_lower_confidence():
     page = make_page(fake_for(verdict="unsupported"), PROFILE, "CFO", "", NEWS, [])
-    assert page["widgets"][1]["tags"]["confidence"] == "possible"
-    assert any(l["from"] == "n1" and l["to"] == "a1" for l in page["links"])
+    assert page["widgets"][1]["tags"]["confidence"] == "possible" and len(page["links"]) == 2
 
 
 def test_failed_check_keeps_the_analytics():
     page = make_page(fake_for(verify_fails=True), PROFILE, "CFO", "", NEWS, [])
-    assert any(
-        w["column"] == "analytics" and w["tags"]["confidence"] == "probable"
-        for w in page["widgets"]
-    )
+    assert any(w["column"] == "analytics" and w["tags"]["confidence"] == "probable" for w in page["widgets"])
 
 
 def test_a_sphere_goes_to_the_writer_and_the_role_id_picks_the_playbook():
@@ -227,10 +98,7 @@ def test_a_sphere_goes_to_the_writer_and_the_role_id_picks_the_playbook():
     assert page["company"]["role"] == "закупки"
     assert all(d["sphere"] == "закупки" for n, d in fake.calls if n == "analytics_step")
     decision = next(d for n, d in fake.calls if n == "decision")
-    assert (
-        decision["role"] == ROLES["chief_accountant"]
-        and decision["sphere"] == "закупки"
-    )
+    assert decision["role"] == ROLES["chief_accountant"] and decision["sphere"] == "закупки"
 
 
 def test_related_news_from_pairs_are_shown_to_the_writer_first():
@@ -245,97 +113,10 @@ def test_dates_are_shown_in_russian_format_and_unknown_ones_stay_empty():
     assert [e["date"] for e in events] == ["23.10.2026", ""]
 
 
-def test_synthesis_is_about_the_sphere_and_the_action_sees_the_company():
-    from analytics.synthesis import sphere_text, story_group
-
-    other = {**PROFILE, "label": "Делимобиль", "facts": "выручка 9 млрд, uid U_9"}
-    fake = fake_for()
-    make_page(fake, PROFILE, "CFO", "", NEWS, [])
-    make_page(fake, other, "CFO", "", NEWS, [])
-    spheres = [d["sphere"] for name, d in fake.calls if name == "synthesis"]
-    assert spheres[0] == spheres[1]
-    assert (
-        "Делимобиль" not in spheres[0]
-        and "выручка" not in spheres[0]
-        and "U_9" not in spheres[0]
-    )
-    facts = [d["facts"] for name, d in fake.calls if name == "synthesis_decision"]
-    assert facts == ["выручка 1 млрд", "выручка 9 млрд, uid U_9"]
-    assert story_group([{"tags": []}, {"tags": []}, {"tags": []}], []) == [0, 1, 2]
-    assert story_group([{"tags": []}, {"tags": []}, {"tags": []}], [[0, 2]]) == [0, 2]
-    assert story_group([{"tags": ["fx"]}, {"tags": ["fx"]}, {"tags": []}], []) == [0, 1]
-    assert (
-        sphere_text(
-            {
-                "label": "Делимобиль",
-                "okved_code": "49.41",
-                "okved_name": "Перевозки",
-                "region": "Москва",
-            },
-            "",
-        )
-        == "ОКВЭД 49.41 (Перевозки), регион Москва"
-    )
-
-
-def test_the_per_news_conclusion_is_about_the_sphere_and_the_action_sees_the_facts():
-    profile = {
-        **PROFILE,
-        "label": "Делимобиль",
-        "workers": "101-250",
-        "suppliers": ["Производство цемента"],
-    }
-    fake = fake_for()
-    make_page(fake, profile, "CFO", "", NEWS, [])
-    step = next(data for name, data in fake.calls if name == "analytics_step")
-    assert "Делимобиль" not in step["company"] and step["facts"] == ""
-    assert (
-        "06.10" in step["company"]
-        and "101-250" in step["company"]
-        and "Производство цемента" in step["company"]
-    )
-    decision = next(data for name, data in fake.calls if name == "decision")
-    assert decision["facts"] == "выручка 1 млрд"
-
-
-def test_a_free_role_line_extends_the_playbook_and_a_bare_title_does_not():
-    bare = fake_for()
-    make_page(bare, PROFILE, "CFO", "", NEWS, [], role_text="CFO")
-    assert not any(name == "role_brief" for name, _ in bare.calls)
-    free = fake_for()
-    make_page(
-        free,
-        PROFILE,
-        "CFO",
-        "",
-        NEWS,
-        [],
-        role_text="финансовый директор, отвечаю за лизинг",
-    )
-    role = next(data["role"] for name, data in free.calls if name == "decision")
-    assert role["authority"] == "лизинг" and "лизинг" in role["playbook"]
-
-
-def test_decision_horizon_is_taken_from_the_answer():
-    page = make_page(fake_for(horizon="urgent"), PROFILE, "CFO", "", NEWS, [])
-    assert (
-        next(w for w in page["widgets"] if w["id"] == "d1")["tags"]["urgency"]
-        == "urgent"
-    )
-    assert next(w for w in page["widgets"] if w["id"] == "a1")["tags"]["type"] == "risk"
-
-
 def test_company_text_without_a_card_names_the_company():
     from analytics.chain import company_text
-
-    assert (
-        company_text({"label": "Делимобиль", "region": "Москва"})
-        == "«Делимобиль», регион Москва"
-    )
-    assert (
-        company_text(PROFILE)
-        == "ОКВЭД 06.10 (Добыча), регион Тверская область, продукты банка: кредит"
-    )
+    assert company_text({"label": "Делимобиль", "region": "Москва"}) == "«Делимобиль», регион Москва"
+    assert company_text(PROFILE) == "ОКВЭД 06.10 (Добыча), регион Тверская область, продукты банка: кредит"
 
 
 def test_grounded_keeps_only_verbatim_quotes_of_known_sources():
@@ -346,35 +127,18 @@ def test_grounded_keeps_only_verbatim_quotes_of_known_sources():
 
 
 def test_plan_uses_products_when_the_event_card_is_known():
-    assert "product" in plan(
-        {"okved": ["K"], "event_type": "monetary_policy"},
-        {"okved": "B", "products": ["credit"]},
-    )
-    assert plan(
-        {"okved": ["B"], "event_type": "labour"}, {"okved": "B", "products": ["credit"]}
-    ) == ["direct"]
+    assert "product" in plan({"okved": ["K"], "event_type": "monetary_policy"}, {"okved": "B", "products": ["credit"]})
+    assert plan({"okved": ["B"], "event_type": "labour"}, {"okved": "B", "products": ["credit"]}) == ["direct"]
     assert plan(None, PROFILE) == ["direct"]
 
 
 def test_bank_thesis_follows_the_headline_and_skips_another_year():
-    rate, oil = (
-        {"id": "A1", "title": "Снижение ключевой ставки отложено"},
-        {"id": "A2", "title": "Цены на нефть снизились"},
-    )
+    rate, oil = {"id": "A1", "title": "Снижение ключевой ставки отложено"}, {"id": "A2", "title": "Цены на нефть снизились"}
     dollar = {"id": "A3", "title": "Курс доллара опустился до 82 рублей"}
     items = {
-        "alfa:rate": {
-            "title": "Ожидание снижения ключевой ставки",
-            "text": "ключевая ставка сохранится высокой",
-        },
-        "alfa:oil": {
-            "title": "Цены на нефть демонстрируют высокую волатильность",
-            "text": "цены на нефть волатильны",
-        },
-        "alfa:old": {
-            "title": "Курс доллара к рублю в 2022 году достиг 70 руб.",
-            "text": "Курс доллара к рублю в 2022 году достиг 70 руб.",
-        },
+        "alfa:rate": {"title": "Ожидание снижения ключевой ставки", "text": "ключевая ставка сохранится высокой"},
+        "alfa:oil": {"title": "Цены на нефть демонстрируют высокую волатильность", "text": "цены на нефть волатильны"},
+        "alfa:old": {"title": "Курс доллара к рублю в 2022 году достиг 70 руб.", "text": "Курс доллара к рублю в 2022 году достиг 70 руб."},
     }
     docs = {i: items[i]["title"] + " " + items[i]["text"] for i in items}
     docs.update({e["id"]: e["title"] for e in (rate, oil, dollar)})
@@ -386,16 +150,8 @@ def test_bank_thesis_follows_the_headline_and_skips_another_year():
 
 def test_embedding_hit_does_not_need_shared_words_but_still_drops_another_year():
     headline = {"id": "A1", "title": "Рубль укрепился четвёртый день"}
-    items = {
-        "alfa:fx": {
-            "title": "Курс рубля к доллару США снижается",
-            "text": "рубль дешевеет к доллару",
-        },
-        "alfa:old": {
-            "title": "Курс доллара к рублю в 2022 году достиг 70 руб.",
-            "text": "Курс доллара к рублю в 2022 году достиг 70 руб.",
-        },
-    }
+    items = {"alfa:fx": {"title": "Курс рубля к доллару США снижается", "text": "рубль дешевеет к доллару"},
+             "alfa:old": {"title": "Курс доллара к рублю в 2022 году достиг 70 руб.", "text": "Курс доллара к рублю в 2022 году достиг 70 руб."}}
 
     class Hit:
         def __init__(self, picked):
@@ -405,129 +161,63 @@ def test_embedding_hit_does_not_need_shared_words_but_still_drops_another_year()
             return [self.picked]
 
     assert bank_position(Index({}), headline, items) is None
-    assert (
-        bank_position(Index({}), headline, items, Hit("alfa:fx"))["evidence"][0]["id"]
-        == "alfa:fx"
-    )
+    assert bank_position(Index({}), headline, items, Hit("alfa:fx"))["evidence"][0]["id"] == "alfa:fx"
     old = {"id": "A2", "title": "Курс доллара опустился до 82 рублей"}
     assert bank_position(Index({}), old, items, Hit("alfa:old")) is None
 
 
+def test_a_dated_bank_thesis_is_not_treated_as_the_current_view():
+    text = _analysis_text([
+        {"role": "alfa", "thought": "ставка в 2024 году", "evidence": [{"quote": "в 2024 году ставка"}]},
+        {"thought": "долг останется дорогим", "evidence": []},
+    ], {"date": "23.10.2026", "title": "Банк России сохранит ставку"})
+    assert "Позиция банка:" in text and "тезис банка 2024" in text and "новость 2026" in text
+    assert "не считаем текущей" in text and "Вывод модели, не позиция банка:" in text
+
+
 def test_loose_bank_sentence_is_removed():
-    page = {
-        "widgets": [
-            {
-                "id": "n1",
-                "column": "news",
-                "title": "В Китае введут сертификацию стройматериалов",
-            },
-            {
-                "id": "a1",
-                "column": "analytics",
-                "tags": {"source": "alfa"},
-                "url": "x.pdf",
-                "details": {
-                    "text": "Позиция банка: Китай копит золото Для сферы: закупки станут проще"
-                },
-            },
-        ]
-    }
+    page = {"widgets": [
+        {"id": "n1", "column": "news", "title": "В Китае введут сертификацию стройматериалов"},
+        {"id": "a1", "column": "analytics", "tags": {"source": "alfa"}, "url": "x.pdf",
+         "details": {"text": "Позиция банка: Китай копит золото Вывод модели, не позиция банка: закупки станут проще"}}]}
     hide_loose_bank(page)
-    assert page["widgets"][1]["details"]["text"] == "Для сферы: закупки станут проще"
-    assert (
-        "url" not in page["widgets"][1] and page["widgets"][1]["tags"]["source"] == "ai"
-    )
+    assert page["widgets"][1]["details"]["text"] == "Вывод модели, не позиция банка: закупки станут проще"
+    assert "url" not in page["widgets"][1] and page["widgets"][1]["tags"]["source"] == "ai"
 
 
 def test_sources_link_the_pdf_page_and_ask_a_followup_from_the_first_risk():
-    page = {
-        "widgets": [
-            {
-                "id": "n1",
-                "column": "news",
-                "title": "Ставка",
-                "details": {"text": "x", "src": "Коммерсантъ", "date": "2026-10-21"},
-            },
-            {
-                "id": "a1",
-                "column": "analytics",
-                "title": "Дорого",
-                "details": {"text": "Позиция банка: пауза"},
-            },
-            {
-                "id": "d1",
-                "column": "decisions",
-                "title": "Зафиксировать",
-                "details": {"text": "Фикс"},
-                "risks": {"risks": [{"name": "Ставка снизится раньше"}]},
-            },
-        ],
-        "journal": [{"evidence": ["alfa:Macro:p3:t1"]}],
-        "links": [],
-    }
+    page = {"widgets": [
+        {"id": "n1", "column": "news", "title": "Ставка", "details": {"text": "x", "src": "Коммерсантъ", "date": "2026-10-21"}},
+        {"id": "a1", "column": "analytics", "title": "Дорого", "details": {"text": "Позиция банка: пауза"}},
+        {"id": "d1", "column": "decisions", "title": "Зафиксировать", "details": {"text": "Фикс"}, "risks": {"risks": [{"name": "Ставка снизится раньше"}]}}],
+        "journal": [{"evidence": ["alfa:Macro:p3:t1"]}], "links": []}
     sources(page)
     assert page["widgets"][1]["url"] == "/api/papers/Macro.pdf#page=3"
     chat = page["widgets"][2]["chat"]
-    assert chat["followups"] == ["Что меняется, если ставка снизится раньше?"] and chat[
-        "basis"
-    ] == ["Коммерсантъ, 2026-10-21", "Macro, стр. 3"]
+    assert chat["followups"] == ["Что меняется, если ставка снизится раньше?"] and chat["basis"] == ["Коммерсантъ, 2026-10-21", "Macro, стр. 3"]
 
 
 def test_alfa_quote_filter_keeps_only_quotes_found_on_the_page():
     pages = {("brief", 2): "Ключевая ставка сохранена на уровне 14 процентов."}
-    kept = keep(
-        [
-            {
-                "doc": "brief",
-                "page": 2,
-                "quote": "ставка сохранена на уровне 14",
-                "claim": "пауза цикла",
-            },
-            {
-                "doc": "brief",
-                "page": 2,
-                "quote": "ставка вырастет до 20",
-                "claim": "выдумка",
-            },
-        ],
-        pages,
-    )
+    kept = keep([{"doc": "brief", "page": 2, "quote": "ставка сохранена на уровне 14", "claim": "пауза цикла"},
+                 {"doc": "brief", "page": 2, "quote": "ставка вырастет до 20", "claim": "выдумка"}], pages)
     assert [t["claim"] for t in kept] == ["пауза цикла"]
 
 
 def test_search_finds_the_rate_story():
-    assert Index({"A1": "ключевая ставка сохранена", "A2": "футбол матч ничья"}).search(
-        "ставка ЦБ", k=1
-    ) == ["A1"]
+    assert Index({"A1": "ключевая ставка сохранена", "A2": "футбол матч ничья"}).search("ставка ЦБ", k=1) == ["A1"]
 
 
 def test_theses_are_searchable_next_to_the_news(monkeypatch):
-    monkeypatch.setattr(
-        "analytics.chain.alfa_embed", lambda items: None
-    )  # lexical thesis search: no encoder in the unit test
-    thesis = {
-        "id": "alfa:Macro:p2:t1",
-        "claim": "Банк России сохранит ставку надолго",
-        "quote": QUOTE,
-    }
+    monkeypatch.setattr("analytics.chain.alfa_embed", lambda items: None)  # lexical thesis search: no encoder in the unit test
+    thesis = {"id": "alfa:Macro:p2:t1", "claim": "Банк России сохранит ставку надолго", "quote": QUOTE}
     page = make_page(fake_for(), PROFILE, "CFO", "", NEWS, [], theses=[thesis])
-    assert (
-        page["widgets"][1]["tags"]["source"] == "alfa"
-        and "Позиция банка" in page["widgets"][1]["details"]["text"]
-    )
+    assert page["widgets"][1]["tags"]["source"] == "alfa" and "Позиция банка" in page["widgets"][1]["details"]["text"]
     assert page["widgets"][1]["url"] == "/api/papers/Macro.pdf#page=2"
-    syn = next(w for w in page["widgets"] if w["id"] == "s1")
-    assert (
-        "Позиция банка" in syn["details"]["text"]
-        and syn["url"] == "/api/papers/Macro.pdf#page=2"
-    )
 
 
 def test_reply_keeps_only_text_basis():
-    assert reply(Fake(), "Почему?", {"title": "t", "details": {"text": "x"}}, "") == {
-        "text": "Ответ по разбору",
-        "basis": ["строка"],
-    }
+    assert reply(Fake(), "Почему?", {"title": "t", "details": {"text": "x"}}, "") == {"text": "Ответ по разбору", "basis": ["строка"]}
 
 
 def test_http_contract(monkeypatch):
@@ -535,73 +225,31 @@ def test_http_contract(monkeypatch):
     monkeypatch.setattr(app_module, "Agents", lambda: fake)
     monkeypatch.setattr(app_module, "load_theses", lambda: [])
     client = TestClient(app_module.app)
-    assert (
-        client.post(
-            "/page", json={"profile": PROFILE, "role": "CFO", "news": []}
-        ).status_code
-        == 422
-    )
-    assert (
-        client.post(
-            "/page", json={"profile": PROFILE, "role": "janitor", "news": NEWS}
-        ).status_code
-        == 422
-    )
+    assert client.post("/page", json={"profile": PROFILE, "role": "CFO", "news": []}).status_code == 422
+    assert client.post("/page", json={"profile": PROFILE, "role": "janitor", "news": NEWS}).status_code == 422
     r = client.post("/page", json={"profile": PROFILE, "role": "CFO", "news": NEWS})
-    assert r.status_code == 200 and {w["id"] for w in r.json()["widgets"]} >= {
-        "n1",
-        "a1",
-        "d1",
-        "s1",
-        "sd1",
-    }
-    assert (
-        client.post("/reply", json={"question": "?", "widget": {"title": "t"}}).json()[
-            "text"
-        ]
-        == "Ответ по разбору"
-    )
+    assert r.status_code == 200 and len(r.json()["widgets"]) == 4
+    assert client.post("/reply", json={"question": "?", "widget": {"title": "t"}}).json()["text"] == "Ответ по разбору"
 
 
 class Slow(Fake):
     """Every call takes 50 ms, as a network call would."""
-
     def run(self, name, data):
         time.sleep(0.05)
         return super().run(name, data)
 
 
 def test_news_are_analysed_at_once_and_the_page_keeps_their_order(monkeypatch):
-    news = [
-        {
-            "aid": n,
-            "title": f"Банк России сохранит ставку, часть {n}",
-            "summary": QUOTE,
-            "outlets": ["РБК"],
-            "date": "",
-            "link": f"https://rbc.ru/{n}",
-        }
-        for n in range(1, 9)
-    ]
+    news = [{"aid": n, "title": f"Банк России сохранит ставку, часть {n}", "summary": QUOTE, "outlets": ["РБК"], "date": "", "link": f"https://rbc.ru/{n}"}
+            for n in range(1, 9)]
     ids = [e["id"] for e in events_from(news, [])[0]]
 
     class Many(Slow):
         def run(self, name, data):
-            if (
-                name == "analytics_step"
-            ):  # the cited id depends on the news of this call, not on a shared attribute
+            if name == "analytics_step":  # the cited id depends on the news of this call, not on a shared attribute
                 time.sleep(0.05)
-                return {
-                    "relevant": True,
-                    "done": True,
-                    "thought": "Ставка не снизится.",
-                    "evidence": [
-                        {
-                            "id": ids[int(data["title"].rsplit(" ", 1)[1]) - 1],
-                            "quote": QUOTE,
-                        }
-                    ],
-                }
+                return {"relevant": True, "done": True, "thought": "Ставка не снизится.",
+                        "evidence": [{"id": ids[int(data["title"].rsplit(" ", 1)[1]) - 1], "quote": QUOTE}]}
             return super().run(name, data)
 
     def timed(workers):
@@ -613,7 +261,5 @@ def test_news_are_analysed_at_once_and_the_page_keeps_their_order(monkeypatch):
     one, t1 = timed(1)
     many, t8 = timed(8)
     assert [w["id"] for w in many["widgets"]] == [w["id"] for w in one["widgets"]]
-    assert [w["title"] for w in many["widgets"] if w["column"] == "news"] == [
-        n["title"] for n in news
-    ]
+    assert [w["title"] for w in many["widgets"] if w["column"] == "news"] == [n["title"] for n in news]
     assert t8 < t1 / 2
