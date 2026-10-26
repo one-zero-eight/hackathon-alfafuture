@@ -157,6 +157,7 @@ class CompanyBook:
             "region": r["REGION"], "city": r["CITY"], "okved": okved_section(r["MAINOKVED_CODE"]),
             "okved_code": r["MAINOKVED_CODE"], "okved_name": r["MAINOKVED_NAME"],
             "products": [key for _, key in marks if key], "products_ru": [ru for ru, _ in marks],
+            "workers": size or "", "suppliers": suppliers, "customers": customers,
             "date_label": f"выручка {_money(revenue)}, {r['CITY']}".strip(" ,"),
             "locality": self.locality(r),
         }

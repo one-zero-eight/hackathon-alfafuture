@@ -23,10 +23,13 @@
 | `hyde` | DeepSeek | `company`, `line`, `region?` | `{"headlines": [40 заголовков]}` | news_search |
 | `pick` | GLM-5.3-Flash | `company`, `line`, `candidates`, `top?` | `{"top": [номера]}` | news_search (`dense_llm`) |
 | `analytics_step` | Gemma 4 26B A4B | `company`, `kinds`, `title`, `thoughts`, `materials`, `facts?`, `sphere?`, `text?` | одно рассуждение с цитатой | analytics |
-| `decision` | DeepSeek | `role`, `moves`, `title`, `notes`, `sphere?` | решение с рисками | analytics |
+| `decision` | DeepSeek | `role`, `moves`, `title`, `notes`, `sphere?`, `facts?` | решение для компании: срок, тип, риски | analytics |
+| `role_brief` | DeepSeek | `line`, `fallback_title`, `fallback_playbook` | полномочия и правила по свободной строке роли | analytics |
 | `verify` | Qwen3.6 35B | `claims` | `{"verdicts": [...]}` | analytics |
 | `reply` | DeepSeek | `question`, `title?`, `text?`, `risks?`, `facts?` | ответ на вопрос по разбору | analytics |
 | `alfa_page` | Qwen3-VL 30B | `page`, `text?`, `images?` | тезисы страницы PDF | `python -m analytics.alfa` |
+| `synthesis` | Gemma 4 26B A4B | `sphere`, `materials` | один вывод по нескольким новостям для сферы | analytics |
+| `synthesis_decision` | DeepSeek | `sphere`, `conclusion`, `facts`, `role`, `moves` | одно действие для компании по этому выводу | analytics |
 
 Список с моделями и полями отдаёт `GET /agents`.
 
