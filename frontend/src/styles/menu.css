@@ -13,8 +13,7 @@
 .menu-role button { border-radius:var(--r-ctl); padding:14px 24px; }
 .menu-role button:disabled { opacity:.5; cursor:not-allowed; }
 .menu-error { color:var(--red); font-size:14px; }
-.menu-demo { background:none; color:var(--muted); padding:0; text-decoration:underline; cursor:pointer; margin-top:auto; }
+.menu-actions { display:flex; gap:12px; flex-wrap:wrap; }
 .menu-busy { display:block; max-width:640px; }
 .menu-busy .timeline { margin:24px 0; }
 @media (max-width:760px) { .menu { grid-template-columns:1fr; padding:20px 16px; } .menu-list ul { height:300px; } }
-.menu-demo:hover { background:none; color:var(--ink); }
