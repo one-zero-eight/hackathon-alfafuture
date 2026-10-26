@@ -12,6 +12,7 @@ import { Board } from "./components/views/Board";
 import { AddBlockModal } from "./components/modals/AddBlockModal";
 import { ArrowModal } from "./components/modals/ArrowModal";
 import { ChatModal } from "./components/modals/ChatModal";
+import { AskAiButton } from "./components/layout/AskAiButton";
 import { ConfirmHomeModal } from "./components/modals/ConfirmHomeModal";
 import { RiskModal } from "./components/modals/RiskModal";
 
@@ -29,6 +30,7 @@ export function App() {
   const [section, setSection] = useState<Column>("news");
   const [profile, setProfile] = useState<string | null>(() => { try { return localStorage.getItem("profile"); } catch { return null; } }); // key of the page built for the user's company and role
 
+  const [noPage, setNoPage] = useState(false); // "Ask AI" pressed before any page exists
   const [menu, setMenu] = useState(!profile); // the start menu comes before any analytics; "demo" leaves it without a profile
 
   const boardRef = useRef<HTMLElement>(null);
@@ -57,9 +59,9 @@ export function App() {
     return () => document.removeEventListener("keydown", esc);
   }, []);
 
-  const onPatch = (patch: Patch) => {
+  const onPatch = (patch: Patch): Page | null => {
     const cur = pageRef.current!, next = applyPatch(cur, patch);
-    if (!next) return loadPage();
+    if (!next) { loadPage(); return null; }
     setPage(next);
     // Cached details of changed items are stale; open widgets are re-fetched right away
     for (const o of patch.ops) {
@@ -67,6 +69,21 @@ export function App() {
       if (o.op === "remove_widget") { widgets.drop(o.id); risks.drop(o.id); setOpen(s => { const n = new Set(s); n.delete(o.id); return n; }); }
       if (o.op === "update_link" || o.op === "remove_link") links.drop(o.id);
     }
+    return cur;
+  };
+
+  // shortcut: the rollback is local, the server keeps the patched page until it has an undo endpoint (issue #25 list)
+  const onUndo = (before: Page) => {
+    widgets.reset(); risks.reset(); links.reset();
+    setOpen(new Set()); setPage({ ...before, version: pageRef.current!.version });
+  };
+
+  // One entry point for any screen: asks about the only open widget, else the first one of the page
+  const askAi = () => {
+    const p = pageRef.current;
+    const w = p && (p.widgets.find(x => open.size === 1 && open.has(x.id)) ?? p.widgets[0]);
+    if (w) setChat({ context: { type: "widget", id: w.id }, title: open.size === 1 ? w.title : "вся страница" });
+    else { setNoPage(true); setTimeout(() => setNoPage(false), 3000); }
   };
 
   const toggle = (id: string) => {
@@ -80,9 +97,10 @@ export function App() {
     setOpen(new Set()); setProfile(key); setMenu(false);
   };
 
-  if (menu) return <StartMenu onReady={selectProfile} onDemo={() => { setProfile(null); setMenu(false); }} />;
-  if (error) return <div className="state" style={{ color: "#fff", padding: 28 }}>Не удалось загрузить страницу<button onClick={loadPage}>Повторить</button></div>;
-  if (!page) return <div className="state" style={{ color: "#fff", padding: 28 }}>Загрузка…</div>;
+  const ask = <>{noPage && <div className="ask-hint">Сначала откройте аналитику: ИИ отвечает по странице.</div>}<AskAiButton onClick={askAi} /></>;
+  if (menu) return <><StartMenu onReady={selectProfile} onDemo={() => { setProfile(null); setMenu(false); }} />{ask}</>;
+  if (error) return <div className="state" style={{ color: "#fff", padding: 28 }}>Не удалось загрузить страницу<button onClick={loadPage}>Повторить</button>{ask}</div>;
+  if (!page) return <div className="state" style={{ color: "#fff", padding: 28 }}>Загрузка…{ask}</div>;
 
   const title = (id: string) => page.widgets.find(w => w.id === id)?.title ?? id;
   const linkTitle = (id: string) => { const l = page.links.find(x => x.id === id); return l ? `${title(l.from)} → ${title(l.to)}` : id; };
@@ -106,6 +124,7 @@ export function App() {
         />
       )}
       <p className="note">demo</p>
+      {ask}
 
       {addCol && (
         <AddBlockModal
@@ -117,7 +136,7 @@ export function App() {
       {chat && (
         <ChatModal
           key={chat.context.type + chat.context.id} context={chat.context} title={chat.title}
-          getVersion={() => pageRef.current!.version} onPatch={onPatch} onStale={loadPage} onClose={() => setChat(null)}
+          getPage={() => pageRef.current!} onPatch={onPatch} onUndo={onUndo} onStale={loadPage} onClose={() => setChat(null)}
         />
       )}
       {arrowId && (

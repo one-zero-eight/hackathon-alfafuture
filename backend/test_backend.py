@@ -76,7 +76,8 @@ def test_profile_goes_through_queue_search_and_analytics_to_a_page(db, services)
     done = client.get(f"/api/profile/{queued['key']}").json()
     assert done["status"] == "ready" and done["error"] == "" and done["stage"] == "analysis" and (done["found"], done["selected"]) == (40, 1)
     search, analytics = services[0][1], services[1][1]
-    assert search == {"company": "Делимобиль", "line": "Финансовый директор", "region": "", "method": "dense_xquad", "anonymised": False}
+    assert search == {"company": "Делимобиль", "line": "Финансовый директор", "region": "", "method": "dense_xquad", "anonymised": False,
+                      "locality": 0.1}
     assert analytics["role"] == "CFO" and analytics["sphere"] == "" and analytics["news"] == NEWS["top"] and analytics["profile"]["label"] == "Делимобиль"
     page = client.get(f"/api/page?profile={queued['key']}").json()
     k = queued["key"]
@@ -123,35 +124,18 @@ def test_sphere_typos_share_a_page_but_a_job_changes_the_playbook(db, services):
 
 
 @needs_db
-def test_chat_edits_are_saved_with_the_profile_page(db, services):
+def test_chat_message_on_a_profile_page_is_queued_and_open_is_instant(db, services):
     k = request_page()
-    stale = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{k}_n1"}, "message": "добавь аналитику", "page_version": 9})
-    assert stale.status_code == 409
-    patch = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{k}_n1"}, "message": "добавь аналитику", "page_version": 1}).json()["patch"]
-    new_id = patch["ops"][0]["widget"]["id"]
-    assert patch["version"] == 2 and patch["ops"][0]["widget"]["tags"]["source"] == "human" and new_id.startswith(f"{k}_w_")
-    page = client.get(f"/api/page?profile={k}").json()
-    assert page["version"] == 2 and new_id in {w["id"] for w in page["widgets"]}
-    assert client.get(f"/api/widgets/{new_id}").status_code == 200
-
-
-@needs_db
-def test_chat_open_and_followup_question(db, services, monkeypatch):
-    k = request_page()
-    opened = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{k}_d1"}, "message": None, "page_version": 1}).json()
+    ctx = {"type": "widget", "id": f"{k}_d1"}
+    opened = client.post("/api/chat", json={"context": ctx, "message": None, "page_version": 1}).json()
     assert opened["patch"] is None and opened["reply"]["followups"]
     link_chat = client.post("/api/chat", json={"context": {"type": "link", "id": f"{k}_l1a"}, "message": None, "page_version": 1}).json()
     assert link_chat["reply"]["basis"] == ["ЦБ сохранил ставку", "Долг дорогой"]
-
-    class Reply:
-        def raise_for_status(self): pass
-        def json(self): return {"text": "Долг останется дорогим.", "basis": ["ставка"]}
-
-    asked = {}
-    monkeypatch.setattr(app_module.httpx, "post", lambda url, **kw: asked.update(url=url, body=kw["json"]) or Reply())
-    answer = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{k}_d1"}, "message": "что с долгом?", "page_version": 1}).json()
-    assert answer["patch"] is None and answer["reply"]["text"] == "Долг останется дорогим." and answer["reply"]["followups"] == opened["reply"]["followups"]
-    assert asked["url"].endswith("/reply") and asked["body"]["question"] == "что с долгом?"
+    assert client.post("/api/chat", json={"context": ctx, "message": "что с долгом?", "page_version": 9}).status_code == 409
+    queued = client.post("/api/chat", json={"context": ctx, "message": "что с долгом?", "page_version": 1})
+    assert queued.status_code == 202 and set(queued.json()) == {"session_id", "operation_id", "status"}
+    polled = client.get(f"/api/feedback/{queued.json()['operation_id']}").json()
+    assert polled["status"] == "queued" and polled["result"] is None
 
 
 def test_demo_page_is_the_default_and_its_edits_do_not_touch_the_database():
@@ -167,7 +151,8 @@ def test_demo_page_is_the_default_and_its_edits_do_not_touch_the_database():
 
 
 def test_profile_input_is_validated():
-    for body in ({"company": "X", "role": ""}, {"role": "CFO"}, {"company": "X", "role": "CFO", "company_id": "abc"}, {"company": "X" * 201, "role": "CFO"}):
+    for body in ({"company": "X", "role": ""}, {"role": "CFO"}, {"company": "X", "role": "CFO", "company_id": "abc"},
+                 {"company": "X" * 201, "role": "CFO"}, {"company": "X", "role": "а" * 501}):
         assert client.post("/api/profile", json=body).status_code == 422, body
 
 
@@ -219,6 +204,7 @@ def test_company_profile_serves_search_and_analytics_and_hides_the_id(tmp_path):
     assert "основные поставщики: Производство цемента" in p["description"] and "основные покупатели: Торговля топливом" in p["description"]
     assert "ведёт внешнеэкономическую деятельность (Китай)" in p["description"] and "сотрудников: 101-250" in p["description"]
     assert p["okved"] == "F" and p["products"] == ["credit"] and p["products_ru"] == ["кредиты"] and p["region"] == "Иркутская область"
+    assert p["workers"] == "101-250" and p["suppliers"] == ["Производство цемента"] and "Торговля топливом" in p["customers"]
     assert "20.0 млрд руб." in p["facts"] and "2 комп." in p["facts"] and "U_2" in p["facts"] and "75%" in p["facts"] and "Внешняя торговля: Китай." in p["facts"]
     assert p["date_label"] == "выручка 20.0 млрд руб., Иркутск"
     with pytest.raises(companies.CompanyUnavailable):
@@ -252,6 +238,7 @@ def test_company_id_profile_uses_bank_data_for_the_search_and_analytics(db, serv
     worker.run_once()
     search, analytics = services[0][1], services[1][1]
     assert search["anonymised"] and search["region"] == "Иркутская область" and search["company"].startswith("компания, ОКВЭД 41.20")
+    assert 0 <= search["locality"] <= 1
     assert analytics["profile"]["okved_name"] == "Строительство" and client.get(f"/api/profile/{key}").json()["status"] == "ready"
     missing = client.post("/api/profile", json={"company_id": "U_404", "role": "CFO"}).json()["key"]
     worker.run_once()
@@ -261,3 +248,13 @@ def test_company_id_profile_uses_bank_data_for_the_search_and_analytics(db, serv
 def test_role_line_is_read_once_for_playbook_and_sphere():
     assert interpret("главный бухгалтер").role == "chief_accountant" and interpret("главный бухгалтер").sphere == ""
     assert interpret("Маркетинг").sphere == "Маркетинг" and interpret("закупкки").topic == "procurement"
+
+
+def test_locality_falls_with_revenue_and_foreign_trade(tmp_path):
+    rows = [("U_1", "1000000", "0.0"), ("U_2", "50000000", "0.0"), ("U_3", "900000000", "0.0"), ("U_4", "900000000", "1.0"), ("U_5", "", "0.0")]
+    head = "SYNTHETIC_U;REVENUE_COMPANY;FTS_FLAG;AMOUNT_WORKERS_FNS_GRADATION;MAINOKVED_CODE;MAINOKVED_NAME;CITY;REGION\n"
+    (tmp_path / "df_Uid_data_hack.csv").write_text(head + "".join(f"{u};{r};{f};Менее 15;41.20;Строительство;г. Тверь;Тверская область\n"
+                                                                   for u, r, f in rows), encoding="utf-8")
+    book = companies.CompanyBook(tmp_path)
+    small, mid, big, exporter, unknown = (book.profile(u)["locality"] for u, _, _ in rows)
+    assert small == 0.8 and small >= mid > big and exporter == round(big / 2, 2) and unknown == 0.8  # staff "Менее 15" caps at 0.8

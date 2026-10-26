@@ -3,6 +3,7 @@ df_Uid_data_hack.csv (one row per company) and df_Uid_payment_hack.csv (payments
 
 profile(uid) -> what the search needs (a description instead of a name) and what the analytics needs (OKVED, region, products, facts).
 """
+import bisect
 import csv
 import os
 from collections import defaultdict
@@ -14,6 +15,13 @@ PRODUCTS = {"CL_PRODUCT_RKO_MARK": ("расчётный счёт", None), "CL_PR
             "FACTORING_MARK": ("факторинг", None)}
 SECTIONS = ((3, "A"), (9, "B"), (33, "C"), (35, "D"), (39, "E"), (43, "F"), (47, "G"), (53, "H"), (56, "I"), (63, "J"), (66, "K"),
             (68, "L"), (75, "M"), (82, "N"), (84, "O"), (85, "P"), (88, "Q"), (93, "R"), (96, "S"), (98, "T"), (99, "U"))
+
+
+def _revenue(r: dict) -> float:
+    try:
+        return float(r.get("REVENUE_COMPANY") or 0)
+    except ValueError:
+        return 0.0
 
 
 class CompanyUnavailable(LookupError):
@@ -44,12 +52,18 @@ def _money(value: float) -> str:
     return f"{value:.0f} руб."
 
 
+# locality by headcount when there is no revenue (more staff -> less local); the FNS bracket names of the bank data
+LOCALITY_BY_STAFF = {"Менее 15": 0.8, "16-100": 0.5, "101-250": 0.3, "Более 251": 0.1}
+NAMED_LOCALITY = 0.1  # a company entered by name has no bank record: treated as a large one, little regional news (user decision)
+
+
 class CompanyBook:
     def __init__(self, directory=None):
         self.dir = Path(directory or os.environ.get("COMPANY_DIR", "/company"))
         self._rows: dict[str, dict] | None = None
         self._groups: dict[str, int] = {}
         self._profiles: dict[str, dict] = {}
+        self._revenues: list[float] = []  # sorted positive revenues of every company, for the locality percentile
 
     def _load(self):
         if self._rows is None:
@@ -58,6 +72,7 @@ class CompanyBook:
                 raise CompanyUnavailable(f"company data not found: {path}")
             with path.open(encoding="utf-8", newline="") as f:
                 self._rows = {r["SYNTHETIC_U"]: r for r in csv.DictReader(f, delimiter=";")}
+            self._revenues = sorted(v for v in (_revenue(r) for r in self._rows.values()) if v > 0)
             for r in self._rows.values():
                 if r.get("GROUP_ID"):
                     self._groups[r["GROUP_ID"]] = self._groups.get(r["GROUP_ID"], 0) + 1
@@ -92,6 +107,19 @@ class CompanyBook:
         top = lambda d: [name for name, _ in sorted(d.items(), key=lambda x: -x[1])[:3]]
         return top(suppliers), top(customers), incoming
 
+    def locality(self, r: dict) -> float:
+        """0..1, how much the company lives off its own region: the smaller of 1 - its revenue percentile among all companies of the
+        data and the value of its headcount bracket (either sign of size counts: the data has firms with 251+ staff and a revenue of
+        a few thousand); foreign trade halves it. Used to rank regional news."""
+        revenue, values = _revenue(r), []
+        if revenue > 0 and self._revenues:
+            values.append(1 - bisect.bisect_left(self._revenues, revenue) / len(self._revenues))
+        staff = r.get("AMOUNT_WORKERS_FNS_GRADATION") or r.get("AMOUNT_WORKERS_SPARK_GRADATION") or ""
+        if staff in LOCALITY_BY_STAFF:
+            values.append(LOCALITY_BY_STAFF[staff])
+        value = min(values) if values else 0.5
+        return round(value / 2 if _flag(r.get("FTS_FLAG")) else value, 2)
+
     def profile(self, uid: str) -> dict:
         if uid in self._profiles:
             return self._profiles[uid]
@@ -100,10 +128,7 @@ class CompanyBook:
             raise CompanyUnavailable(f"company {uid} not found")
         suppliers, customers, incoming = self._payments(uid)
         marks = [(ru, key) for col, (ru, key) in PRODUCTS.items() if _flag(r.get(col))]
-        try:
-            revenue = float(r["REVENUE_COMPANY"])
-        except (KeyError, ValueError):
-            revenue = 0
+        revenue = _revenue(r)
         size = r.get("AMOUNT_WORKERS_FNS_GRADATION") or r.get("AMOUNT_WORKERS_SPARK_GRADATION")
         abroad = (r.get("FTS_COUNTRY_NAME") or "").strip()
         parts = [f"компания, ОКВЭД {r['MAINOKVED_CODE']} «{r['MAINOKVED_NAME']}»", f"{r['CITY']}, {r['REGION']}".strip(", ")]
@@ -132,6 +157,8 @@ class CompanyBook:
             "region": r["REGION"], "city": r["CITY"], "okved": okved_section(r["MAINOKVED_CODE"]),
             "okved_code": r["MAINOKVED_CODE"], "okved_name": r["MAINOKVED_NAME"],
             "products": [key for _, key in marks if key], "products_ru": [ru for ru, _ in marks],
+            "workers": size or "", "suppliers": suppliers, "customers": customers,
             "date_label": f"выручка {_money(revenue)}, {r['CITY']}".strip(" ,"),
+            "locality": self.locality(r),
         }
         return self._profiles[uid]

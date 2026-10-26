@@ -1,0 +1,168 @@
+{"time":"2026-10-25T23:36:08.169913633Z","level":"ERROR","msg":"news service stopped","error":"cannot connect to PostgreSQL"}
+{"time":"2026-10-25T23:36:11.218492051Z","level":"ERROR","msg":"news service stopped","error":"cannot connect to PostgreSQL"}
+{"time":"2026-10-25T23:36:12.622044718Z","level":"ERROR","msg":"news service stopped","error":"cannot connect to PostgreSQL"}
+{"time":"2026-10-25T23:36:13.715290344Z","level":"ERROR","msg":"news service stopped","error":"cannot connect to PostgreSQL"}
+{"time":"2026-10-25T23:36:15.198004344Z","level":"ERROR","msg":"news service stopped","error":"cannot connect to PostgreSQL"}
+{"time":"2026-10-25T23:36:17.961591096Z","level":"ERROR","msg":"news service stopped","error":"cannot connect to PostgreSQL"}
+{"time":"2026-10-25T23:36:24.237752626Z","level":"ERROR","msg":"news service stopped","error":"cannot connect to PostgreSQL"}
+{"time":"2026-10-25T23:36:32.050028047Z","level":"ERROR","msg":"news service stopped","error":"cannot connect to PostgreSQL"}
+{"time":"2026-10-25T23:36:46.960421137Z","level":"ERROR","msg":"news service stopped","error":"cannot connect to PostgreSQL"}
+{"time":"2026-10-25T23:37:16.75804522Z","level":"INFO","msg":"news service started","http_addr":"[::]:8080","poll_interval":600000000000,"model":"","llm_enabled":false}
+{"time":"2026-10-25T23:37:18.497861513Z","level":"INFO","msg":"source poll completed","source":"rbc","discovered":30,"rejected":0,"inserted":1,"duplicates":29,"too_old":0,"undated":0,"text_failures":0,"recovered":0}
+{"time":"2026-10-25T23:37:19.362929763Z","level":"ERROR","msg":"source poll failed","source":"cbr","discovered":100,"rejected":0,"inserted":0,"duplicates":0,"too_old":100,"undated":0,"text_failures":108,"recovered":0,"error":"108 article extractions failed"}
+{"time":"2026-10-25T23:37:26.975184044Z","level":"ERROR","msg":"source poll failed","source":"kommersant","discovered":0,"rejected":0,"inserted":0,"duplicates":0,"too_old":0,"undated":0,"text_failures":0,"recovered":0,"error":"publisher request failed"}
+{"time":"2026-10-25T23:37:27.996623294Z","level":"WARN","msg":"feed fetch failed","source":"tadviser","error":"publisher returned HTTP 404"}
+{"time":"2026-10-25T23:37:37.643561257Z","level":"WARN","msg":"feed fetch failed","source":"samara","error":"publisher request failed"}
+{"time":"2026-10-25T23:37:46.254098386Z","level":"WARN","msg":"feed fetch failed","source":"tayga","error":"publisher request failed"}
+{"time":"2026-10-25T23:37:46.254199845Z","level":"WARN","msg":"feed fetch failed","source":"kavkaz","error":"publisher request failed"}
+{"time":"2026-10-25T23:37:54.509095334Z","level":"WARN","msg":"feed fetch failed","source":"ab_centre","error":"publisher request failed"}
+{"time":"2026-10-25T23:37:59.064797628Z","level":"WARN","msg":"feed fetch failed","source":"seonews","error":"cannot parse feed"}
+{"time":"2026-10-25T23:37:59.282972753Z","level":"WARN","msg":"feed fetch failed","source":"sarinform","error":"publisher returned HTTP 404"}
+{"time":"2026-10-25T23:38:01.513531004Z","level":"WARN","msg":"feed fetch failed","source":"kavpolit","error":"publisher request failed"}
+{"time":"2026-10-25T23:38:01.513580129Z","level":"WARN","msg":"feed fetch failed","source":"svoboda","error":"publisher request failed"}
+{"time":"2026-10-25T23:38:02.73172788Z","level":"WARN","msg":"feed fetch failed","source":"holod","error":"publisher request failed"}
+{"time":"2026-10-25T23:38:02.907169005Z","level":"WARN","msg":"feed fetch failed","source":"newsru","error":"publisher request failed"}
+{"time":"2026-10-25T23:38:03.094177255Z","level":"WARN","msg":"feed fetch failed","source":"econs","error":"publisher request failed"}
+{"time":"2026-10-25T23:38:10.708069509Z","level":"WARN","msg":"feed fetch failed","source":"sfo_altai_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:11.385380092Z","level":"WARN","msg":"feed fetch failed","source":"dfo_amur_bezformata","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:11.859888051Z","level":"WARN","msg":"feed fetch failed","source":"szfo_arh_arhangelsk","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:17.750256096Z","level":"WARN","msg":"feed fetch failed","source":"cfo_belgorod_belgorod_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:18.062203096Z","level":"WARN","msg":"feed fetch failed","source":"cfo_bryansk_bryansk_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:19.053580096Z","level":"WARN","msg":"feed fetch failed","source":"cfo_vladimir_vladimir_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:19.805185305Z","level":"WARN","msg":"feed fetch failed","source":"yufo_vol_bezformata_volgograd","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:22.813306417Z","level":"WARN","msg":"feed fetch failed","source":"yufo_dnr_bezformata_donetsk","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:23.762419084Z","level":"WARN","msg":"feed fetch failed","source":"sfo_zab_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:23.772417626Z","level":"WARN","msg":"feed fetch failed","source":"cfo_ivanovo_ivanovo_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:26.815819752Z","level":"WARN","msg":"feed fetch failed","source":"skfo_kbr_kbpravda","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:26.815895919Z","level":"WARN","msg":"feed fetch failed","source":"sfo_irk_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:28.931927545Z","level":"WARN","msg":"feed fetch failed","source":"cfo_kaluga_kaluga_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:28.93197717Z","level":"WARN","msg":"feed fetch failed","source":"yufo_kal_bezformata_elista","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:30.672947671Z","level":"WARN","msg":"feed fetch failed","source":"sfo_kemerovo_kemerovoru","error":"publisher request failed"}
+{"time":"2026-10-25T23:38:31.723039671Z","level":"WARN","msg":"feed fetch failed","source":"sfo_kemerovo_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:32.007201713Z","level":"WARN","msg":"feed fetch failed","source":"cfo_kostroma_kostroma_news","error":"publisher request failed"}
+{"time":"2026-10-25T23:38:32.007412546Z","level":"WARN","msg":"feed fetch failed","source":"cfo_kostroma_kostroma_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:32.007430088Z","level":"WARN","msg":"feed fetch failed","source":"sfo_krsk_sibnovosti","error":"publisher request failed"}
+{"time":"2026-10-25T23:38:32.007434921Z","level":"WARN","msg":"feed fetch failed","source":"yufo_kra_bezformata_krasnodar","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:34.648348381Z","level":"WARN","msg":"feed fetch failed","source":"sfo_krsk_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:34.648406173Z","level":"WARN","msg":"feed fetch failed","source":"ufo_k_gov","error":"publisher request failed"}
+{"time":"2026-10-25T23:38:35.581200131Z","level":"WARN","msg":"feed fetch failed","source":"ufo_k_bez","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:35.581288798Z","level":"WARN","msg":"feed fetch failed","source":"cfo_kursk_kursk_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:36.146167382Z","level":"WARN","msg":"feed fetch failed","source":"yufo_lnr_bezformata_lugansk","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:39.08200405Z","level":"WARN","msg":"feed fetch failed","source":"cfo_moscow_moskva_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:53.098488375Z","level":"WARN","msg":"feed fetch failed","source":"sfo_nsk_nsknews","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:55.847842585Z","level":"WARN","msg":"feed fetch failed","source":"sfo_omsk_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:38:56.330827127Z","level":"WARN","msg":"feed fetch failed","source":"cfo_orel_orel_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:00.157479795Z","level":"WARN","msg":"feed fetch failed","source":"szfo_psk_pskov","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:01.417844421Z","level":"WARN","msg":"feed fetch failed","source":"yufo_ros_bezformata_rostov","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:02.205422796Z","level":"WARN","msg":"feed fetch failed","source":"cfo_ryazan_ryazan_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:15.238799178Z","level":"WARN","msg":"feed fetch failed","source":"cfo_tambov_tambov_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:17.166511845Z","level":"WARN","msg":"feed fetch failed","source":"cfo_tver_tver_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:18.771231763Z","level":"WARN","msg":"feed fetch failed","source":"sfo_tomsk_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:19.475955305Z","level":"WARN","msg":"feed fetch failed","source":"sfo_tuva_online","error":"publisher request failed"}
+{"time":"2026-10-25T23:39:19.976295346Z","level":"WARN","msg":"feed fetch failed","source":"cfo_tula_tula_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:24.556788168Z","level":"WARN","msg":"feed fetch failed","source":"ufo_t_bez","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:27.470751336Z","level":"WARN","msg":"feed fetch failed","source":"ufo_c_bez","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:27.470909294Z","level":"WARN","msg":"feed fetch failed","source":"sfo_khakasia_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:29.882389629Z","level":"WARN","msg":"feed fetch failed","source":"cfo_yaroslavl_yaroslavl_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-25T23:39:30.217438879Z","level":"INFO","msg":"feeds pass finished","feeds":292,"read":239,"new_articles":32}
+{"time":"2026-10-25T23:39:32.205147463Z","level":"INFO","msg":"Google News backfill","kind":"gnsite","requests":1185}
+{"time":"2026-10-25T23:40:11.964951634Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":50,"of":1185,"new_articles":773}
+{"time":"2026-10-25T23:40:26.002593627Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":100,"of":1185,"new_articles":949}
+{"time":"2026-10-25T23:40:37.16855809Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":150,"of":1185,"new_articles":1046}
+{"time":"2026-10-25T23:40:53.714256459Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":200,"of":1185,"new_articles":1162}
+{"time":"2026-10-25T23:41:10.454630717Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":250,"of":1185,"new_articles":1299}
+{"time":"2026-10-25T23:41:30.817115587Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":300,"of":1185,"new_articles":1457}
+{"time":"2026-10-25T23:42:37.098381005Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":350,"of":1185,"new_articles":1543}
+{"time":"2026-10-25T23:42:49.624924761Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":400,"of":1185,"new_articles":1591}
+{"time":"2026-10-25T23:43:04.47932317Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":450,"of":1185,"new_articles":1675}
+{"time":"2026-10-25T23:43:17.397117218Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":500,"of":1185,"new_articles":1735}
+{"time":"2026-10-25T23:43:28.632431334Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":550,"of":1185,"new_articles":1784}
+{"time":"2026-10-25T23:43:39.118715839Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":600,"of":1185,"new_articles":1852}
+{"time":"2026-10-25T23:43:48.801338177Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":650,"of":1185,"new_articles":1868}
+{"time":"2026-10-25T23:43:59.840695918Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":700,"of":1185,"new_articles":1942}
+{"time":"2026-10-25T23:44:09.663193006Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":750,"of":1185,"new_articles":2008}
+{"time":"2026-10-25T23:44:20.240693177Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":800,"of":1185,"new_articles":2119}
+{"time":"2026-10-25T23:44:29.889040418Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":850,"of":1185,"new_articles":2167}
+{"time":"2026-10-25T23:44:39.396021214Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":900,"of":1185,"new_articles":2242}
+{"time":"2026-10-25T23:44:48.843217052Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":950,"of":1185,"new_articles":2290}
+{"time":"2026-10-25T23:44:58.07496675Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":1000,"of":1185,"new_articles":2371}
+{"time":"2026-10-25T23:45:07.187983255Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":1050,"of":1185,"new_articles":2391}
+{"time":"2026-10-25T23:45:16.986299384Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":1100,"of":1185,"new_articles":2450}
+{"time":"2026-10-25T23:45:26.107162805Z","level":"INFO","msg":"Google News progress","kind":"gnsite","requests":1150,"of":1185,"new_articles":2565}
+{"time":"2026-10-25T23:45:32.686459752Z","level":"INFO","msg":"Google News backfill finished","kind":"gnsite","requests":1185,"new_articles":2628}
+{"time":"2026-10-25T23:45:32.686681836Z","level":"INFO","msg":"Google News backfill","kind":"gn","requests":550}
+{"time":"2026-10-25T23:45:42.885193382Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":50,"of":550,"new_articles":33}
+{"time":"2026-10-25T23:45:54.325593846Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":100,"of":550,"new_articles":79}
+{"time":"2026-10-25T23:46:04.011746836Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":150,"of":550,"new_articles":120}
+{"time":"2026-10-25T23:46:13.725484508Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":200,"of":550,"new_articles":165}
+{"time":"2026-10-25T23:46:23.681058596Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":250,"of":550,"new_articles":208}
+{"time":"2026-10-25T23:46:33.893144295Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":300,"of":550,"new_articles":245}
+{"time":"2026-10-25T23:46:44.885857633Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":350,"of":550,"new_articles":289}
+{"time":"2026-10-25T23:46:56.000495013Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":400,"of":550,"new_articles":325}
+{"time":"2026-10-25T23:47:08.440084672Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":450,"of":550,"new_articles":375}
+{"time":"2026-10-25T23:47:17.159052509Z","level":"INFO","msg":"source poll completed","source":"rbc","discovered":30,"rejected":0,"inserted":1,"duplicates":29,"too_old":0,"undated":0,"text_failures":0,"recovered":0}
+{"time":"2026-10-25T23:47:17.185593218Z","level":"ERROR","msg":"source poll failed","source":"cbr","discovered":100,"rejected":0,"inserted":0,"duplicates":0,"too_old":100,"undated":0,"text_failures":133,"recovered":0,"error":"133 article extractions failed"}
+{"time":"2026-10-25T23:47:18.425698093Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":500,"of":550,"new_articles":416}
+{"time":"2026-10-25T23:47:26.882019166Z","level":"ERROR","msg":"source poll failed","source":"kommersant","discovered":0,"rejected":0,"inserted":0,"duplicates":0,"too_old":0,"undated":0,"text_failures":0,"recovered":0,"error":"publisher request failed"}
+{"time":"2026-10-25T23:47:28.418872334Z","level":"INFO","msg":"Google News progress","kind":"gn","requests":550,"of":550,"new_articles":469}
+{"time":"2026-10-25T23:47:28.418904584Z","level":"INFO","msg":"Google News backfill finished","kind":"gn","requests":550,"new_articles":469}
+{"time":"2026-10-25T23:57:17.515095926Z","level":"INFO","msg":"source poll completed","source":"rbc","discovered":30,"rejected":0,"inserted":0,"duplicates":30,"too_old":0,"undated":0,"text_failures":0,"recovered":0}
+{"time":"2026-10-25T23:57:20.773966511Z","level":"ERROR","msg":"source poll failed","source":"cbr","discovered":100,"rejected":0,"inserted":0,"duplicates":0,"too_old":100,"undated":0,"text_failures":133,"recovered":0,"error":"133 article extractions failed"}
+{"time":"2026-10-25T23:57:27.018995555Z","level":"ERROR","msg":"source poll failed","source":"kommersant","discovered":0,"rejected":0,"inserted":0,"duplicates":0,"too_old":0,"undated":0,"text_failures":0,"recovered":0,"error":"publisher request failed"}
+{"time":"2026-10-26T00:02:50.64726126Z","level":"WARN","msg":"feed fetch failed","source":"tadviser","error":"publisher returned HTTP 404"}
+{"time":"2026-10-26T00:03:24.378456011Z","level":"WARN","msg":"feed fetch failed","source":"fas","error":"publisher request failed"}
+{"time":"2026-10-26T00:03:49.350203592Z","level":"WARN","msg":"feed fetch failed","source":"samara","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:11.36024363Z","level":"WARN","msg":"feed fetch failed","source":"tayga","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:11.678083214Z","level":"WARN","msg":"feed fetch failed","source":"kavkaz","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:37.781809503Z","level":"WARN","msg":"feed fetch failed","source":"ab_centre","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:40.51832663Z","level":"WARN","msg":"feed fetch failed","source":"sarinform","error":"publisher returned HTTP 404"}
+{"time":"2026-10-26T00:04:40.518475921Z","level":"WARN","msg":"feed fetch failed","source":"kavpolit","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:40.65216988Z","level":"WARN","msg":"feed fetch failed","source":"econs","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:45.06936059Z","level":"WARN","msg":"feed fetch failed","source":"svoboda","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:46.081794257Z","level":"WARN","msg":"feed fetch failed","source":"holod","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:46.384638674Z","level":"WARN","msg":"feed fetch failed","source":"newsru","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:46.765729383Z","level":"WARN","msg":"feed fetch failed","source":"szfo_arh_arhangelsk","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:46.765782091Z","level":"WARN","msg":"feed fetch failed","source":"dfo_amur_bezformata","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:46.765814716Z","level":"WARN","msg":"feed fetch failed","source":"sfo_altai_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:47.521732591Z","level":"WARN","msg":"feed fetch failed","source":"cfo_belgorod_belgorod_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:47.630362091Z","level":"WARN","msg":"feed fetch failed","source":"cfo_bryansk_bryansk_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:47.876580925Z","level":"WARN","msg":"feed fetch failed","source":"cfo_vladimir_vladimir_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:47.941504842Z","level":"WARN","msg":"feed fetch failed","source":"yufo_vol_bezformata_volgograd","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:48.799225134Z","level":"WARN","msg":"feed fetch failed","source":"sfo_zab_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:49.137886925Z","level":"WARN","msg":"feed fetch failed","source":"yufo_dnr_bezformata_donetsk","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:49.529498217Z","level":"WARN","msg":"feed fetch failed","source":"cfo_ivanovo_ivanovo_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:49.529569301Z","level":"WARN","msg":"feed fetch failed","source":"skfo_kbr_kbpravda","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:50.95464951Z","level":"WARN","msg":"feed fetch failed","source":"sfo_irk_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:51.223361635Z","level":"WARN","msg":"feed fetch failed","source":"sfo_kemerovo_kemerovoru","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:51.949397093Z","level":"WARN","msg":"feed fetch failed","source":"cfo_kaluga_kaluga_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:52.546158635Z","level":"WARN","msg":"feed fetch failed","source":"yufo_kal_bezformata_elista","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:53.123997094Z","level":"WARN","msg":"feed fetch failed","source":"cfo_kostroma_kostroma_news","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:53.124070594Z","level":"WARN","msg":"feed fetch failed","source":"sfo_kemerovo_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:53.337916427Z","level":"WARN","msg":"feed fetch failed","source":"yufo_kra_bezformata_krasnodar","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:53.337981177Z","level":"WARN","msg":"feed fetch failed","source":"cfo_kostroma_kostroma_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:53.337987511Z","level":"WARN","msg":"feed fetch failed","source":"sfo_krsk_sibnovosti","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:53.814248303Z","level":"WARN","msg":"feed fetch failed","source":"ufo_k_gov","error":"publisher request failed"}
+{"time":"2026-10-26T00:04:53.953206511Z","level":"WARN","msg":"feed fetch failed","source":"sfo_krsk_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:54.799337553Z","level":"WARN","msg":"feed fetch failed","source":"ufo_k_bez","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:54.799391303Z","level":"WARN","msg":"feed fetch failed","source":"cfo_kursk_kursk_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:56.078254845Z","level":"WARN","msg":"feed fetch failed","source":"yufo_lnr_bezformata_lugansk","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:04:58.544315263Z","level":"WARN","msg":"feed fetch failed","source":"cfo_moscow_moskva_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:05.776908794Z","level":"WARN","msg":"feed fetch failed","source":"sfo_nsk_nsknews","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:08.40706192Z","level":"WARN","msg":"feed fetch failed","source":"sfo_omsk_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:10.736648463Z","level":"WARN","msg":"feed fetch failed","source":"cfo_orel_orel_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:13.203275006Z","level":"WARN","msg":"feed fetch failed","source":"szfo_psk_pskov","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:14.735731382Z","level":"WARN","msg":"feed fetch failed","source":"yufo_ros_bezformata_rostov","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:15.452725132Z","level":"WARN","msg":"feed fetch failed","source":"cfo_ryazan_ryazan_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:23.822664094Z","level":"WARN","msg":"feed fetch failed","source":"cfo_tambov_tambov_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:24.054172886Z","level":"WARN","msg":"feed fetch failed","source":"cfo_tver_tver_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:29.958202458Z","level":"WARN","msg":"feed fetch failed","source":"sfo_tomsk_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:29.958343833Z","level":"WARN","msg":"feed fetch failed","source":"sfo_tuva_online","error":"publisher request failed"}
+{"time":"2026-10-26T00:05:30.187204Z","level":"WARN","msg":"feed fetch failed","source":"cfo_tula_tula_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:34.308700252Z","level":"WARN","msg":"feed fetch failed","source":"ufo_t_bez","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:37.134343586Z","level":"WARN","msg":"feed fetch failed","source":"ufo_c_bez","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:40.228485463Z","level":"WARN","msg":"feed fetch failed","source":"sfo_khakasia_bezf","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:46.528821716Z","level":"WARN","msg":"feed fetch failed","source":"cfo_yaroslavl_yaroslavl_bezformata_com","error":"publisher returned HTTP 403"}
+{"time":"2026-10-26T00:05:46.529711382Z","level":"INFO","msg":"feeds pass finished","feeds":292,"read":239,"new_articles":61}
+{"time":"2026-10-26T00:07:17.643744466Z","level":"INFO","msg":"source poll completed","source":"rbc","discovered":30,"rejected":0,"inserted":0,"duplicates":30,"too_old":0,"undated":0,"text_failures":0,"recovered":0}
+{"time":"2026-10-26T00:07:20.730777259Z","level":"ERROR","msg":"source poll failed","source":"cbr","discovered":100,"rejected":0,"inserted":0,"duplicates":0,"too_old":100,"undated":0,"text_failures":133,"recovered":0,"error":"133 article extractions failed"}
+{"time":"2026-10-26T00:07:26.947330887Z","level":"ERROR","msg":"source poll failed","source":"kommersant","discovered":0,"rejected":0,"inserted":0,"duplicates":0,"too_old":0,"undated":0,"text_failures":0,"recovered":0,"error":"publisher request failed"}

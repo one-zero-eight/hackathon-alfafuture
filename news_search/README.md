@@ -11,6 +11,7 @@
 | `cache.py` | кэш шагов и результатов поиска в таблице `search_cache` (PostgreSQL) и его версия в памяти для тестов |
 | `embed.py` | кодировщики и кэш векторов статей |
 | `corpus.py` | чтение корпуса из Postgres |
+| `region.py`, `regions.json`, `regions_build.py` | регион новости без LLM (регион издания, названия регионов и городов) для доли федеральных новостей по размеру компании в `dense_xquad`; словарь пересобирается `python news_search/regions_build.py` |
 | `app.py` | HTTP: `POST /search`, `POST /refine`, `GET /methods` |
 | `benchmarks/` | сравнение методов; замер допоиска (`refine_bench.py`); A/B параметров компании (`personalization_ab.py`, отчёт `personalization-ab.md`) |
 | `levels.py` | уровень новости: свой регион, чужой регион, федеральный, зарубежный |

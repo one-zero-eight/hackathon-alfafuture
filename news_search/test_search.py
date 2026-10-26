@@ -48,7 +48,7 @@ class FakeAgents:
     def run(self, name, data):
         self.calls.append(name)
         self.cost += 0.1
-        if name == "queries":
+        if name in ("queries", "queries_anonymised"):
             blocks = {"company_self": ["Ромашка суд"]}
             for b in range(4):
                 blocks[f"block{b}"] = [VOCAB[b * 10 + k] + " " + VOCAB[b * 10 + k + 1] for k in range(8)]
@@ -89,8 +89,10 @@ def test_news_about_the_company_itself_are_dropped_unless_anonymised(tmp_path):
     own = {it["link"] for it in corpus if "Ромашка" in it["title"]}
     named = searcher(tmp_path / "a", corpus)[0].search("Ромашка", "Закупки", method="dense_xquad")
     assert not own & {it["link"] for it in named["top"]}
-    anon = searcher(tmp_path / "b", corpus)[0].search("компания, ОКВЭД 49", "Закупки", method="dense_xquad", anonymised=True)
+    s, agents = searcher(tmp_path / "b", corpus)
+    anon = s.search("компания, ОКВЭД 49", "Закупки", method="dense_xquad", anonymised=True)
     assert len(anon["top"]) == 30
+    assert "queries_anonymised" in agents.calls and "queries" not in agents.calls  # a description, not a name: its own prompt (#37)
 
 
 def test_too_few_news_and_unknown_method(tmp_path):
@@ -248,3 +250,29 @@ def test_postgres_cache_survives_a_new_instance_and_updates_in_place():
     assert again.get(key, "queries") == {"a": ["б"]} and again.get(key, "queries", 0) is None and again.get(key, "hyde") is None
     again.put(key, "queries", {"a": []})
     assert PgCache(dsn).get(key, "queries", 3600) == {"a": []}
+
+
+def test_region_index_finds_regions_by_outlet_and_inflected_names():
+    from news_search.region import RegionIndex
+    r = RegionIndex()
+    assert r.find("В Новосибирске открыли завод") == {"Новосибирская область"}
+    assert r.find("Власти Татарстана и Казанский суд") == {"Республика Татарстан"}
+    assert r.find("ЦБ сохранил ключевую ставку") == set()
+    assert r.find("Выборы прошли спокойно, читайте подробности") == set()  # Выборг, Чита: city names need a capital letter
+    assert r.find("В воронежской области выпал снег") == {"Воронежская область"}  # region names match in any case
+    assert r.of({"aid": 1, "title": "Пожар на складе", "summary": "", "source": "ngs"}) == {"Новосибирская область"}
+    assert r.of({"aid": 2, "title": "В Казани открыли мост", "summary": "", "source": "ngs"}) == {"Республика Татарстан"}  # a named place wins
+
+
+def test_low_locality_brings_news_from_outside_the_region(tmp_path):
+    corpus = make_corpus()
+    for it in corpus[: len(corpus) * 2 // 3]:  # two thirds of the corpus is about the profile's region
+        it["summary"] = "Новосибирск"
+    local = {it["aid"] for it in corpus if it["summary"]}
+    s, _ = searcher(tmp_path, corpus)
+
+    def outside(locality):
+        top = s.search("Ромашка", "Закупки", "Новосибирская область", "dense_xquad", locality=locality)["top"][:10]
+        return sum(it["aid"] not in local for it in top)
+    assert outside(0.0) > outside(1.0) and outside(1.0) == outside(None)
+    assert all("source" not in it for it in s.search("Ромашка", "Закупки", "Новосибирская область", "dense_xquad", locality=0.0)["top"])

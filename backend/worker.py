@@ -7,8 +7,8 @@ import time
 
 import httpx
 
-from backend import config, pages, store
-from backend.companies import CompanyBook, CompanyUnavailable
+from backend import config, feedback_pages, pages, store
+from backend.companies import NAMED_LOCALITY, CompanyBook, CompanyUnavailable
 from backend.focus import interpret, page_key_bits
 
 log = logging.getLogger("backend.worker")
@@ -36,28 +36,33 @@ def _post(url: str, body: dict, what: str) -> dict:
     return r.json()
 
 
-def build_page(key: str, company: str, company_id: str, role: str, region: str, method: str) -> dict:
-    focus = interpret(role)
-    if company_id:  # anonymised bank record: the description, region and products come from the data, not from the user
+def prepare_profile(company, company_id, role, region):
+    """(analytics profile, company text for the search, region). An anonymised bank record gives the description, region and products from the data."""
+    if company_id:
         try:
             profile = book.profile(company_id)
         except CompanyUnavailable as e:
             raise ProfileError(str(e)) from e
-        query_company, region = profile["description"], profile["region"]
-    else:
-        profile = {"label": company, "region": region}
-        query_company = company
+        return profile, profile["description"], profile["region"]
+    return {"label": company, "region": region, "locality": NAMED_LOCALITY}, company, region
+
+
+def build_page(key: str, company: str, company_id: str, role: str, region: str, method: str) -> tuple[dict, dict]:
+    """(page, feedback state): the state remembers which article each news widget was written from."""
+    focus = interpret(role)
+    profile, query_company, region = prepare_profile(company, company_id, role, region)
     store.progress(key, "search")
     found = _post(f"{config.NEWS_SEARCH_URL}/search", {"company": query_company, "line": role, "region": region, "method": method,
-                                                        "anonymised": bool(company_id)}, "news_search")
+                                                        "anonymised": bool(company_id), "locality": profile["locality"]}, "news_search")
     stats = found.get("stats", {})
     # shortcut: news_search ranks inside one /search call, so "rank" is only reported once it returns; upgrade when /search streams progress
     store.progress(key, "rank", stats.get("candidates") or stats.get("unique") or len(found["top"]))
     store.progress(key, "analysis", selected=len(found["top"]))
-    page = _post(f"{config.ANALYTICS_URL}/page", {"profile": profile, "role": focus.role or "CFO", "sphere": focus.sphere,
-                                                  "news": found["top"], "pairs": found["pairs"]}, "analytics")
+    page = _post(f"{config.ANALYTICS_URL}/page", {"profile": profile, "role": focus.role or "CFO", "role_text": role,
+                                                  "sphere": focus.sphere, "news": found["top"], "pairs": found["pairs"]}, "analytics")
     meta = {"method": method, "search_cost": found["cost"], "search_stats": found.get("stats", {}), "facts": profile.get("facts", ""), "journal": page.get("journal", [])}
-    return pages.publish(key, page, meta)
+    published = pages.publish(key, page, meta)
+    return published, feedback_pages.initial_state(published, found["top"])
 
 
 def run_once() -> bool:
@@ -67,7 +72,7 @@ def run_once() -> bool:
     key, company, company_id, role, region, method = row
     log.info("profile %s: %r / %r / %r via %s", key, company or company_id, role, region, method)
     try:
-        store.finish(key, build_page(key, company, company_id, role, region, method))
+        store.finish(key, *build_page(key, company, company_id, role, region, method))
         log.info("profile %s: ready", key)
     except Exception as e:  # any failure is reported on the profile, the loop goes on
         log.exception("profile %s failed", key)

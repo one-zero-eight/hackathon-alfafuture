@@ -28,16 +28,23 @@ def test_render_fills_known_placeholders_and_keeps_json_braces():
 
 def test_every_agent_builds_a_prompt_from_minimal_input():
     inputs = {
+        "feedback_intent": {"message": "Почему так?", "context": {"selected": {"type": "widget", "id": "w1"}, "widgets": []}},
         "queries": {"company": "Ромашка", "line": "Закупки", "region": "Тверь"},
+        "queries_anonymised": {"company": "компания, ОКВЭД 10.20, г. Мурманск", "line": "Закупки", "region": "Мурманская область"},
         "needs": {"company": "Ромашка", "line": "Закупки"},
         "hyde": {"company": "Ромашка", "line": "Закупки"},
         "pick": {"company": "Ромашка", "line": "Закупки", "candidates": [{"id": 1, "title": "Заголовок", "date": "", "outlets": ["РБК"]}]},
         "analytics_step": {"company": "ОКВЭД 49.41 (Перевозки), регион Тверь, продукты банка: кредит", "kinds": ["direct"],
                            "title": "Ставка выросла", "thoughts": [], "materials": "[A1] текст"},
-        "decision": {"role": {"title": "CFO", "authority": "бюджет", "playbook": "правила"}, "moves": {}, "title": "Ставка", "notes": []},
+        "decision": {"role": {"title": "CFO", "authority": "бюджет", "playbook": "правила"}, "moves": {}, "title": "Ставка", "notes": [], "facts": "выручка 1 млрд"},
+        "role_brief": {"line": "отвечаю за лизинг", "fallback_title": "Финансовый директор", "fallback_playbook": "правила"},
         "verify": {"claims": [{"text": "вывод", "quote": "цитата"}]},
         "reply": {"question": "Почему?", "title": "Заголовок", "text": "Текст"},
         "alfa_page": {"page": 3, "text": "текст страницы"},
+        "synthesis": {"sphere": "ОКВЭД 49.41 (Перевозки), регион Тверь", "materials": "[N1] ставка"},
+        "synthesis_decision": {"sphere": "ОКВЭД 49.41 (Перевозки), регион Тверь", "conclusion": "долг дорогой",
+                               "facts": "выручка 1 млрд", "role": {"title": "CFO", "authority": "бюджет", "playbook": "правила"},
+                               "moves": {}},
     }
     assert set(inputs) == set(agents_app.AGENTS)
     for name, data in inputs.items():
@@ -77,6 +84,13 @@ def test_pick_drops_ids_that_are_not_candidates(monkeypatch):
 def test_queries_keeps_only_blocks_of_strings(monkeypatch):
     fake_chat(monkeypatch, '{"business_model": "B2B", "company_self": [" Ромашка суд ", 5], "government": ["Минфин"]}')
     assert agents_app.run("queries", {"company": "Ромашка", "line": "Закупки"}) == {"company_self": ["Ромашка суд"], "government": ["Минфин"]}
+
+
+def test_queries_anonymised_accepts_an_empty_company_self(monkeypatch):
+    prompts = fake_chat(monkeypatch, '{"company_self": [], "competitors_direct": ["рыбопереработка Мурманская область"]}')
+    out = agents_app.run("queries_anonymised", {"company": "компания, ОКВЭД 10.20", "line": "Закупки", "region": "Мурманская область"})
+    assert out == {"company_self": [], "competitors_direct": ["рыбопереработка Мурманская область"]} and len(prompts) == 1
+    assert "Мурманская область" in prompts[0] and "название неизвестно" in prompts[0]
 
 
 def test_http_contract(monkeypatch):

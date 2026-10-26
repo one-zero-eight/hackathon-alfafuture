@@ -1,0 +1,766 @@
+{
+ "context": {
+  "company": {
+   "name": "Тверская логистика",
+   "okved": "49.41 Перевозки грузовые",
+   "role": "Финансовый директор",
+   "date": "26 октября 2026"
+  },
+  "widgets": [
+   {
+    "id": "n1",
+    "column": "news",
+    "title": "ЦБ сохранил ключевую ставку на 21%",
+    "url": "https://rbc.ru/1"
+   },
+   {
+    "id": "n2",
+    "column": "news",
+    "title": "Рост тарифов РЖД на контейнерные перевозки",
+    "url": "https://kommersant.ru/2"
+   },
+   {
+    "id": "a1",
+    "column": "analytics",
+    "title": "Дорогое кредитование снижает маржу перевозчика"
+   },
+   {
+    "id": "a2",
+    "column": "analytics",
+    "title": "Рост железнодорожных тарифов переводит грузы на автотранспорт"
+   },
+   {
+    "id": "d1",
+    "column": "decisions",
+    "title": "Зафиксировать ставку по кредиту на 12 месяцев"
+   },
+   {
+    "id": "d2",
+    "column": "decisions",
+    "title": "Пересмотреть долю автоперевозок в контрактах"
+   }
+  ],
+  "links": [
+   {
+    "id": "l1",
+    "from": "n1",
+    "to": "a1"
+   },
+   {
+    "id": "l2",
+    "from": "a1",
+    "to": "d1"
+   },
+   {
+    "id": "l3",
+    "from": "n2",
+    "to": "a2"
+   },
+   {
+    "id": "l4",
+    "from": "a2",
+    "to": "d2"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "message": "Почему ставка влияет на нашу маржу?",
+   "selected": {
+    "type": "widget",
+    "id": "a1"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Объясни, что значит этот вывод простыми словами",
+   "selected": {
+    "type": "widget",
+    "id": "a2"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Откуда взялась цифра 21%?",
+   "selected": {
+    "type": "widget",
+    "id": "n1"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Какие риски у этого решения?",
+   "selected": {
+    "type": "widget",
+    "id": "d1"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Что такое контейнерные перевозки в этом контексте?",
+   "selected": {
+    "type": "widget",
+    "id": "n2"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Почему эти два блока связаны стрелкой?",
+   "selected": {
+    "type": "link",
+    "id": "l1"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "На чём основан вывод?",
+   "selected": {
+    "type": "widget",
+    "id": "a1"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "А если ставку снизят в декабре, что изменится?",
+   "selected": {
+    "type": "widget",
+    "id": "d1"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Расскажи подробнее про тарифы РЖД",
+   "selected": {
+    "type": "widget",
+    "id": "n2"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Это решение подходит для компании нашего размера?",
+   "selected": {
+    "type": "widget",
+    "id": "d2"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Что значит срочное решение?",
+   "selected": {
+    "type": "widget",
+    "id": "d1"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Кратко: что главное на этой странице?",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Покажи, какие источники использованы в выводе",
+   "selected": {
+    "type": "widget",
+    "id": "a2"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Как это связано с нашими продуктами банка?",
+   "selected": {
+    "type": "link",
+    "id": "l4"
+   },
+   "expect": "question"
+  },
+  {
+   "message": "Добавь анализ по рынкам Казахстана и Беларуси",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Хочу посмотреть, как повлияют санкции на запчасти для грузовиков",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Добавь аналитику по лизингу техники",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Расширь анализ: что с ценами на дизельное топливо?",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Добавь тему экспорта зерна через порты Юга",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Нужен разбор по инструментам хеджирования валютных рисков",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Что с рынком складской недвижимости? Добавь это в анализ",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Дополни страницу новостями про цифровые накладные ЭТрН",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Добавь блок про зарплатные проекты и найм водителей",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Подумай ещё о выходе на рынок Китая и добавь выводы",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "extend"
+  },
+  {
+   "message": "Покажи всё это для Уральского федерального округа",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "region": "Уральский федеральный округ"
+   }
+  },
+  {
+   "message": "Давай посмотрим с точки зрения направления контейнерных перевозок",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "line": "контейнерные перевозки"
+   }
+  },
+  {
+   "message": "Перестрой страницу под Сибирь",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "region": "Сибирь"
+   }
+  },
+  {
+   "message": "А теперь то же самое, но для нашего подразделения складской логистики",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "line": "складская логистика"
+   }
+  },
+  {
+   "message": "Смотри на Дальний Восток, а не на Тверь",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "region": "Дальний Восток"
+   }
+  },
+  {
+   "message": "Переделай анализ под закупки, а не финансы",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "line": "закупки"
+   }
+  },
+  {
+   "message": "Хочу взгляд из Краснодарского края",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "region": "Краснодарский край"
+   }
+  },
+  {
+   "message": "Сменим фокус: теперь нас интересует международная логистика",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "line": "международная логистика"
+   }
+  },
+  {
+   "message": "Пересчитай для Приволжского федерального округа",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "region": "Приволжский федеральный округ"
+   }
+  },
+  {
+   "message": "Фокус на розничных клиентах вместо корпоративных, перестрой всё",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "perspective",
+   "fields": {
+    "line": "розничные клиенты"
+   }
+  },
+  {
+   "message": "Тут неточно: ставка не влияет на маржу напрямую, а через стоимость оборотного капитала",
+   "selected": {
+    "type": "widget",
+    "id": "a1"
+   },
+   "expect": "edit",
+   "target_id": "a1"
+  },
+  {
+   "message": "Исправь заголовок: тарифы выросли на 9%, а не на 7%",
+   "selected": {
+    "type": "widget",
+    "id": "n2"
+   },
+   "expect": "edit",
+   "target_id": "n2"
+  },
+  {
+   "message": "Это решение не годится, у нас фиксированная ставка по договору. Перепиши как «Рефинансировать кредит в другом банке»",
+   "selected": {
+    "type": "widget",
+    "id": "d1"
+   },
+   "expect": "edit",
+   "target_id": "d1"
+  },
+  {
+   "message": "Вывод неверный: грузы не переходят на авто, у нас нет парка",
+   "selected": {
+    "type": "widget",
+    "id": "a2"
+   },
+   "expect": "edit",
+   "target_id": "a2"
+  },
+  {
+   "message": "Поправь: решение должно быть про сокращение доли автоперевозок",
+   "selected": {
+    "type": "widget",
+    "id": "d2"
+   },
+   "expect": "edit",
+   "target_id": "d2"
+  },
+  {
+   "message": "В этой новости ошибка, ставка осталась 21%, а не 20%",
+   "selected": {
+    "type": "widget",
+    "id": "n1"
+   },
+   "expect": "edit",
+   "target_id": "n1"
+  },
+  {
+   "message": "Измени вывод: рост тарифов РЖД для нас выгоден, мы возим автотранспортом",
+   "selected": {
+    "type": "widget",
+    "id": "a2"
+   },
+   "expect": "edit",
+   "target_id": "a2"
+  },
+  {
+   "message": "Замени текст на: «Ключевая ставка сохранена, кредит остаётся дорогим»",
+   "selected": {
+    "type": "widget",
+    "id": "n1"
+   },
+   "expect": "edit",
+   "target_id": "n1"
+  },
+  {
+   "message": "Неточность в выводе: маржа падает из-за топлива, а не из-за кредитов",
+   "selected": {
+    "type": "widget",
+    "id": "a1"
+   },
+   "expect": "edit",
+   "target_id": "a1"
+  },
+  {
+   "message": "Исправь решение: нужно не пересмотреть, а увеличить долю автоперевозок",
+   "selected": {
+    "type": "widget",
+    "id": "d2"
+   },
+   "expect": "edit",
+   "target_id": "d2"
+  },
+  {
+   "message": "Удали эту новость, она неактуальна",
+   "selected": {
+    "type": "widget",
+    "id": "n2"
+   },
+   "expect": "remove",
+   "target_id": "n2"
+  },
+  {
+   "message": "Убери этот блок",
+   "selected": {
+    "type": "widget",
+    "id": "d1"
+   },
+   "expect": "remove",
+   "target_id": "d1"
+  },
+  {
+   "message": "Эта новость нам не нужна, удали",
+   "selected": {
+    "type": "widget",
+    "id": "n1"
+   },
+   "expect": "remove",
+   "target_id": "n1"
+  },
+  {
+   "message": "Удали вывод про тарифы, это неверно и неважно",
+   "selected": {
+    "type": "widget",
+    "id": "a2"
+   },
+   "expect": "remove",
+   "target_id": "a2"
+  },
+  {
+   "message": "Убери решение, мы его не будем рассматривать",
+   "selected": {
+    "type": "widget",
+    "id": "d2"
+   },
+   "expect": "remove",
+   "target_id": "d2"
+  },
+  {
+   "message": "Выкинь это отсюда",
+   "selected": {
+    "type": "widget",
+    "id": "a1"
+   },
+   "expect": "remove",
+   "target_id": "a1"
+  },
+  {
+   "message": "Новость старая, удали её со страницы",
+   "selected": {
+    "type": "widget",
+    "id": "n1"
+   },
+   "expect": "remove",
+   "target_id": "n1"
+  },
+  {
+   "message": "Не показывай мне больше эту новость",
+   "selected": {
+    "type": "widget",
+    "id": "n2"
+   },
+   "expect": "remove",
+   "target_id": "n2"
+  },
+  {
+   "message": "Удалить этот вывод",
+   "selected": {
+    "type": "widget",
+    "id": "a1"
+   },
+   "expect": "remove",
+   "target_id": "a1"
+  },
+  {
+   "message": "Убрать это решение со страницы",
+   "selected": {
+    "type": "widget",
+    "id": "d1"
+   },
+   "expect": "remove",
+   "target_id": "d1"
+  },
+  {
+   "message": "Вот статья, добавь её в анализ: https://www.rbc.ru/economics/20/10/2026/abc",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "link",
+   "url": "https://www.rbc.ru/economics/20/10/2026/abc"
+  },
+  {
+   "message": "Посмотри эту новость https://example.com/news/tariffs-2026",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "link",
+   "url": "https://example.com/news/tariffs-2026"
+  },
+  {
+   "message": "Вот ещё источник, учти его: https://www.kommersant.ru/doc/777",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "link",
+   "url": "https://www.kommersant.ru/doc/777"
+  },
+  {
+   "message": "https://tass.ru/ekonomika/1234567 — важная новость, найди связи с остальными",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "link",
+   "url": "https://tass.ru/ekonomika/1234567"
+  },
+  {
+   "message": "Добавь в список актуальных https://www.vedomosti.ru/business/articles/2026/10/20/xyz",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "link",
+   "url": "https://www.vedomosti.ru/business/articles/2026/10/20/xyz"
+  },
+  {
+   "message": "Прочитай и добавь: https://lenta.ru/news/2026/10/21/gruz/",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "link",
+   "url": "https://lenta.ru/news/2026/10/21/gruz/"
+  },
+  {
+   "message": "Эта новость про нас: https://www.interfax.ru/business/999999",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "link",
+   "url": "https://www.interfax.ru/business/999999"
+  },
+  {
+   "message": "Проанализируй вот это https://news.example.org/a/b?id=7 и покажи инсайты",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "link",
+   "url": "https://news.example.org/a/b?id=7"
+  },
+  {
+   "message": "Мы планируем купить 20 новых грузовиков в лизинг. Как это согласуется с выводами?",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "proposal"
+  },
+  {
+   "message": "Предлагаю открыть филиал в Новосибирске. Оцени предложение и риски",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "proposal"
+  },
+  {
+   "message": "Хотим перейти на оплату в юанях. Что скажешь, подходит?",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "proposal"
+  },
+  {
+   "message": "Наше предложение: взять кредит на 50 млн под 18% на склад. Составь матрицу рисков",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "proposal"
+  },
+  {
+   "message": "Мы думаем сократить штат водителей на 10%. Оцени это решение",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "proposal"
+  },
+  {
+   "message": "Предложение: запустить собственную службу доставки последней мили. Согласуется ли с анализом?",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "proposal"
+  },
+  {
+   "message": "Планируем выйти на рынок Казахстана через партнёра. Оцени целиком",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "proposal"
+  },
+  {
+   "message": "Хотим перейти на электрогрузовики. Какие риски у такого предложения?",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "proposal"
+  },
+  {
+   "message": "Исправь",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "clarify"
+  },
+  {
+   "message": "Не так",
+   "selected": {
+    "type": "widget",
+    "id": "a1"
+   },
+   "expect": "clarify"
+  },
+  {
+   "message": "Удали или перепиши, как лучше",
+   "selected": {
+    "type": "widget",
+    "id": "n1"
+   },
+   "expect": "clarify"
+  },
+  {
+   "message": "Это неверно",
+   "selected": {
+    "type": "widget",
+    "id": "a2"
+   },
+   "expect": "clarify"
+  },
+  {
+   "message": "Сделай лучше",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "clarify"
+  },
+  {
+   "message": "Убери лишнее",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "clarify"
+  },
+  {
+   "message": "Хм, а может изменить?",
+   "selected": {
+    "type": "widget",
+    "id": "d1"
+   },
+   "expect": "clarify"
+  },
+  {
+   "message": "Добавь",
+   "selected": {
+    "type": "widget",
+    "id": "n2"
+   },
+   "expect": "clarify"
+  },
+  {
+   "message": "Исправь и объясни почему",
+   "selected": {
+    "type": "widget",
+    "id": "a1"
+   },
+   "expect": "clarify"
+  },
+  {
+   "message": "Давай по-другому",
+   "selected": {
+    "type": "page",
+    "id": "p"
+   },
+   "expect": "clarify"
+  }
+ ]
+}
