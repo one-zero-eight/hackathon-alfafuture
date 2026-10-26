@@ -250,3 +250,29 @@ def test_postgres_cache_survives_a_new_instance_and_updates_in_place():
     assert again.get(key, "queries") == {"a": ["б"]} and again.get(key, "queries", 0) is None and again.get(key, "hyde") is None
     again.put(key, "queries", {"a": []})
     assert PgCache(dsn).get(key, "queries", 3600) == {"a": []}
+
+
+def test_region_index_finds_regions_by_outlet_and_inflected_names():
+    from news_search.region import RegionIndex
+    r = RegionIndex()
+    assert r.find("В Новосибирске открыли завод") == {"Новосибирская область"}
+    assert r.find("Власти Татарстана и Казанский суд") == {"Республика Татарстан"}
+    assert r.find("ЦБ сохранил ключевую ставку") == set()
+    assert r.find("Выборы прошли спокойно, читайте подробности") == set()  # Выборг, Чита: city names need a capital letter
+    assert r.find("В воронежской области выпал снег") == {"Воронежская область"}  # region names match in any case
+    assert r.of({"aid": 1, "title": "Пожар на складе", "summary": "", "source": "ngs"}) == {"Новосибирская область"}
+    assert r.of({"aid": 2, "title": "В Казани открыли мост", "summary": "", "source": "ngs"}) == {"Республика Татарстан"}  # a named place wins
+
+
+def test_low_locality_brings_news_from_outside_the_region(tmp_path):
+    corpus = make_corpus()
+    for it in corpus[: len(corpus) * 2 // 3]:  # two thirds of the corpus is about the profile's region
+        it["summary"] = "Новосибирск"
+    local = {it["aid"] for it in corpus if it["summary"]}
+    s, _ = searcher(tmp_path, corpus)
+
+    def outside(locality):
+        top = s.search("Ромашка", "Закупки", "Новосибирская область", "dense_xquad", locality=locality)["top"][:10]
+        return sum(it["aid"] not in local for it in top)
+    assert outside(0.0) > outside(1.0) and outside(1.0) == outside(None)
+    assert all("source" not in it for it in s.search("Ромашка", "Закупки", "Новосибирская область", "dense_xquad", locality=0.0)["top"])
