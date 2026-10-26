@@ -1,4 +1,5 @@
 """Analytics service: search results + company profile -> page of news, analytics and decisions with traceable evidence."""
+
 import logging
 import threading
 
@@ -11,13 +12,17 @@ from analytics.chain import EVENTS, ROLES, make_page, reply
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(title="Analytics")
-_lock = threading.Lock()  # one page at a time: the encoder for bank theses needs the memory
+_lock = (
+    threading.Lock()
+)  # one page at a time: the encoder for bank theses needs the memory
 
 
 class PageRequest(BaseModel):
     profile: dict  # label, okved, okved_code, okved_name, region, products, products_ru, facts, date_label (all optional)
     role: str = "CFO"  # a playbook id from data/roles.json
-    role_text: str = ""  # the employee's own one or two lines; empty keeps the playbook as is
+    role_text: str = (
+        ""  # the employee's own one or two lines; empty keeps the playbook as is
+    )
     sphere: str = ""
     news: list[dict]  # `top` of a news_search result
     pairs: list[list[int]] = []
@@ -44,7 +49,18 @@ def page(req: PageRequest) -> dict:
         raise HTTPException(422, f"role must be one of {sorted(ROLES)}")
     with _lock:
         try:
-            return make_page(Agents(), req.profile, req.role, req.sphere, req.news, req.pairs, load_theses(), req.triz, req.limit, req.role_text)
+            return make_page(
+                Agents(),
+                req.profile,
+                req.role,
+                req.sphere,
+                req.news,
+                req.pairs,
+                load_theses(),
+                req.triz,
+                req.limit,
+                req.role_text,
+            )
         except RuntimeError as e:
             raise HTTPException(502, str(e))
 

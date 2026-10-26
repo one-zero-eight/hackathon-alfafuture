@@ -1,4 +1,5 @@
 """Cache of the steps of a search run (queries, needs, HyDE, results) in PostgreSQL, table search_cache (owned by news_search)."""
+
 import time
 
 import psycopg
@@ -18,14 +19,19 @@ class PgCache:
 
     def get(self, run_key, name, max_age=None):
         with psycopg.connect(self.url) as conn:
-            row = conn.execute("SELECT data, extract(epoch FROM now() - created_at) FROM search_cache WHERE run_key = %s AND name = %s",
-                               (run_key, name)).fetchone()
+            row = conn.execute(
+                "SELECT data, extract(epoch FROM now() - created_at) FROM search_cache WHERE run_key = %s AND name = %s",
+                (run_key, name),
+            ).fetchone()
         return row[0] if row and (max_age is None or row[1] < max_age) else None
 
     def put(self, run_key, name, data):
         with psycopg.connect(self.url) as conn:
-            conn.execute("INSERT INTO search_cache (run_key, name, data) VALUES (%s, %s, %s) "
-                         "ON CONFLICT (run_key, name) DO UPDATE SET data = excluded.data, created_at = now()", (run_key, name, Jsonb(data)))
+            conn.execute(
+                "INSERT INTO search_cache (run_key, name, data) VALUES (%s, %s, %s) "
+                "ON CONFLICT (run_key, name) DO UPDATE SET data = excluded.data, created_at = now()",
+                (run_key, name, Jsonb(data)),
+            )
 
 
 class MemoryCache:
@@ -36,7 +42,11 @@ class MemoryCache:
 
     def get(self, run_key, name, max_age=None):
         found = self.items.get((run_key, name))
-        return found[0] if found and (max_age is None or time.time() - found[1] < max_age) else None
+        return (
+            found[0]
+            if found and (max_age is None or time.time() - found[1] < max_age)
+            else None
+        )
 
     def put(self, run_key, name, data):
         self.items[(run_key, name)] = (data, time.time())

@@ -17,11 +17,11 @@ export function Chart({ c }: { c: ChartData }) {
       <svg viewBox={`0 0 ${W} ${H}`}>
         {[min, (min + max) / 2, max].map(t => (
           <g key={t}>
-            <line x1={PL} x2={W - PR} y1={y(t)} y2={y(t)} stroke="#3a3542" />
-            <text x={PL - 4} y={y(t) + 4} textAnchor="end" style={{ fill: "#a9a4b3" }}>{tk(t)}</text>
+            <line x1={PL} x2={W - PR} y1={y(t)} y2={y(t)} stroke="var(--color-light-neutral-300)" />
+            <text x={PL - 4} y={y(t) + 4} textAnchor="end" style={{ fill: "var(--color-light-text-secondary)" }}>{tk(t)}</text>
           </g>
         ))}
-        <path d={`M${PL},${PT} V${H - PB} H${W - PR}`} fill="none" stroke="#6d6779" />
+        <path d={`M${PL},${PT} V${H - PB} H${W - PR}`} fill="none" stroke="var(--color-light-neutral-500)" />
         {c.type === "bars"
           ? c.labels.map((l, i) => (
               <g key={l}>

@@ -4,6 +4,7 @@ The per-news chain in chain.py stays as it is. This module adds a widget after t
 The sphere prompt has OKVED, region and the typed sphere. The company name, revenue and bank products
 are shown only to the decision agent.
 """
+
 import logging
 from collections import defaultdict
 
@@ -60,7 +61,13 @@ def story_group(events: list[dict], pairs: list) -> list[int]:
         if not isinstance(pair, (list, tuple)) or len(pair) != 2:
             continue
         a, b = pair
-        if isinstance(a, int) and isinstance(b, int) and 0 <= a < n and 0 <= b < n and a != b:
+        if (
+            isinstance(a, int)
+            and isinstance(b, int)
+            and 0 <= a < n
+            and 0 <= b < n
+            and a != b
+        ):
             union(a, b)
             linked = True
     tags = [set(ev.get("tags") or []) for ev in events]
@@ -79,14 +86,40 @@ def story_group(events: list[dict], pairs: list) -> list[int]:
 
 
 def _risks(raw) -> list[dict]:
-    return [r for r in raw or [] if isinstance(r, dict) and isinstance(r.get("probability"), int) and isinstance(r.get("impact"), int)
-            and 1 <= r["probability"] <= 4 and 1 <= r["impact"] <= 4][:4]
+    return [
+        r
+        for r in raw or []
+        if isinstance(r, dict)
+        and isinstance(r.get("probability"), int)
+        and isinstance(r.get("impact"), int)
+        and 1 <= r["probability"] <= 4
+        and 1 <= r["impact"] <= 4
+    ][:4]
 
 
-def add_synthesis(agents, profile: dict, role: dict, sphere: str, events: list[dict], items: dict,
-                  widgets: list, links: list, claims: list, triz: bool, pairs: list) -> None:
+def add_synthesis(
+    agents,
+    profile: dict,
+    role: dict,
+    sphere: str,
+    events: list[dict],
+    items: dict,
+    widgets: list,
+    links: list,
+    claims: list,
+    triz: bool,
+    pairs: list,
+) -> None:
     """Append s1 (sphere conclusion) and sd1 (one company action). Quotes that are not verbatim are dropped."""
-    from analytics.chain import MOVES, _ask, _blob, _show, bank_related, grounded, paper_href
+    from analytics.chain import (
+        MOVES,
+        _ask,
+        _blob,
+        _show,
+        bank_related,
+        grounded,
+        paper_href,
+    )
 
     group = story_group(events, pairs)
     if len(group) < 2:
@@ -101,7 +134,10 @@ def add_synthesis(agents, profile: dict, role: dict, sphere: str, events: list[d
             ids.append(i)
     blobs = {i: _blob(items[i]) for i in ids if i in items}
     try:
-        ans = agents.run("synthesis", {"sphere": sphere_text(profile, sphere), "materials": _show(ids, items)})
+        ans = agents.run(
+            "synthesis",
+            {"sphere": sphere_text(profile, sphere), "materials": _show(ids, items)},
+        )
     except RuntimeError as e:
         log.warning("synthesis failed: %s", e)
         return
@@ -120,24 +156,48 @@ def add_synthesis(agents, profile: dict, role: dict, sphere: str, events: list[d
                 evidence.append({"id": i, "quote": quote})
                 text = text.rstrip() + " Позиция банка: " + quote
                 break
-    kind, horizon = ans.get("type") or "observation", ans.get("horizon") or "medium_term"
+    kind, horizon = (
+        ans.get("type") or "observation",
+        ans.get("horizon") or "medium_term",
+    )
     if kind not in TYPES:
         kind = "observation"
     if horizon not in HORIZONS:
         horizon = "medium_term"
     alfa = next((e["id"] for e in evidence if str(e["id"]).startswith("alfa:")), "")
     conf = "reliable" if len(sources) >= 2 else "probable"
-    widgets.append({"id": "s1", "column": "analytics", "title": text[:120],
-                    "tags": {"confidence": conf, "source": "alfa" if alfa else "ai", "type": kind, "urgency": horizon},
-                    "details": {"text": text}, **({"url": paper_href(alfa)} if alfa and paper_href(alfa) else {})})
+    widgets.append(
+        {
+            "id": "s1",
+            "column": "analytics",
+            "title": text[:120],
+            "tags": {
+                "confidence": conf,
+                "source": "alfa" if alfa else "ai",
+                "type": kind,
+                "urgency": horizon,
+            },
+            "details": {"text": text},
+            **({"url": paper_href(alfa)} if alfa and paper_href(alfa) else {}),
+        }
+    )
     for i in group:
-        links.append({"id": f"ls{i+1}", "from": f"n{i+1}", "to": "s1", "text": text})
+        links.append(
+            {"id": f"ls{i + 1}", "from": f"n{i + 1}", "to": "s1", "text": text}
+        )
     for e in evidence:
         claims.append({"widget": "s1", "text": text, "quote": e["quote"]})
     try:
-        decision = agents.run("synthesis_decision", {
-            "sphere": sphere_text(profile, sphere), "conclusion": text, "facts": profile.get("facts") or "",
-            "role": role, "moves": MOVES if triz else {}})
+        decision = agents.run(
+            "synthesis_decision",
+            {
+                "sphere": sphere_text(profile, sphere),
+                "conclusion": text,
+                "facts": profile.get("facts") or "",
+                "role": role,
+                "moves": MOVES if triz else {},
+            },
+        )
     except RuntimeError as e:
         log.warning("synthesis decision failed: %s", e)
         return
@@ -146,13 +206,38 @@ def add_synthesis(agents, profile: dict, role: dict, sphere: str, events: list[d
     if decision.get("move") not in MOVES:
         decision["move"] = None
     decision["risks"] = _risks(decision.get("risks"))
-    d_horizon = decision.get("horizon") if decision.get("horizon") in HORIZONS else horizon
-    widget = {"id": "sd1", "column": "decisions", "title": decision["title"],
-              "tags": {"confidence": "probable", "source": "ai", "urgency": d_horizon, "type": kind},
-              "details": {"text": decision["text"] + (f" Приём: {decision['move']}." if decision.get("move") else "")},
-              "risks": {"steps": [decision["text"]], "bank_offer": None, "risks": decision["risks"]}}
+    d_horizon = (
+        decision.get("horizon") if decision.get("horizon") in HORIZONS else horizon
+    )
+    widget = {
+        "id": "sd1",
+        "column": "decisions",
+        "title": decision["title"],
+        "tags": {
+            "confidence": "probable",
+            "source": "ai",
+            "urgency": d_horizon,
+            "type": kind,
+        },
+        "details": {
+            "text": decision["text"]
+            + (f" Приём: {decision['move']}." if decision.get("move") else "")
+        },
+        "risks": {
+            "steps": [decision["text"]],
+            "bank_offer": None,
+            "risks": decision["risks"],
+        },
+    }
     ask = _ask(widget)
     if ask:
         widget["chat"] = {"text": decision["title"], "basis": [], "followups": [ask]}
     widgets.append(widget)
-    links.append({"id": "lsd1", "from": "s1", "to": "sd1", "text": decision.get("why") or decision["text"]})
+    links.append(
+        {
+            "id": "lsd1",
+            "from": "s1",
+            "to": "sd1",
+            "text": decision.get("why") or decision["text"],
+        }
+    )

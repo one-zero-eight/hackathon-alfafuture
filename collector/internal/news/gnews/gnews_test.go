@@ -2,6 +2,7 @@ package gnews
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"sync/atomic"
@@ -51,5 +52,16 @@ func TestSearchRetriesRateLimit(t *testing.T) {
 	items, err := c.Search(t.Context(), "x", 1)
 	if err != nil || len(items) != 1 || calls.Load() != 3 {
 		t.Fatalf("items=%v err=%v calls=%d", items, err, calls.Load())
+	}
+}
+
+func TestSearchReportsBlock(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer srv.Close()
+	_, err := NewAt(srv.URL, time.Second).NoPause().Search(t.Context(), "x", 1)
+	if !errors.Is(err, ErrBlocked) {
+		t.Fatalf("err=%v, want ErrBlocked", err)
 	}
 }

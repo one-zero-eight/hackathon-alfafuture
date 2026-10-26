@@ -1,4 +1,5 @@
 """News search service: POST /search runs one NewsSearch method over the corpus. One search at a time (encoders need the memory)."""
+
 import logging
 import os
 import threading
@@ -24,7 +25,9 @@ class Request(BaseModel):
     region: str = ""
     method: str = DEFAULT_METHOD
     anonymised: bool = False  # the company text is a description from bank data, not a name: skip the own-company filter
-    locality: float | None = Field(None, ge=0, le=1)  # 0..1 from the company's size (backend); a large company gets more federal news
+    locality: float | None = Field(
+        None, ge=0, le=1
+    )  # 0..1 from the company's size (backend); a large company gets more federal news
 
 
 class RefineRequest(BaseModel):
@@ -38,15 +41,26 @@ class RefineRequest(BaseModel):
     limit: int = Field(REFINE_LIMIT, ge=1, le=30)
     method: str = DEFAULT_METHOD
     anonymised: bool = False
-    page_line: str | None = None  # perspective: the page's line/region when line/region carry the new ones
+    page_line: str | None = (
+        None  # perspective: the page's line/region when line/region carry the new ones
+    )
     page_region: str | None = None
 
 
 def search_instance() -> NewsSearch:
     if not _search:
         url = os.environ["DATABASE_URL"]
-        _search.append(NewsSearch(postgres_corpus(url), Agents(), os.environ.get("NEWS_SEARCH_DATA", "/data"), cache=PgCache(url)))
-        _search[0].nonlocal_weight = float(os.environ.get("NEWS_SEARCH_NONLOCAL_WEIGHT", NONLOCAL_WEIGHT))
+        _search.append(
+            NewsSearch(
+                postgres_corpus(url),
+                Agents(),
+                os.environ.get("NEWS_SEARCH_DATA", "/data"),
+                cache=PgCache(url),
+            )
+        )
+        _search[0].nonlocal_weight = float(
+            os.environ.get("NEWS_SEARCH_NONLOCAL_WEIGHT", NONLOCAL_WEIGHT)
+        )
     return _search[0]
 
 
@@ -54,7 +68,9 @@ def embed_loop(every: float) -> None:
     """Embed new corpus articles at start and then every `every` seconds, so a search never meets a backlog."""
     while True:
         try:
-            with _lock:  # the vector file has one writer at a time: this loop or a search
+            with (
+                _lock
+            ):  # the vector file has one writer at a time: this loop or a search
                 added = search_instance().embed_corpus()
             if added:
                 log.info("embedded %d new articles", added)
@@ -86,7 +102,14 @@ def search(req: Request) -> dict:
         raise HTTPException(422, f"method must be one of {list(METHODS)}")
     with _lock:
         try:
-            return search_instance().search(req.company, req.line, req.region, req.method, req.anonymised, req.locality)
+            return search_instance().search(
+                req.company,
+                req.line,
+                req.region,
+                req.method,
+                req.anonymised,
+                req.locality,
+            )
         except TooFewNews as e:
             raise HTTPException(422, str(e))
 
@@ -97,8 +120,18 @@ def refine(req: RefineRequest) -> dict:
         raise HTTPException(422, "only dense_xquad supports refine")
     with _lock:
         try:
-            return search_instance().refine(req.company, req.line, req.kind, req.text, req.region, req.exclude_aids, req.removed_aids,
-                                            req.limit, req.anonymised,
-                                            req.page_line, req.page_region)
+            return search_instance().refine(
+                req.company,
+                req.line,
+                req.kind,
+                req.text,
+                req.region,
+                req.exclude_aids,
+                req.removed_aids,
+                req.limit,
+                req.anonymised,
+                req.page_line,
+                req.page_region,
+            )
         except ValueError as e:
             raise HTTPException(422, str(e))

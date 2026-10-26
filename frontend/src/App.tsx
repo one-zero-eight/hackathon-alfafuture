@@ -99,8 +99,8 @@ export function App() {
 
   const ask = <>{noPage && <div className="ask-hint">Сначала откройте аналитику: ИИ отвечает по странице.</div>}<AskAiButton onClick={askAi} /></>;
   if (menu) return <><StartMenu onReady={selectProfile} onDemo={() => { setProfile(null); setMenu(false); }} />{ask}</>;
-  if (error) return <div className="state" style={{ color: "#fff", padding: 28 }}>Не удалось загрузить страницу<button onClick={loadPage}>Повторить</button>{ask}</div>;
-  if (!page) return <div className="state" style={{ color: "#fff", padding: 28 }}>Загрузка…{ask}</div>;
+  if (error) return <div className="state" style={{ padding: 28 }}>Не удалось загрузить страницу<button onClick={loadPage}>Повторить</button>{ask}</div>;
+  if (!page) return <div className="state" style={{ padding: 28 }}>Загрузка…{ask}</div>;
 
   const title = (id: string) => page.widgets.find(w => w.id === id)?.title ?? id;
   const linkTitle = (id: string) => { const l = page.links.find(x => x.id === id); return l ? `${title(l.from)} → ${title(l.to)}` : id; };

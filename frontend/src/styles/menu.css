@@ -1,8 +1,8 @@
 .menu { max-width:1100px; margin:0 auto; padding:32px 28px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:32px; }
 .menu h2 { margin:0 0 12px; font-size:20px; }
 .menu-list { display:flex; flex-direction:column; min-width:0; }
-.menu-list input, .menu-role textarea { background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:12px; padding:10px 14px; font:inherit; }
-.menu-list ul { list-style:none; margin:10px 0 6px; padding:0; height:420px; overflow-y:auto; border:1px solid var(--line); border-radius:12px; background:var(--card); }
+.menu-list input, .menu-role textarea { background:var(--card); box-shadow:var(--shadow-xs); color:var(--ink); border:1px solid var(--line); border-radius:var(--r-ctl); padding:10px 14px; font:inherit; }
+.menu-list ul { list-style:none; margin:10px 0 6px; padding:0; height:420px; overflow-y:auto; border:1px solid var(--line); border-radius:var(--r-ctl); background:var(--card); }
 .menu-list li { padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--line); font-size:14px; overflow-wrap:anywhere; }
 .menu-list li:hover, .menu-list li:focus-visible { background:var(--card2); outline:none; }
 .menu-list li.on { background:var(--accent-soft); box-shadow:inset 3px 0 var(--accent); }
@@ -10,10 +10,11 @@
 .menu-count, .menu-hint { color:var(--muted); font-size:13px; }
 .menu-role { display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
 .menu-role textarea { width:100%; resize:vertical; }
-.menu-role button { border-radius:999px; padding:10px 22px; }
+.menu-role button { border-radius:var(--r-ctl); padding:14px 24px; }
 .menu-role button:disabled { opacity:.5; cursor:not-allowed; }
 .menu-error { color:var(--red); font-size:14px; }
-.menu-demo { background:none; border:none; color:var(--muted); padding:0; text-decoration:underline; cursor:pointer; margin-top:auto; }
+.menu-demo { background:none; color:var(--muted); padding:0; text-decoration:underline; cursor:pointer; margin-top:auto; }
 .menu-busy { display:block; max-width:640px; }
 .menu-busy .timeline { margin:24px 0; }
 @media (max-width:760px) { .menu { grid-template-columns:1fr; padding:20px 16px; } .menu-list ul { height:300px; } }
+.menu-demo:hover { background:none; color:var(--ink); }

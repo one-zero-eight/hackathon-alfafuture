@@ -70,9 +70,16 @@ curl -s -X POST localhost:8002/refine -H 'Content-Type: application/json' -d '{"
 ```python
 from agents.client import Agents
 from news_search import NewsSearch, postgres_corpus
-from news_search.cache import PgCache  # без cache= результаты хранятся только в памяти процесса
-search = NewsSearch(postgres_corpus(DATABASE_URL), Agents(), "/data", cache=PgCache(DATABASE_URL))
-result = search.search("Делимобиль", "Глава найма", region="Москва", method="dense_xquad")
+from news_search.cache import (
+    PgCache,
+)  # без cache= результаты хранятся только в памяти процесса
+
+search = NewsSearch(
+    postgres_corpus(DATABASE_URL), Agents(), "/data", cache=PgCache(DATABASE_URL)
+)
+result = search.search(
+    "Делимобиль", "Глава найма", region="Москва", method="dense_xquad"
+)
 ```
 
 Через HTTP:
@@ -100,3 +107,5 @@ TEST_DATABASE_URL='postgres://news_test:news_test@127.0.0.1:55432/news_test?sslm
 - Метод `lexical` — базовая линия, собранная из шагов остальных методов; он не повторяет отдельную старую версию.
 - Фильтр «своих» новостей для компании вне словаря `ALIASES` грубый: основы слов названия должны все встретиться в заголовке.
 - Даты в лентах берутся как есть; в части лент бывают анонсы с датой в будущем.
+
+Какое поле профиля меняет выдачу и уровень новости (свой регион, чужой, федеральные, зарубежные): [news_search/benchmarks/personalization-ab.md](../news_search/benchmarks/personalization-ab.md).

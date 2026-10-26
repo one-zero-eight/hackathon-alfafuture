@@ -2,6 +2,7 @@
 
 Each dd_* function returns a cluster label per item; dd_hybrid merges all of them.
 """
+
 import math
 from collections import Counter, defaultdict
 from urllib.parse import parse_qsl, urlencode, urlparse
@@ -68,7 +69,11 @@ def dd_jaccard(items, threshold=0.6):
     sets = [set(toks(i["title"])) for i in items]
     uf = UnionFind(len(items))
     for a, b in _candidate_pairs(sets):
-        if sets[a] and sets[b] and len(sets[a] & sets[b]) / len(sets[a] | sets[b]) >= threshold:
+        if (
+            sets[a]
+            and sets[b]
+            and len(sets[a] & sets[b]) / len(sets[a] | sets[b]) >= threshold
+        ):
             uf.union(a, b)
     return uf.labels()
 
@@ -77,12 +82,15 @@ def _tfidf_vectors(titles):
     grams = []
     for title in titles:
         s = " " + norm_title(title) + " "
-        grams.append(Counter(s[i:i + 4] for i in range(len(s) - 3)))
+        grams.append(Counter(s[i : i + 4] for i in range(len(s) - 3)))
     df = Counter(g for c in grams for g in c)
     n = len(titles)
     vectors = []
     for counts in grams:
-        v = {g: (1 + math.log(tf)) * math.log((n + 1) / (df[g] + 1)) for g, tf in counts.items()}
+        v = {
+            g: (1 + math.log(tf)) * math.log((n + 1) / (df[g] + 1))
+            for g, tf in counts.items()
+        }
         norm = math.sqrt(sum(x * x for x in v.values())) or 1
         vectors.append({g: x / norm for g, x in v.items()})
     return vectors
@@ -102,7 +110,12 @@ def dd_tfidf(items, threshold=0.55):
 def dd_hybrid(items):
     """Same canonical URL OR same title OR Jaccard >= 0.6 OR TF-IDF cosine >= 0.55."""
     uf = UnionFind(len(items))
-    for labels in (dd_url(items), dd_title_exact(items), dd_jaccard(items), dd_tfidf(items)):
+    for labels in (
+        dd_url(items),
+        dd_title_exact(items),
+        dd_jaccard(items),
+        dd_tfidf(items),
+    ):
         for i, label in enumerate(labels):
             uf.union(i, label)
     return uf.labels()
