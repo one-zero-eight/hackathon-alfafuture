@@ -30,6 +30,9 @@ type Config struct {
 	DeepEvery         time.Duration
 	// LLMEnabled turns on tagging and regional geotags; without it the service only collects.
 	LLMEnabled bool
+	// TaggingEnabled and GeotagEnabled switch the two LLM jobs separately; both are off when LLMEnabled is.
+	TaggingEnabled bool
+	GeotagEnabled  bool
 }
 
 // Load reads .env or ENV_FILE without replacing existing environment variables.
@@ -83,6 +86,13 @@ func Load() (Config, error) {
 	if c.LLMEnabled, err = strconv.ParseBool(env("LLM_ENABLED", "true")); err != nil {
 		return Config{}, errors.New("LLM_ENABLED must be true or false")
 	}
+	if c.TaggingEnabled, err = strconv.ParseBool(env("TAGGING_ENABLED", "true")); err != nil {
+		return Config{}, errors.New("TAGGING_ENABLED must be true or false")
+	}
+	if c.GeotagEnabled, err = strconv.ParseBool(env("GEOTAG_ENABLED", "true")); err != nil {
+		return Config{}, errors.New("GEOTAG_ENABLED must be true or false")
+	}
+	c.TaggingEnabled, c.GeotagEnabled = c.LLMEnabled && c.TaggingEnabled, c.LLMEnabled && c.GeotagEnabled
 	const bytesPerMB = 1_000_000
 	maxMB, err := strconv.ParseInt(env("FETCH_MAX_MB", "8"), 10, 64)
 	if err != nil || maxMB <= 0 || maxMB > math.MaxInt64/bytesPerMB {
