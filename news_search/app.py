@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from agents.client import Agents
 from news_search.cache import PgCache
 from news_search import DEFAULT_METHOD, METHODS, NewsSearch, TooFewNews, postgres_corpus
-from news_search.search import REFINE_LIMIT
+from news_search.search import NONLOCAL_WEIGHT, REFINE_LIMIT
 
 app = FastAPI(title="News search")
 _lock = threading.Lock()
@@ -21,6 +21,7 @@ class Request(BaseModel):
     region: str = ""
     method: str = DEFAULT_METHOD
     anonymised: bool = False  # the company text is a description from bank data, not a name: skip the own-company filter
+    locality: float | None = Field(None, ge=0, le=1)  # 0..1 from the company's size (backend); a large company gets more federal news
 
 
 class RefineRequest(BaseModel):
@@ -42,6 +43,7 @@ def search_instance() -> NewsSearch:
     if not _search:
         url = os.environ["DATABASE_URL"]
         _search.append(NewsSearch(postgres_corpus(url), Agents(), os.environ.get("NEWS_SEARCH_DATA", "/data"), cache=PgCache(url)))
+        _search[0].nonlocal_weight = float(os.environ.get("NEWS_SEARCH_NONLOCAL_WEIGHT", NONLOCAL_WEIGHT))
     return _search[0]
 
 
@@ -61,7 +63,7 @@ def search(req: Request) -> dict:
         raise HTTPException(422, f"method must be one of {list(METHODS)}")
     with _lock:
         try:
-            return search_instance().search(req.company, req.line, req.region, req.method, req.anonymised)
+            return search_instance().search(req.company, req.line, req.region, req.method, req.anonymised, req.locality)
         except TooFewNews as e:
             raise HTTPException(422, str(e))
 

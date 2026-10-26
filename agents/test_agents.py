@@ -29,6 +29,7 @@ def test_render_fills_known_placeholders_and_keeps_json_braces():
 def test_every_agent_builds_a_prompt_from_minimal_input():
     inputs = {
         "queries": {"company": "Ромашка", "line": "Закупки", "region": "Тверь"},
+        "queries_anonymised": {"company": "компания, ОКВЭД 10.20, г. Мурманск", "line": "Закупки", "region": "Мурманская область"},
         "needs": {"company": "Ромашка", "line": "Закупки"},
         "hyde": {"company": "Ромашка", "line": "Закупки"},
         "pick": {"company": "Ромашка", "line": "Закупки", "candidates": [{"id": 1, "title": "Заголовок", "date": "", "outlets": ["РБК"]}]},
@@ -77,6 +78,13 @@ def test_pick_drops_ids_that_are_not_candidates(monkeypatch):
 def test_queries_keeps_only_blocks_of_strings(monkeypatch):
     fake_chat(monkeypatch, '{"business_model": "B2B", "company_self": [" Ромашка суд ", 5], "government": ["Минфин"]}')
     assert agents_app.run("queries", {"company": "Ромашка", "line": "Закупки"}) == {"company_self": ["Ромашка суд"], "government": ["Минфин"]}
+
+
+def test_queries_anonymised_accepts_an_empty_company_self(monkeypatch):
+    prompts = fake_chat(monkeypatch, '{"company_self": [], "competitors_direct": ["рыбопереработка Мурманская область"]}')
+    out = agents_app.run("queries_anonymised", {"company": "компания, ОКВЭД 10.20", "line": "Закупки", "region": "Мурманская область"})
+    assert out == {"company_self": [], "competitors_direct": ["рыбопереработка Мурманская область"]} and len(prompts) == 1
+    assert "Мурманская область" in prompts[0] and "название неизвестно" in prompts[0]
 
 
 def test_http_contract(monkeypatch):

@@ -25,6 +25,10 @@ type oneRequestClient struct {
 
 func (c *oneRequestClient) Model() string { return c.client.Model() }
 func (c *oneRequestClient) Chat(ctx context.Context, p openai.ChatCompletionNewParams) (*openai.ChatCompletion, error) {
+	// The places question precedes every tagging call; only the tagging call is limited.
+	if isPlacesCall(p) {
+		return c.client.Chat(ctx, p)
+	}
 	if c.calls.Add(1) != 1 {
 		return nil, errors.New("live test call limit reached")
 	}

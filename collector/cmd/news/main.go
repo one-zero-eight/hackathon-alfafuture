@@ -113,7 +113,7 @@ func run(ctx context.Context) error {
 		return err
 	}
 	var client *llm.Client
-	if cfg.LLMEnabled {
+	if cfg.TaggingEnabled || cfg.GeotagEnabled {
 		if client, err = llm.NewFromEnv(); err != nil {
 			return err
 		}
@@ -136,10 +136,12 @@ func run(ctx context.Context) error {
 	}
 	var worker *tagging.Worker
 	var afterPass func(context.Context)
-	if client != nil {
+	if cfg.TaggingEnabled {
 		if worker, err = tagging.NewWorker(ctx, db, client, cfg.LLMTimeout); err != nil {
 			return err
 		}
+	}
+	if cfg.GeotagEnabled {
 		seed, err := vocabulary.Load()
 		if err != nil {
 			return errors.New("cannot read tagging vocabulary version")
@@ -193,7 +195,7 @@ func run(ctx context.Context) error {
 	if client != nil {
 		model = client.Model()
 	}
-	slog.Info("news service started", "http_addr", listener.Addr().String(), "poll_interval", cfg.PollInterval, "model", model, "llm_enabled", cfg.LLMEnabled)
+	slog.Info("news service started", "http_addr", listener.Addr().String(), "poll_interval", cfg.PollInterval, "model", model, "tagging", cfg.TaggingEnabled, "geotag", cfg.GeotagEnabled)
 	select {
 	case <-ctx.Done():
 	case err = <-stopped:

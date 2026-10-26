@@ -38,13 +38,16 @@ def zscore_top3(X, queries_vectors):
     return mean_top3((S - S.mean(0)) / (S.std(0) + 1e-6))
 
 
-def xquad(items, lam=0.5, k=TOP_OUT):
-    """Greedy diversification over the query blocks (equal weights): relevance vs covering blocks not covered yet."""
+def xquad(items, lam=0.5, k=TOP_OUT, bonus=None):
+    """Greedy diversification over the query blocks (equal weights): relevance vs covering blocks not covered yet.
+    bonus: a constant extra gain per item (does not fade like block coverage), e.g. for news outside the profile's region."""
     rel = norm01([it["score"] for it in items])
     P = np.clip(np.array([it["aspects"] for it in items]), 0, None)
+    bonus = np.zeros(len(items)) if bonus is None else np.asarray(bonus, dtype=float)
     uncovered, chosen = np.ones(P.shape[1]) / P.shape[1], []
     for _ in range(min(k, len(items))):
-        best = max((i for i in range(len(items)) if i not in chosen), key=lambda i: (1 - lam) * rel[i] + lam * float(uncovered @ P[i]))
+        best = max((i for i in range(len(items)) if i not in chosen),
+                   key=lambda i: (1 - lam) * rel[i] + lam * float(uncovered @ P[i]) + lam * bonus[i])
         chosen.append(best)
         uncovered = uncovered * (1 - P[best])
     return chosen

@@ -32,6 +32,8 @@ services:
       DATABASE_URL: *database_url
       HTTP_ADDR: 0.0.0.0:8080
       LLM_ENABLED: ${LLM_ENABLED:-true}  # false: only collect, spend nothing
+      TAGGING_ENABLED: ${TAGGING_ENABLED:-true}  # false: geotags only, no tagging
+      GEOTAG_ENABLED: ${GEOTAG_ENABLED:-true}
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${COLLECTOR_LLM_MODEL:-google/gemma-4-26b-a4b-it}
     ports:
@@ -64,6 +66,7 @@ services:
       DATABASE_URL: *database_url
       AGENTS_URL: http://agents:8000
       NEWS_SEARCH_DATA: /data
+      NEWS_SEARCH_NONLOCAL_WEIGHT: ${NEWS_SEARCH_NONLOCAL_WEIGHT:-0.5}  # federal news for large companies, 0 = off; docs/news-search.md
     volumes:
       - hf_cache:/hf_cache
       - search_data:/data
