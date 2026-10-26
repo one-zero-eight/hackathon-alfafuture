@@ -35,15 +35,17 @@ class LLMError(RuntimeError):
 
 # ---- gateway ----
 
-def chat(model: str, content, max_tokens: int, read_timeout: float = 600) -> tuple[str, dict]:
+def chat(model: str, content, max_tokens: int | None, read_timeout: float = 600) -> tuple[str, dict]:
     """One streamed completion. content is a prompt string or a list of message parts (text, image_url)."""
     if model not in APPROVED:
         raise ValueError(f"model {model!r} is not on the organizer-approved list")
     bases = [b.rstrip("/") for b in (os.environ.get("LLM_BASE_URL"), os.environ.get("LLM_BASE_URL_BACKUP")) if b]
     if not bases or not os.environ.get("LLM_API_KEY"):
         raise LLMError("LLM_API_KEY and LLM_BASE_URL must be set")
-    body = {"model": model, "messages": [{"role": "user", "content": content}], "max_tokens": max_tokens,
+    body = {"model": model, "messages": [{"role": "user", "content": content}],
             "stream": True, "stream_options": {"include_usage": True}}
+    if max_tokens:  # None: no cap, the gateway default applies
+        body["max_tokens"] = max_tokens
     err = None
     for base in bases if len(bases) > 1 else bases * 2:  # one gateway: a second try on the same one
         text, reasoning, finish, usage, started = "", "", None, {}, time.monotonic()
@@ -71,8 +73,10 @@ def chat(model: str, content, max_tokens: int, read_timeout: float = 600) -> tup
     raise LLMError(f"LLM {model} failed: {err!r}")
 
 
-def next_budget(budget: int, usage: dict) -> int:
+def next_budget(budget: int | None, usage: dict) -> int | None:
     """A reasoning model can spend the whole completion cap on thinking and return no content: give the next try more room."""
+    if not budget:
+        return budget
     reasoning = int(((usage or {}).get("completion_tokens_details") or {}).get("reasoning_tokens") or 0)
     completion = int((usage or {}).get("completion_tokens") or 0)
     if reasoning and completion and reasoning >= completion - 5:
@@ -136,7 +140,7 @@ class Agent:
     fields: tuple[str, ...]  # required input fields
     build: Callable[[dict], str]
     key: str | None = None  # output field that must be non-empty, else the call is retried
-    max_tokens: int = 32000
+    max_tokens: int | None = None  # no cap by default
     read_timeout: float = 600
     images: str | None = None  # input field holding data-URL images
     finish: Callable[[dict, dict], dict] = lambda out, inp: out  # normalise the answer
@@ -144,7 +148,7 @@ class Agent:
 
 AGENTS: dict[str, Agent] = {
     "feedback_intent": Agent(GEMMA, ("message", "context"), lambda i: render("feedback_intent", message=i["message"], context=dump(i["context"])),
-                             key="kind", max_tokens=1500, read_timeout=60, finish=validate_intent),
+                             key="kind", read_timeout=60, finish=validate_intent),
     # search side
     "queries": Agent(DEEPSEEK, ("company", "line"),
                      lambda i: render("queries", today=today(), company=i["company"] + where(i.get("region", "")), line=i["line"]),
@@ -156,7 +160,7 @@ AGENTS: dict[str, Agent] = {
     # a native Alfa-Business tip shown while the page is being built; backend derives status and goal from the bank record (CL_TYPE, products)
     "ad_tip": Agent(GEMMA, ("company", "role", "status", "goal"),
                     lambda i: render("ad_tip", company=i["company"], role=i["role"], status=i["status"], goal=i["goal"]),
-                    key="text", max_tokens=800, read_timeout=45, finish=lambda out, _: {"text": " ".join(str(out["text"]).split())}),
+                    key="text", read_timeout=45, finish=lambda out, _: {"text": " ".join(str(out["text"]).split())}),
     "needs": Agent(DEEPSEEK, ("company", "line"), lambda i: render("needs", company=i["company"], where=where(i.get("region", "")), line=i["line"]),
                    key="needs", finish=lambda out, _: {"needs": strings(out["needs"])}),
     "hyde": Agent(DEEPSEEK, ("company", "line"), lambda i: render("hyde", company=i["company"], where=where(i.get("region", "")), line=i["line"]),
@@ -170,21 +174,21 @@ AGENTS: dict[str, Agent] = {
                                              sphere_line=f"Сфера анализа: {i['sphere']}. Пиши про неё, даже если слова введены с опечаткой." if i.get("sphere") else "",
                                              kinds=", ".join(i["kinds"]), title=i["title"], text=i.get("text", ""),
                                              thoughts=dump(i["thoughts"]), materials=i["materials"]),
-                            max_tokens=2500, read_timeout=90),
+                            read_timeout=90),
     "decision": Agent(DEEPSEEK, ("role", "moves", "title", "notes"),
                       lambda i: render("decision", sphere_line=f"Сфера анализа: {i['sphere']}. Решение для этой сферы, по правилам роли." if i.get("sphere") else "",
                                        role_title=i["role"]["title"], role_authority=i["role"]["authority"], role_playbook=i["role"]["playbook"],
                                        moves="\n".join(f"- {k}: {v}" for k, v in i["moves"].items()) or "(ТРИЗ выключена — только правила роли)",
                                        title=i["title"], notes=dump(i["notes"])),
-                      key="title", max_tokens=4000, read_timeout=90),
+                      key="title", read_timeout=90),
     "verify": Agent(QWEN, ("claims",), lambda i: render("verify", claims=dump([{"text": c["text"], "quote": c["quote"]} for c in i["claims"]])),
-                    key="verdicts", max_tokens=2000, read_timeout=90),
+                    key="verdicts", read_timeout=90),
     "reply": Agent(DEEPSEEK, ("question",),
                    lambda i: render("reply", facts_line=facts_line(i), title=i.get("title", ""), text=i.get("text", ""),
                                     risks=dump(i.get("risks", [])), question=i["question"]),
-                   key="text", max_tokens=1200, read_timeout=90),
+                   key="text", read_timeout=90),
     "alfa_page": Agent(QWEN_VL, (), lambda i: render("alfa_page", page_text=f"\n\nСТРАНИЦА {i['page']}:\n{i['text'][:6000]}" if i.get("text") else ""),
-                       max_tokens=1200, read_timeout=120, images="images"),
+                       read_timeout=120, images="images"),
 }
 
 
