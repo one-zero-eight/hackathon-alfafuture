@@ -12,7 +12,8 @@
 | `embed.py` | кодировщики и кэш векторов статей |
 | `corpus.py` | чтение корпуса из Postgres |
 | `app.py` | HTTP: `POST /search`, `POST /refine`, `GET /methods` |
-| `benchmarks/` | сравнение методов; замер допоиска и его драйвер `refine_bench.py` |
+| `benchmarks/` | сравнение методов; замер допоиска (`refine_bench.py`); A/B параметров компании (`personalization_ab.py`, отчёт `personalization-ab.md`) |
+| `levels.py` | уровень новости: свой регион, чужой регион, федеральный, зарубежный |
 
 ```bash
 uv sync --all-packages
