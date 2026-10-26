@@ -10,14 +10,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
-import httpx
 from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from backend import config, pages, store, worker, journal
+from backend import config, feedback, feedback_pages, feedback_store, pages, store, worker, journal
 from backend.journal_api import router as journal_router
-from agents import tracing
 from backend.companies import CompanyUnavailable
 
 logging.basicConfig(level=logging.INFO)
@@ -33,6 +31,7 @@ async def lifespan(_: FastAPI):
     threading.Thread(target=journal.run_cleanup, args=(stop,), daemon=True, name="journal-cleanup").start()
     if config.WORKER_ENABLED:
         threading.Thread(target=worker.run_forever, args=(stop,), daemon=True, name="profiles").start()
+        threading.Thread(target=feedback.run_forever, args=(stop,), daemon=True, name="feedback").start()
     yield
     stop.set()
 
@@ -42,8 +41,8 @@ app.include_router(journal_router)
 
 
 class ChatContext(BaseModel):
-    type: Literal["widget", "link"]
-    id: str
+    type: Literal["widget", "link", "page"]
+    id: str  # a widget or link id; for "page" the profile key
 
 
 class ChatRequest(BaseModel):
@@ -51,6 +50,7 @@ class ChatRequest(BaseModel):
     session_id: str | None = None
     message: str | None = None  # null = open the chat
     page_version: int
+    request_id: str | None = Field(None, max_length=64)  # retries with the same id return the first operation instead of paying twice
 
 
 class ProfileRequest(BaseModel):
@@ -140,42 +140,77 @@ def link(lid: str) -> dict:
     return {k: l[k] for k in ("id", "from", "to", "text")}
 
 
-@app.post("/api/chat")
+@app.post("/api/chat", status_code=200)
 def chat(req: ChatRequest, response: Response) -> dict:
+    """The one entry of the user's feedback. Opening a chat answers at once; a message becomes a queued operation (202), read at /api/feedback/{id}."""
     ctx = req.context
-    key, prefix, page = locate(ctx.id)
-    card = pages.chat_card(page, ctx.type, ctx.id)
-    if card is None:
-        raise HTTPException(404, f"{ctx.id} not found")
+    if ctx.type == "page":
+        key, prefix, page = ctx.id, "", store.load_page(ctx.id)
+        card = {"text": "Спросите о странице целиком или попросите изменить её.", "basis": [], "followups": []}
+        if page is None:
+            raise HTTPException(404, f"profile {ctx.id} has no page yet")
+    else:
+        key, prefix, page = locate(ctx.id)
+        card = pages.chat_card(page, ctx.type, ctx.id)
+        if card is None:
+            raise HTTPException(404, f"{ctx.id} not found")
     session_id = req.session_id or uuid.uuid4().hex
     if req.message is None:
         return {"session_id": session_id, "reply": card, "patch": None}
     if not key:
         return chat_action(req, key, prefix, page, card, session_id)
+    message = req.message.strip()
+    if not message or len(message) > 4000:
+        raise HTTPException(422, "message must be 1..4000 characters")
+    if req.page_version != page["version"]:
+        raise HTTPException(409, f"page version is {page['version']}, client has {req.page_version}")
+    payload = {"context": ctx.model_dump(), "message": message, "session_id": session_id, "page_version": req.page_version}
+
+    def make_run(conn):
+        try:
+            with conn.transaction():
+                return journal.create("chat", journal.profile_company_ref(key), key, conn)["run_id"]
+        except Exception:
+            logging.getLogger("backend.journal").warning("chat journal unavailable")
+            return None
+
+    op, created = feedback_store.enqueue(key, req.request_id or uuid.uuid4().hex, payload, make_run)
+    if not created and (op["payload"]["message"], op["payload"]["context"]) != (message, payload["context"]):
+        raise HTTPException(409, "request_id was already used for another request")
+    response.status_code = 202 if created else 200
+    return {"session_id": session_id, "operation_id": op["id"], "run_id": op["run_id"], "status": op["status"]}
+
+
+@app.get("/api/feedback/{operation_id}")
+def feedback_result(operation_id: str) -> dict:
+    """Poll until status is not queued/running. result: {scenario, reply, patch, changes, sources, version} or {error, ...}."""
+    op = feedback_store.operation(operation_id)
+    if op is None:
+        raise HTTPException(404, f"operation {operation_id} not found")
+    return {"operation_id": op["id"], "status": op["status"], "run_id": op["run_id"], "result": op["result"]}
+
+
+class UndoRequest(BaseModel):
+    page_version: int
+
+
+@app.post("/api/profile/{key}/undo")
+def undo(key: str, req: UndoRequest) -> dict:
+    """Restore the page before the last change as a new version. Repeating steps further back (last 20 revisions)."""
     try:
-        created = journal.create("chat", journal.profile_company_ref(key), key)
-        trace = journal.safe_context(created["run_id"])
-    except Exception:
-        logging.getLogger("backend.journal").warning("chat journal unavailable")
-        response.headers["X-Trace-Incomplete"] = "true"
-        return {**chat_action(req, key, prefix, page, card, session_id), "run_id": None}
-    try:
-        with tracing.activate(trace), tracing.span("chat"):
-            result = chat_action(req, key, prefix, page, card, session_id)
-        journal.safe_finish(trace.run_id, "completed", trace.incomplete)
-        response.headers["X-Run-ID"] = trace.run_id
-        response.headers["X-Trace-Incomplete"] = str(trace.incomplete).lower()
-        return {**result, "run_id": trace.run_id}
-    except Exception:
-        journal.safe_finish(trace.run_id, "failed", trace.incomplete)
-        raise
+        done = feedback_store.undo(key, req.page_version)
+    except feedback_store.Conflict:
+        raise HTTPException(409, "page changed, reload it")
+    if done is None:
+        raise HTTPException(404, "nothing to undo")
+    old, restored = done
+    ops, changes = feedback_pages.diff(old, restored)
+    return {"patch": {"base_version": old["version"], "version": restored["version"], "ops": ops}, "changes": changes, "version": restored["version"]}
 
 
 def chat_action(req, key, prefix, page, card, session_id):
+    """The demo page (no profile): canned edits in memory, as before the feedback queue."""
     ctx = req.context
-    text = req.message.lower()
-    if key and ctx.type == "widget" and "добавь" not in text and "измени" not in text:
-        return {"session_id": session_id, "reply": answer(page, ctx.id, req.message, card), "patch": None}
     if req.page_version != page["version"]:
         raise HTTPException(409, f"page version is {page['version']}, client has {req.page_version}")
     reply_text, ops = pages.edit(page, prefix, ctx.type, ctx.id, req.message)
@@ -183,25 +218,7 @@ def chat_action(req, key, prefix, page, card, session_id):
     if ops:
         page["version"] += 1
         patch = {"base_version": req.page_version, "version": page["version"], "ops": ops}
-        if key:
-            store.save_page(key, page)
     return {"session_id": session_id, "reply": {"text": reply_text, "basis": [], "followups": []}, "patch": patch}
-
-
-def answer(page: dict, widget_id: str, question: str, card: dict) -> dict:
-    """A follow-up question on a profile page: the analytics service answers from the widget and the company facts only."""
-    try:
-        r = httpx.post(f"{config.ANALYTICS_URL}/reply", timeout=300,
-                       headers=tracing.headers(), json={"question": question, "widget": pages.find(page["widgets"], widget_id), "facts": page.get("meta", {}).get("facts", "")})
-        tracing.observe(r)
-        r.raise_for_status()
-        got = r.json()
-    except (httpx.HTTPError, ValueError) as e:
-        tracing.emit("chat", status="failed", error_code="upstream_error")
-        if tracing.CURRENT.get() and isinstance(e, httpx.HTTPError):
-            tracing.CURRENT.get().mark_incomplete()
-        got = {"text": "Не удалось ответить: " + repr(e), "basis": []}
-    return {"text": got["text"], "basis": got["basis"], "followups": card.get("followups", [])}
 
 
 if os.path.isdir(config.PAPERS_DIR):

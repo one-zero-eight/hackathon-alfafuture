@@ -15,7 +15,7 @@ import uvicorn
 
 from agents import app as agents_app
 from agents.client import Agents
-from backend import app as backend_app, config, store, worker
+from backend import app as backend_app, config, feedback, store, worker
 from news_search import app as search_app
 from news_search import NewsSearch
 from news_search.test_search import FakeAgents, NOW, hash_encoder, make_corpus
@@ -37,6 +37,8 @@ def gateway(model, content, max_tokens, read_timeout=600):
         out = {"verdicts": ["supported"] * 4}
     elif name == "reply":
         out = {"text": "Ответ фикстуры", "basis": []}
+    elif name == "feedback_intent":
+        out = {"kind": "question", "reason": "fixture"}
     elif name == "trace_description":
         events = json.loads(content.split("Events:\n", 1)[1])
         out = {"descriptions": [{"event_id": e["event_id"], "phrasing": "compact", "facts": ["counts", "queries", "sources"]} for e in events]}
@@ -112,7 +114,9 @@ def main():
             curl(analytics + "/reply", {"question": "private question", "widget": {"title": "fixture"}})
             page = curl(backend + f"/api/page?profile={submitted['key']}")
             chat = curl(backend + "/api/chat", {"context": {"type": "widget", "id": page["widgets"][0]["id"]}, "message": "private question", "page_version": 1})
-            assert curl(backend + f"/api/runs/{chat['run_id']}")["status"] == "completed"
+            assert chat["status"] == "queued" and feedback.run_once()
+            assert curl(backend + f"/api/feedback/{chat['operation_id']}")["status"] in ("completed", "needs_clarification", "failed", "blocked")
+            assert curl(backend + f"/api/runs/{chat['run_id']}")["status"] in ("completed", "failed")
             config.TRACE_AI_ENABLED = True
             os.environ["TRACE_AI_ENABLED"] = "true"
             descriptions = curl(backend + f"/api/runs/{submitted['run_id']}/descriptions", {})

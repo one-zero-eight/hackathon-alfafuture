@@ -131,14 +131,13 @@ def test_chat_creates_separate_run_without_recording_message(db, services):
     response = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{request['key']}_n1"}, "message": "добавь private-customer-value", "page_version": 1}).json()
     assert response["run_id"] != request["run_id"]
     journal_body = client.get(f"/api/runs/{response['run_id']}").json()
-    assert "private-customer-value" not in str(journal_body) and journal_body["status"] == "completed"
+    assert "private-customer-value" not in str(journal_body)
 
 
 @needs_db
-def test_chat_still_answers_when_journal_creation_fails(db, services, monkeypatch):
+def test_chat_is_queued_when_journal_creation_fails(db, services, monkeypatch):
     request = client.post("/api/profile", json={"company": "Example", "role": "CFO"}).json()
     worker.run_once()
     monkeypatch.setattr(journal, "create", lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("private")))
-    response = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{request['key']}_n1"}, "message": "добавь", "page_version": 1})
-    assert response.status_code == 200 and response.json()["patch"]
-    assert response.json()["run_id"] is None and response.headers["X-Trace-Incomplete"] == "true"
+    response = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{request['key']}_n1"}, "message": "что это?", "page_version": 1})
+    assert response.status_code == 202 and response.json()["run_id"] is None

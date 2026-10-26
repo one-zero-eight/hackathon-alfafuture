@@ -40,6 +40,8 @@ def init() -> None:
         conn.execute(MIGRATE)
         from backend import journal
         journal.init(conn)
+        from backend import feedback_store
+        feedback_store.init(conn)
         conn.execute("UPDATE profiles SET status = 'queued', run_id = NULL WHERE status = 'running'")
 
 
@@ -80,9 +82,11 @@ def take():
         return None
 
 
-def finish(key: str, page: dict) -> None:
+def finish(key: str, page: dict, state: dict | None = None) -> None:
+    """A recomputed profile starts again from its own search: user edits of the older page are not carried over (docs/backend.md)."""
     with connect() as conn:
-        conn.execute("UPDATE profiles SET status = 'ready', page = %s, error = '', updated_at = now() WHERE key = %s", (Jsonb(page), key))
+        conn.execute("UPDATE profiles SET status = 'ready', page = %s, feedback_state = %s, error = '', updated_at = now() WHERE key = %s",
+                     (Jsonb(page), Jsonb(state) if state is not None else None, key))
 
 
 def fail(key: str, error: str) -> None:

@@ -7,7 +7,7 @@ import time
 
 import httpx
 
-from backend import config, pages, store, journal
+from backend import config, feedback_pages, pages, store, journal
 from agents import tracing
 from backend.companies import CompanyBook, CompanyUnavailable
 from backend.focus import interpret, page_key_bits
@@ -40,7 +40,8 @@ def _post(url: str, body: dict, what: str) -> dict:
     return r.json()
 
 
-def build_page(key: str, company: str, company_id: str, role: str, region: str, method: str) -> dict:
+def build_page(key: str, company: str, company_id: str, role: str, region: str, method: str) -> tuple[dict, dict]:
+    """(page, feedback state): the state remembers which article each news widget was written from."""
     with tracing.span("profile"):
         profile, query_company, region = prepare_profile(company, company_id, role, region)
     focus = interpret(role)
@@ -58,7 +59,7 @@ def build_page(key: str, company: str, company_id: str, role: str, region: str, 
     with tracing.span("publication") as event:
         published = pages.publish(key, page, meta)
         event["widget_ids"] = [w["id"] for w in published["widgets"]][:200]
-        return published
+        return published, feedback_pages.initial_state(published, found["top"])
 
 
 def prepare_profile(company, company_id, role, region):
@@ -83,7 +84,7 @@ def run_once() -> bool:
     log.info("profile %s: %r / %r / %r via %s", key, company or company_id, role, region, method)
     try:
         with tracing.activate(trace), tracing.span("run"):
-            store.finish(key, build_page(key, company, company_id, role, region, method))
+            store.finish(key, *build_page(key, company, company_id, role, region, method))
         journal.safe_finish(run_id, "completed", trace.incomplete)
         log.info("profile %s: ready", key)
     except Exception as e:  # any failure is reported on the profile, the loop goes on

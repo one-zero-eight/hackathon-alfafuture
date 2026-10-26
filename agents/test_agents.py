@@ -29,6 +29,7 @@ def test_render_fills_known_placeholders_and_keeps_json_braces():
 def test_every_agent_builds_a_prompt_from_minimal_input():
     inputs = {
         "trace_description": {"events": []},
+        "feedback_intent": {"message": "Почему так?", "context": {"selected": {"type": "widget", "id": "w1"}, "widgets": []}},
         "queries": {"company": "Ромашка", "line": "Закупки", "region": "Тверь"},
         "needs": {"company": "Ромашка", "line": "Закупки"},
         "hyde": {"company": "Ромашка", "line": "Закупки"},
@@ -44,6 +45,11 @@ def test_every_agent_builds_a_prompt_from_minimal_input():
     for name, data in inputs.items():
         prompt = agents_app.AGENTS[name].build(data)
         assert prompt and "{company}" not in prompt and "{title}" not in prompt, name
+
+
+def test_every_registered_agent_is_a_valid_name_in_trace_events():
+    from agents import tracing
+    assert set(agents_app.AGENTS) == tracing.AGENT_NAMES
 
 
 def test_json_call_retries_until_valid_json_with_key(monkeypatch):

@@ -18,6 +18,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from agents import tracing
+from agents.feedback import validate as validate_intent
 
 PROMPTS = Path(__file__).parent / "prompts"
 GEMMA = "google/gemma-4-26b-a4b-it"
@@ -162,6 +163,8 @@ def description_events(data):
 AGENTS: dict[str, Agent] = {
     "trace_description": Agent(GEMMA, ("events",), lambda i: render("trace_description", events=dump(description_events(i))),
                                key="descriptions", max_tokens=2500, read_timeout=30, attempts=1),
+    "feedback_intent": Agent(GEMMA, ("message", "context"), lambda i: render("feedback_intent", message=i["message"], context=dump(i["context"])),
+                             key="kind", max_tokens=1500, read_timeout=60, finish=validate_intent),
     # search side
     "queries": Agent(DEEPSEEK, ("company", "line"),
                      lambda i: render("queries", today=today(), company=i["company"] + where(i.get("region", "")), line=i["line"]),
