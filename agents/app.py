@@ -43,7 +43,7 @@ class LLMError(RuntimeError):
 
 
 def chat(
-    model: str, content, max_tokens: int, read_timeout: float = 600
+    model: str, content, max_tokens: int | None, read_timeout: float = 600
 ) -> tuple[str, dict]:
     """One streamed completion. content is a prompt string or a list of message parts (text, image_url)."""
     if model not in APPROVED:
@@ -58,10 +58,11 @@ def chat(
     body = {
         "model": model,
         "messages": [{"role": "user", "content": content}],
-        "max_tokens": max_tokens,
         "stream": True,
         "stream_options": {"include_usage": True},
     }
+    if max_tokens:  # None: no cap, the gateway default applies
+        body["max_tokens"] = max_tokens
     err = None
     for base in (
         bases if len(bases) > 1 else bases * 2
@@ -119,8 +120,10 @@ def chat(
     raise LLMError(f"LLM {model} failed: {err!r}")
 
 
-def next_budget(budget: int, usage: dict) -> int:
+def next_budget(budget: int | None, usage: dict) -> int | None:
     """A reasoning model can spend the whole completion cap on thinking and return no content: give the next try more room."""
+    if not budget:
+        return budget
     reasoning = int(
         ((usage or {}).get("completion_tokens_details") or {}).get("reasoning_tokens")
         or 0
@@ -212,7 +215,7 @@ class Agent:
     key: str | None = (
         None  # output field that must be non-empty, else the call is retried
     )
-    max_tokens: int = 32000
+    max_tokens: int | None = None  # no cap by default
     read_timeout: float = 600
     images: str | None = None  # input field holding data-URL images
     finish: Callable[[dict, dict], dict] = lambda out, inp: out  # normalise the answer
@@ -226,7 +229,6 @@ AGENTS: dict[str, Agent] = {
             "feedback_intent", message=i["message"], context=dump(i["context"])
         ),
         key="kind",
-        max_tokens=1500,
         read_timeout=60,
         finish=validate_intent,
     ),
@@ -272,7 +274,6 @@ AGENTS: dict[str, Agent] = {
             goal=i["goal"],
         ),
         key="text",
-        max_tokens=800,
         read_timeout=45,
         finish=lambda out, _: {"text": " ".join(str(out["text"]).split())},
     ),
@@ -331,7 +332,6 @@ AGENTS: dict[str, Agent] = {
             thoughts=dump(i["thoughts"]),
             materials=i["materials"],
         ),
-        max_tokens=2500,
         read_timeout=90,
     ),
     "decision": Agent(
@@ -352,7 +352,6 @@ AGENTS: dict[str, Agent] = {
             notes=dump(i["notes"]),
         ),
         key="title",
-        max_tokens=4000,
         read_timeout=90,
     ),
     "role_brief": Agent(
@@ -365,7 +364,6 @@ AGENTS: dict[str, Agent] = {
             fallback_playbook=i["fallback_playbook"],
         ),
         key="playbook",
-        max_tokens=1500,
         read_timeout=60,
     ),
     "verify": Agent(
@@ -378,7 +376,6 @@ AGENTS: dict[str, Agent] = {
             ),
         ),
         key="verdicts",
-        max_tokens=2000,
         read_timeout=90,
     ),
     "reply": Agent(
@@ -393,7 +390,6 @@ AGENTS: dict[str, Agent] = {
             question=i["question"],
         ),
         key="text",
-        max_tokens=1200,
         read_timeout=90,
     ),
     "alfa_page": Agent(
@@ -405,7 +401,6 @@ AGENTS: dict[str, Agent] = {
             if i.get("text")
             else "",
         ),
-        max_tokens=1200,
         read_timeout=120,
         images="images",
     ),
@@ -414,7 +409,6 @@ AGENTS: dict[str, Agent] = {
         ("sphere", "materials"),
         lambda i: render("synthesis", sphere=i["sphere"], materials=i["materials"]),
         key="text",
-        max_tokens=2500,
         read_timeout=90,
     ),
     "synthesis_decision": Agent(
@@ -432,7 +426,6 @@ AGENTS: dict[str, Agent] = {
             or "(ТРИЗ выключена — только правила роли)",
         ),
         key="title",
-        max_tokens=4000,
         read_timeout=90,
     ),
 }
