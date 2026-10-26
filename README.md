@@ -6,6 +6,9 @@
 - Запуск всего стека: [docs/docker.md](docs/docker.md)
 - Разделы: [сбор](docs/collector.md), [агенты](docs/agents.md), [поиск новостей](docs/news-search.md), [аналитика](docs/analytics.md), [backend](docs/backend.md), [frontend](docs/frontend.md)
 
+## Тестовый стенд
+https://alfa-news.alo.quest
+
 ## Быстрый старт
 
 ```bash
