@@ -5,6 +5,7 @@ package ingest
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"regexp"
@@ -71,6 +72,9 @@ func (r *Runner) Run(ctx context.Context) {
 			for kind, step := range map[string]int{kindSiteDepth: 1, kindTopics: 3} {
 				if err := r.Backfill(ctx, kind, 3, step, false, false); err != nil && ctx.Err() == nil {
 					slog.Error("rolling Google News pass failed", "kind", kind, "error", err)
+					if errors.Is(err, gnews.ErrBlocked) {
+						break // the other kind would be blocked too; retry after DeepEvery
+					}
 				}
 			}
 			lastDeep = time.Now()
@@ -203,11 +207,15 @@ func (r *Runner) Backfill(ctx context.Context, kind string, days, step int, regi
 		items []gnews.Item
 		err   error
 	}
-	added, requests := 0, 0
+	added, requests, failed := 0, 0, 0
 	var finished []string
+	var blocked error
+	parent := ctx
+	ctx, cancel := context.WithCancel(ctx) // cancelled when Google blocks us: the rest of the pass would only prolong the block
+	defer cancel()
 	flush := func() {
 		if resume {
-			if err := store.MarkWindows(ctx, r.db, kind, finished); err != nil {
+			if err := store.MarkWindows(parent, r.db, kind, finished); err != nil {
 				slog.Error("cannot remember finished requests", "error", err)
 			}
 		}
@@ -219,7 +227,18 @@ func (r *Runner) Backfill(ctx context.Context, kind string, days, step int, regi
 		return result{j, items, err}
 	}) {
 		requests++
-		if res.err == nil && len(res.items) > 0 { // an empty answer (429 included) is retried next time
+		switch {
+		case blocked != nil:
+			continue // draining the workers after cancel
+		case errors.Is(res.err, gnews.ErrBlocked):
+			blocked = res.err
+			cancel()
+			slog.Warn("Google News blocks requests, pass stopped", "kind", kind, "requests", requests, "of", len(jobs), "error", res.err)
+			continue
+		case res.err != nil:
+			failed++
+		}
+		if res.err == nil && len(res.items) > 0 { // an empty answer is retried next time
 			n, err := r.saveGoogle(ctx, res.job, res.items)
 			if err != nil {
 				return err
@@ -233,8 +252,11 @@ func (r *Runner) Backfill(ctx context.Context, kind string, days, step int, regi
 		}
 	}
 	flush()
-	slog.Info("Google News backfill finished", "kind", kind, "requests", requests, "new_articles", added)
-	return ctx.Err()
+	slog.Info("Google News backfill finished", "kind", kind, "requests", requests, "failed", failed, "new_articles", added)
+	if blocked != nil {
+		return blocked
+	}
+	return parent.Err()
 }
 
 // saveGoogle files the items under their curated source (site depth) or under one source per outlet (topics):
