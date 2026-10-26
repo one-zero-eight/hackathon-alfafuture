@@ -14,3 +14,5 @@ npm ci
 npm run dev      # http://localhost:5173, /api идёт на 127.0.0.1:8000
 npm test && npm run build
 ```
+
+Оформление: токены `@alfalab/core-components-vars` в `src/styles/base.css`; реклама Альфа-Бизнеса при загрузке — `src/components/widgets/AdTip.tsx` + `src/styles/adtip.css`.

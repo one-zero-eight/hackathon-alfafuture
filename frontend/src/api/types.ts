@@ -15,6 +15,7 @@ export interface ProfileStatus {
   stage?: Stage; found?: number | null; selected?: number | null; // GET /profile/{key} only: progress of a running profile
 }
 export interface CompanyItem { id: string; okved_name: string }
+export interface AdTip { text: string; cl_type: string | null }
 export interface CompanyList { total: number; items: CompanyItem[] }
 export interface Page { version: number; company: Company; widgets: WidgetSkeleton[]; links: LinkSkeleton[] }
 
