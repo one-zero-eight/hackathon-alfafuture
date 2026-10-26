@@ -14,3 +14,11 @@
 .chatform { display:flex; gap:8px; padding:12px 22px 18px; }
 .chatform input { flex:1; font:inherit; padding:10px 14px; border:1.5px solid var(--line); background:var(--bg); color:var(--ink); border-radius:999px; }
 .chatform input:focus { outline:none; border-color:var(--accent); }
+
+.ask-ai { position:fixed; right:20px; bottom:20px; z-index:50; border-radius:999px; padding:12px 20px; box-shadow:0 6px 20px rgba(0,0,0,.35); }
+.m.change { align-self:stretch; background:var(--bg); border:1.5px solid var(--line); font-size:13px; }
+.m.change b { display:block; margin-bottom:4px; }
+.m.change ul { margin:4px 0 8px; padding-left:18px; }
+.chips-act { display:flex; flex-wrap:wrap; gap:8px; padding:6px 22px 0; }
+.chips-act button { background:transparent; border:1.5px solid var(--line); font-size:12px; }
+.ask-hint { position:fixed; right:20px; bottom:76px; z-index:50; background:var(--bg); color:var(--ink); border:1.5px solid var(--line); border-radius:12px; padding:8px 14px; font-size:13px; max-width:260px; }
