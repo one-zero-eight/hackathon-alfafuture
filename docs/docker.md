@@ -55,6 +55,24 @@ docker exec -i alfa-postgres-1 pg_restore -U news -d news --no-owner --exit-on-e
 docker compose --env-file .env -f docker/compose.yaml up -d
 ```
 
+### Снимок: дамп и векторы вместе
+
+Чтобы первый поиск не встраивал весь корпус, вместе с дампом переносится `vectors_bgem3.npz`. Векторы привязаны к `articles.id` и верны только с дампом той же базы: у базы, собранной коллектором заново, id другие, и поиск молча сопоставит не те векторы. Файлы в git не лежат (`*.dump` и `*.npz` в `.gitignore`), их передают отдельно. На ветке `main` снимок корпуса уже с полным файлом векторов.
+
+Развернуть на чистой машине:
+
+```bash
+cp .env.example .env
+docker compose --env-file .env -f docker/compose.yaml up -d --wait postgres
+docker compose --env-file .env -f docker/compose.yaml exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner' < snapshot/alfa.dump
+docker compose --env-file .env -f docker/compose.yaml up -d --build --wait
+docker compose --env-file .env -f docker/compose.yaml cp snapshot/vectors_bgem3.npz news_search:/data/vectors_bgem3.npz
+```
+
+При `docker/up.sh` на macOS `news_search` работает на хосте, и файл кладётся в `.run/search_data/vectors_bgem3.npz`.
+
+Замер 2026-10-26 (MacBook, Docker без GPU, снимок 137 тыс. статей): копирование векторов 1 с. Первый профиль готов через 22 мин: вызовы LLM поиска около 2 мин, скачивание bge-m3 и встраивание 4 348 статей, которых в снимке ещё не было, около 15 мин, аналитика около 4,5 мин. Весь корпус заново не считается.
+
 Пароль БД применяется только при создании тома `postgres_data`: если том уже создан с другим `POSTGRES_PASSWORD`, смените пароль в `.env` на прежний или удалите том.
 
 Если порты 3000, 5433, 8000–8003 или 8080 заняты, добавьте второй файл compose с `ports: !override [...]` для нужных сервисов (`-f docker/compose.yaml -f мой-порты.yaml`).
