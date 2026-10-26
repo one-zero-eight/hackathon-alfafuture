@@ -120,6 +120,8 @@ def run_cleanup(stop):
     while not stop.wait(60):
         try:
             cleanup()
+            from backend import feedback_store
+            feedback_store.cleanup()
         except Exception:
             log.warning("journal cleanup unavailable")
 

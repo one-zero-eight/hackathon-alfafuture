@@ -13,10 +13,13 @@ from typing import Literal
 import httpx
 from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from uuid import UUID
 
 from backend import config, pages, store, worker, journal
 from backend.journal_api import router as journal_router
+from backend.feedback_api import router as feedback_router
+from backend import feedback_store
 from agents import tracing
 from backend.companies import CompanyUnavailable
 
@@ -39,18 +42,20 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="News analytics backend", lifespan=lifespan)
 app.include_router(journal_router)
+app.include_router(feedback_router)
 
 
 class ChatContext(BaseModel):
-    type: Literal["widget", "link"]
-    id: str
+    type: Literal["widget", "link", "page"]
+    id: str = Field(min_length=1, max_length=100)
 
 
 class ChatRequest(BaseModel):
     context: ChatContext
-    session_id: str | None = None
-    message: str | None = None  # null = open the chat
-    page_version: int
+    session_id: str | None = Field(None, max_length=100)
+    message: str | None = Field(None, max_length=8000)  # null = open the chat
+    page_version: int = Field(ge=1)
+    request_id: UUID | None = None
 
 
 class ProfileRequest(BaseModel):
@@ -58,6 +63,7 @@ class ProfileRequest(BaseModel):
     role: str
     region: str = ""
     company_id: str = ""
+    force: bool = False
 
 
 def locate(element_id: str) -> tuple[str, str, dict]:
@@ -99,7 +105,7 @@ def set_profile(req: ProfileRequest) -> dict:
     if not (company or company_id) or not role or any(len(x) > 200 for x in (company, role, region, company_id)) or (company_id and not worker.COMPANY_ID.fullmatch(company_id)):
         raise HTTPException(422, "role and company (or company_id U_<digits>) are required; fields at most 200 characters")
     key = worker.profile_key(company, company_id, role, region, config.NEWS_SEARCH_METHOD)
-    k, status, error, run_id = store.submit(key=key, company=company, company_id=company_id, role=role, region=region, method=config.NEWS_SEARCH_METHOD)
+    k, status, error, run_id = store.submit(key=key, company=company, company_id=company_id, role=role, region=region, method=config.NEWS_SEARCH_METHOD, force=req.force)
     return {"key": k, "status": status, "error": error, "cached": status == "ready", "run_id": run_id}  # ready right at submit = served from the database
 
 
@@ -143,65 +149,47 @@ def link(lid: str) -> dict:
 @app.post("/api/chat")
 def chat(req: ChatRequest, response: Response) -> dict:
     ctx = req.context
-    key, prefix, page = locate(ctx.id)
-    card = pages.chat_card(page, ctx.type, ctx.id)
-    if card is None:
-        raise HTTPException(404, f"{ctx.id} not found")
+    if req.message is not None and req.request_id:
+        match = KEY.match(ctx.id)
+        key = ctx.id if ctx.type == "page" else (match.group(1) if match else None)
+        if key and feedback_store.request_exists(key, str(req.request_id)):
+            return queue_chat(req, response, key, req.session_id or uuid.uuid4().hex)
+    if ctx.type == "page":
+        key, prefix, page = ctx.id, ctx.id + "_", store.load_page(ctx.id)
+        if page is None:
+            raise HTTPException(404, "profile page not found")
+        card = {"text": "Что вы хотите узнать или изменить на странице?", "basis": [], "followups": []}
+    else:
+        key, prefix, page = locate(ctx.id)
+        card = pages.chat_card(page, ctx.type, ctx.id)
+        if card is None:
+            raise HTTPException(404, "context not found")
     session_id = req.session_id or uuid.uuid4().hex
     if req.message is None:
         return {"session_id": session_id, "reply": card, "patch": None}
+    if not req.message.strip():
+        raise HTTPException(422, "message must not be empty")
     if not key:
-        return chat_action(req, key, prefix, page, card, session_id)
+        return {"session_id": session_id, "reply": {"text": "Для обработки запроса выберите компанию и создайте профиль. Демо-страница не изменена.", "basis": [], "followups": []}, "patch": None, "scenario": {"kind": "clarify", "reason": "Нужен сохранённый профиль."}}
+    return queue_chat(req, response, key, session_id)
+
+
+def queue_chat(req, response, key, session_id):
+    payload = {"context": req.context.model_dump(), "message": req.message.strip(), "session_id": session_id, "page_version": req.page_version}
     try:
-        created = journal.create("chat", journal.profile_company_ref(key), key)
-        trace = journal.safe_context(created["run_id"])
-    except Exception:
-        logging.getLogger("backend.journal").warning("chat journal unavailable")
+        operation_id = feedback_store.enqueue(key, payload, str(req.request_id) if req.request_id else None)
+    except feedback_store.Missing as error:
+        raise HTTPException(404, str(error)) from None
+    except feedback_store.Conflict as error:
+        raise HTTPException(409, str(error)) from None
+    operation = feedback_store.get(operation_id)
+    response.status_code = 202
+    if operation["run_id"]:
+        response.headers["X-Run-ID"] = operation["run_id"]
+    else:
         response.headers["X-Trace-Incomplete"] = "true"
-        return {**chat_action(req, key, prefix, page, card, session_id), "run_id": None}
-    try:
-        with tracing.activate(trace), tracing.span("chat"):
-            result = chat_action(req, key, prefix, page, card, session_id)
-        journal.safe_finish(trace.run_id, "completed", trace.incomplete)
-        response.headers["X-Run-ID"] = trace.run_id
-        response.headers["X-Trace-Incomplete"] = str(trace.incomplete).lower()
-        return {**result, "run_id": trace.run_id}
-    except Exception:
-        journal.safe_finish(trace.run_id, "failed", trace.incomplete)
-        raise
-
-
-def chat_action(req, key, prefix, page, card, session_id):
-    ctx = req.context
-    text = req.message.lower()
-    if key and ctx.type == "widget" and "добавь" not in text and "измени" not in text:
-        return {"session_id": session_id, "reply": answer(page, ctx.id, req.message, card), "patch": None}
-    if req.page_version != page["version"]:
-        raise HTTPException(409, f"page version is {page['version']}, client has {req.page_version}")
-    reply_text, ops = pages.edit(page, prefix, ctx.type, ctx.id, req.message)
-    patch = None
-    if ops:
-        page["version"] += 1
-        patch = {"base_version": req.page_version, "version": page["version"], "ops": ops}
-        if key:
-            store.save_page(key, page)
-    return {"session_id": session_id, "reply": {"text": reply_text, "basis": [], "followups": []}, "patch": patch}
-
-
-def answer(page: dict, widget_id: str, question: str, card: dict) -> dict:
-    """A follow-up question on a profile page: the analytics service answers from the widget and the company facts only."""
-    try:
-        r = httpx.post(f"{config.ANALYTICS_URL}/reply", timeout=300,
-                       headers=tracing.headers(), json={"question": question, "widget": pages.find(page["widgets"], widget_id), "facts": page.get("meta", {}).get("facts", "")})
-        tracing.observe(r)
-        r.raise_for_status()
-        got = r.json()
-    except (httpx.HTTPError, ValueError) as e:
-        tracing.emit("chat", status="failed", error_code="upstream_error")
-        if tracing.CURRENT.get() and isinstance(e, httpx.HTTPError):
-            tracing.CURRENT.get().mark_incomplete()
-        got = {"text": "Не удалось ответить: " + repr(e), "basis": []}
-    return {"text": got["text"], "basis": got["basis"], "followups": card.get("followups", [])}
+    return {"operation_id": operation_id, "run_id": operation["run_id"], "status": operation["status"],
+            "session_id": operation["session_id"], "reply": {"text": "Запрос принят. Результат появится после обработки.", "basis": [], "followups": []}, "patch": None}
 
 
 if os.path.isdir(config.PAPERS_DIR):

@@ -21,7 +21,7 @@ PARENT = contextvars.ContextVar("trace_parent", default=None)
 SECTIONS = Literal["backend", "agents", "news_search", "analytics"]
 STEPS = Literal["run", "queued", "profile", "queries", "needs", "hyde", "search", "retrieval", "deduplication", "ranking", "analytics", "decision", "verification", "publication", "chat", "cache", "refine", "llm", "gateway", "description"]
 COUNT_KEYS = {"before", "after", "duplicates", "own_removed", "selected", "queries", "notes", "decisions", "claims", "unsupported", "excluded", "removed", "regional"}
-AGENT_NAMES = {"queries", "needs", "hyde", "pick", "analytics_step", "decision", "verify", "reply", "alfa_page", "trace_description"}
+AGENT_NAMES = {"queries", "needs", "hyde", "pick", "analytics_step", "decision", "verify", "reply", "alfa_page", "trace_description", "feedback_intent"}
 MODELS = {"google/gemma-4-26b-a4b-it", "deepseek/deepseek-v4.1-flash", "z-ai/glm-5.3-flash", "qwen/qwen3.6-35b-a3b", "qwen/qwen3-vl-30b-a3b-instruct", "moonshotai/kimi-k2.6"}
 ID = r"^[0-9a-f]{32}$"
 
@@ -75,7 +75,7 @@ class Event(BaseModel):
     @classmethod
     def valid_references(cls, value):
         import re
-        if any(not re.fullmatch(r"(?:article:\d+|[nN]\d+|alfa:[\w.-]+:p\d+:t\d+|(?:[0-9a-f]{12}_)?[nadl]\w{0,60})", x) for x in value):
+        if any(not re.fullmatch(r"(?:user:[0-9a-f]{32}|article:\d+|[nN]\d+|alfa:[\w.-]+:p\d+:t\d+|(?:[0-9a-f]{12}_)?[nadl]\w{0,60})", x) for x in value):
             raise ValueError("invalid reference")
         return value
 

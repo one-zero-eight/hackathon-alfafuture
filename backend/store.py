@@ -38,15 +38,16 @@ def init() -> None:
     with connect() as conn:
         conn.execute(DDL)
         conn.execute(MIGRATE)
-        from backend import journal
+        from backend import journal, feedback_store
+        feedback_store.init(conn)
         journal.init(conn)
         conn.execute("UPDATE profiles SET status = 'queued', run_id = NULL WHERE status = 'running'")
 
 
-def submit(**fields):
+def submit(force=False, **fields):
     from backend import journal
     with connect() as conn, conn.transaction():
-        row = conn.execute(SUBMIT, {**fields, "ttl": config.PROFILE_TTL_HOURS}).fetchone()
+        row = conn.execute(SUBMIT, {**fields, "ttl": 0 if force else config.PROFILE_TTL_HOURS}).fetchone()
         key, state, error, run_id = row
         active = conn.execute("SELECT status FROM trace_runs WHERE id=%s", (run_id,)).fetchone() if run_id else None
         if state == "queued" and (active is None or active[0] not in ("queued", "running")):
@@ -80,9 +81,26 @@ def take():
         return None
 
 
-def finish(key: str, page: dict) -> None:
-    with connect() as conn:
-        conn.execute("UPDATE profiles SET status = 'ready', page = %s, error = '', updated_at = now() WHERE key = %s", (Jsonb(page), key))
+def finish(key: str, page: dict, expected_version=None) -> None:
+    from backend import feedback_pages as fp, feedback_store as fs
+    with connect() as conn, conn.transaction():
+        row = fs.profile(key, conn, lock=True)
+        if expected_version is not None and (row["page"] or {}).get("version", 0) != expected_version:
+            raise fs.Conflict("page changed during generation")
+        news = page.get("meta", {}).get("news", [])
+        state = fp.initial_state(row["page"], row["feedback_state"]) if row["page"] else {}
+        if row["page"]:
+            fs.snapshot(conn, key, row["page"], row["feedback_state"])
+            incoming_meta = page.get("meta", {})
+            page = fp.compose(key, row["page"], page, news, state, replace=True)
+            page["meta"].update(incoming_meta)
+            page["version"] = row["page"]["version"] + 1
+        else:
+            state = fp.initial_state(page, news=news)
+        fp.compact(page, state)
+        page.get("meta", {}).pop("news", None)
+        conn.execute("UPDATE profiles SET status='ready', page=%s, feedback_state=%s, error='', updated_at=now() WHERE key=%s",
+                     (Jsonb(page), Jsonb(state), key))
 
 
 def fail(key: str, error: str) -> None:

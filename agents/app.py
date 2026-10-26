@@ -18,6 +18,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from agents import tracing
+from agents.feedback import validate as validate_feedback, input_values as feedback_input
 
 PROMPTS = Path(__file__).parent / "prompts"
 GEMMA = "google/gemma-4-26b-a4b-it"
@@ -160,6 +161,8 @@ def description_events(data):
 
 
 AGENTS: dict[str, Agent] = {
+    "feedback_intent": Agent(GEMMA, ("message", "context"), lambda i: render("feedback_intent", message=feedback_input(i)["message"], context=dump(i["context"])),
+                             key="kind", max_tokens=1000, read_timeout=30, attempts=2, finish=validate_feedback),
     "trace_description": Agent(GEMMA, ("events",), lambda i: render("trace_description", events=dump(description_events(i))),
                                key="descriptions", max_tokens=2500, read_timeout=30, attempts=1),
     # search side
@@ -224,7 +227,7 @@ def run(name: str, data: dict, usage: dict | None = None) -> dict:
                     if isinstance(answer, dict) and (agent.key is None or answer.get(agent.key)):
                         return agent.finish(answer, data)
                     err = f"missing {agent.key!r}"
-            except json.JSONDecodeError as e:
+            except (json.JSONDecodeError, ValueError) as e:
                 err = repr(e)
             event.update(status="failed", error_code="invalid_response")
             budget = next_budget(budget, used)
@@ -264,6 +267,11 @@ def run_agent(name: str, req: Request) -> dict:
         raise HTTPException(404, f"unknown agent {name!r}")
     if name == "trace_description" and os.environ.get("TRACE_AI_ENABLED", "false").lower() != "true":
         raise HTTPException(503, "AI descriptions disabled pending currency and daily budget confirmation")
+    if name == "feedback_intent":
+        try:
+            feedback_input(req.input)
+        except (KeyError, ValueError):
+            raise HTTPException(422, "invalid feedback input") from None
     if name == "trace_description":
         try:
             description_events(req.input)

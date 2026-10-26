@@ -28,6 +28,7 @@ def test_render_fills_known_placeholders_and_keeps_json_braces():
 
 def test_every_agent_builds_a_prompt_from_minimal_input():
     inputs = {
+        "feedback_intent": {"message": "Почему?", "context": {"widgets": [], "links": []}},
         "trace_description": {"events": []},
         "queries": {"company": "Ромашка", "line": "Закупки", "region": "Тверь"},
         "needs": {"company": "Ромашка", "line": "Закупки"},

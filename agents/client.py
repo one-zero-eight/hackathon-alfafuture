@@ -18,6 +18,7 @@ class Agents:
         self.url = (url or os.environ.get("AGENTS_URL", "http://agents:8000")).rstrip("/")
         self.timeout = timeout
         self.calls, self.tokens, self.cost = 0, 0, 0.0
+        self.unknown_cost_calls = 0
         self._lock = threading.Lock()
 
     def run(self, name: str, data: dict) -> dict:
@@ -33,4 +34,5 @@ class Agents:
             self.calls += body["usage"]["calls"]
             self.tokens += body["usage"]["tokens"]
             self.cost += body["usage"]["cost"]
+            self.unknown_cost_calls += body["usage"].get("unknown_cost_calls", 0)
         return body["output"]
