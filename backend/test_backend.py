@@ -124,35 +124,18 @@ def test_sphere_typos_share_a_page_but_a_job_changes_the_playbook(db, services):
 
 
 @needs_db
-def test_chat_edits_are_saved_with_the_profile_page(db, services):
+def test_chat_message_on_a_profile_page_is_queued_and_open_is_instant(db, services):
     k = request_page()
-    stale = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{k}_n1"}, "message": "добавь аналитику", "page_version": 9})
-    assert stale.status_code == 409
-    patch = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{k}_n1"}, "message": "добавь аналитику", "page_version": 1}).json()["patch"]
-    new_id = patch["ops"][0]["widget"]["id"]
-    assert patch["version"] == 2 and patch["ops"][0]["widget"]["tags"]["source"] == "human" and new_id.startswith(f"{k}_w_")
-    page = client.get(f"/api/page?profile={k}").json()
-    assert page["version"] == 2 and new_id in {w["id"] for w in page["widgets"]}
-    assert client.get(f"/api/widgets/{new_id}").status_code == 200
-
-
-@needs_db
-def test_chat_open_and_followup_question(db, services, monkeypatch):
-    k = request_page()
-    opened = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{k}_d1"}, "message": None, "page_version": 1}).json()
+    ctx = {"type": "widget", "id": f"{k}_d1"}
+    opened = client.post("/api/chat", json={"context": ctx, "message": None, "page_version": 1}).json()
     assert opened["patch"] is None and opened["reply"]["followups"]
     link_chat = client.post("/api/chat", json={"context": {"type": "link", "id": f"{k}_l1a"}, "message": None, "page_version": 1}).json()
     assert link_chat["reply"]["basis"] == ["ЦБ сохранил ставку", "Долг дорогой"]
-
-    class Reply:
-        def raise_for_status(self): pass
-        def json(self): return {"text": "Долг останется дорогим.", "basis": ["ставка"]}
-
-    asked = {}
-    monkeypatch.setattr(app_module.httpx, "post", lambda url, **kw: asked.update(url=url, body=kw["json"]) or Reply())
-    answer = client.post("/api/chat", json={"context": {"type": "widget", "id": f"{k}_d1"}, "message": "что с долгом?", "page_version": 1}).json()
-    assert answer["patch"] is None and answer["reply"]["text"] == "Долг останется дорогим." and answer["reply"]["followups"] == opened["reply"]["followups"]
-    assert asked["url"].endswith("/reply") and asked["body"]["question"] == "что с долгом?"
+    assert client.post("/api/chat", json={"context": ctx, "message": "что с долгом?", "page_version": 9}).status_code == 409
+    queued = client.post("/api/chat", json={"context": ctx, "message": "что с долгом?", "page_version": 1})
+    assert queued.status_code == 202 and set(queued.json()) == {"session_id", "operation_id", "status"}
+    polled = client.get(f"/api/feedback/{queued.json()['operation_id']}").json()
+    assert polled["status"] == "queued" and polled["result"] is None
 
 
 def test_demo_page_is_the_default_and_its_edits_do_not_touch_the_database():

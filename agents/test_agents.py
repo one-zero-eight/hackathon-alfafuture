@@ -28,6 +28,7 @@ def test_render_fills_known_placeholders_and_keeps_json_braces():
 
 def test_every_agent_builds_a_prompt_from_minimal_input():
     inputs = {
+        "feedback_intent": {"message": "Почему так?", "context": {"selected": {"type": "widget", "id": "w1"}, "widgets": []}},
         "queries": {"company": "Ромашка", "line": "Закупки", "region": "Тверь"},
         "queries_anonymised": {"company": "компания, ОКВЭД 10.20, г. Мурманск", "line": "Закупки", "region": "Мурманская область"},
         "needs": {"company": "Ромашка", "line": "Закупки"},
