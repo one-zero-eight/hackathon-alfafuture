@@ -17,7 +17,7 @@ func isolate(t *testing.T) {
 	for _, name := range []string{
 		"ENV_FILE", "DATABASE_URL", "HTTP_ADDR", "POLL_INTERVAL", "FETCH_TIMEOUT", "LLM_TIMEOUT",
 		"FETCH_MAX_MB", "RBC_FEED_URL", "KOMMERSANT_FEED_URL", "CBR_FEED_URL",
-		"SOURCES_FILE", "TOPICS_FILE", "FEEDS_EVERY", "DEEP_EVERY", "LLM_ENABLED",
+		"SOURCES_FILE", "TOPICS_FILE", "FEEDS_EVERY", "DEEP_EVERY", "LLM_ENABLED", "TAGGING_ENABLED", "GEOTAG_ENABLED",
 	} {
 		t.Setenv(name, "")
 		if err := os.Unsetenv(name); err != nil {
@@ -55,6 +55,8 @@ func TestLoadDefaultsWithoutDotenv(t *testing.T) {
 		FeedsEvery:        15 * time.Minute,
 		DeepEvery:         6 * time.Hour,
 		LLMEnabled:        true,
+		TaggingEnabled:    true,
+		GeotagEnabled:     true,
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("unexpected defaults: %+v", got)
@@ -111,6 +113,8 @@ CBR_FEED_URL=https://www.cbr.ru/custom.rss
 		FeedsEvery:        15 * time.Minute,
 		DeepEvery:         6 * time.Hour,
 		LLMEnabled:        true,
+		TaggingEnabled:    true,
+		GeotagEnabled:     true,
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("unexpected config: %+v", got)
@@ -269,5 +273,23 @@ func TestLoadCollectorSettings(t *testing.T) {
 	t.Setenv("LLM_ENABLED", "maybe")
 	if _, err := Load(); err == nil {
 		t.Fatal("expected an LLM_ENABLED error")
+	}
+}
+
+func TestLoadSeparateLLMJobs(t *testing.T) {
+	isolate(t)
+	t.Setenv("TAGGING_ENABLED", "false")
+	got, err := Load()
+	if err != nil || got.TaggingEnabled || !got.GeotagEnabled {
+		t.Fatalf("geotag without tagging not applied: %+v %v", got, err)
+	}
+	t.Setenv("TAGGING_ENABLED", "true")
+	t.Setenv("LLM_ENABLED", "false")
+	if got, err = Load(); err != nil || got.TaggingEnabled || got.GeotagEnabled {
+		t.Fatalf("LLM_ENABLED=false must switch both jobs off: %+v %v", got, err)
+	}
+	t.Setenv("GEOTAG_ENABLED", "maybe")
+	if _, err := Load(); err == nil {
+		t.Fatal("expected a GEOTAG_ENABLED error")
 	}
 }
