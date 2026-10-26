@@ -52,6 +52,25 @@ def _money(value: float) -> str:
     return f"{value:.0f} руб."
 
 
+ACCOUNT = "расчётный счёт"
+UPSELL = ("кредиты", "лизинг", "депозиты", "зарплатный проект", "банковские гарантии", "факторинг")  # offered in this order, only what the company lacks
+
+
+def ad_offer(cl_type: str | None, products_ru: list[str]) -> tuple[str, str]:
+    """(status, goal) of the native Alfa-Business tip from CL_TYPE and the product marks; cl_type None = a company entered by name."""
+    if cl_type == "PROSPECT":
+        return "ещё не клиент банка", "стать клиентом Альфа-Бизнеса: открыть расчётный счёт"
+    if cl_type == "CLOSE_CLIENT":
+        return "раньше был клиентом банка, сейчас счёт закрыт", "вернуться в Альфа-Бизнес"
+    if cl_type == "CLIENT":
+        if ACCOUNT not in products_ru:
+            return "клиент банка без расчётного счёта", "перейти на обслуживание в Альфа-Бизнес: открыть расчётный счёт"
+        missing = [s for s in UPSELL if s not in products_ru][:2]
+        return ("клиент банка, пользуется: " + ", ".join(products_ru),
+                "познакомиться с дополнительными услугами Альфа-Бизнеса: " + ", ".join(missing) if missing else "узнать о новых возможностях Альфа-Бизнеса")
+    return "о статусе в банке ничего не известно", "узнать об Альфа-Бизнесе и стать его клиентом"
+
+
 # locality by headcount when there is no revenue (more staff -> less local); the FNS bracket names of the bank data
 LOCALITY_BY_STAFF = {"Менее 15": 0.8, "16-100": 0.5, "101-250": 0.3, "Более 251": 0.1}
 NAMED_LOCALITY = 0.1  # a company entered by name has no bank record: treated as a large one, little regional news (user decision)
@@ -159,6 +178,6 @@ class CompanyBook:
             "products": [key for _, key in marks if key], "products_ru": [ru for ru, _ in marks],
             "workers": size or "", "suppliers": suppliers, "customers": customers,
             "date_label": f"выручка {_money(revenue)}, {r['CITY']}".strip(" ,"),
-            "locality": self.locality(r),
+            "locality": self.locality(r), "cl_type": r.get("CL_TYPE") or None,
         }
         return self._profiles[uid]
