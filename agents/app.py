@@ -153,6 +153,10 @@ AGENTS: dict[str, Agent] = {
     "queries_anonymised": Agent(DEEPSEEK, ("company", "line"),
                                 lambda i: render("queries_anonymised", today=today(), company=i["company"] + where(i.get("region", "")), line=i["line"]),
                                 key="competitors_direct", finish=lambda out, _: {b: strings(v) for b, v in out.items() if isinstance(v, list)}),
+    # a native Alfa-Business tip shown while the page is being built; backend derives status and goal from the bank record (CL_TYPE, products)
+    "ad_tip": Agent(GEMMA, ("company", "role", "status", "goal"),
+                    lambda i: render("ad_tip", company=i["company"], role=i["role"], status=i["status"], goal=i["goal"]),
+                    key="text", max_tokens=800, read_timeout=45, finish=lambda out, _: {"text": " ".join(str(out["text"]).split())}),
     "needs": Agent(DEEPSEEK, ("company", "line"), lambda i: render("needs", company=i["company"], where=where(i.get("region", "")), line=i["line"]),
                    key="needs", finish=lambda out, _: {"needs": strings(out["needs"])}),
     "hyde": Agent(DEEPSEEK, ("company", "line"), lambda i: render("hyde", company=i["company"], where=where(i.get("region", "")), line=i["line"]),

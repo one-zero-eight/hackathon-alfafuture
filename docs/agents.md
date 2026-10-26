@@ -27,6 +27,7 @@
 | `role_brief` | DeepSeek | `line`, `fallback_title`, `fallback_playbook` | полномочия и правила по свободной строке роли | analytics |
 | `verify` | Qwen3.6 35B | `claims` | `{"verdicts": [...]}` | analytics |
 | `reply` | DeepSeek | `question`, `title?`, `text?`, `risks?`, `facts?` | ответ на вопрос по разбору | analytics |
+| `ad_tip` | Gemma 4 26B A4B | `company` (описание из карточки банка или название), `role`, `status` (клиентский статус по `CL_TYPE`), `goal` (что предложить) | `{"text": "совет в 1–2 предложения"}` с мягким предложением Альфа-Бизнеса; не придумывает ставки, цены и продукты вне `goal` | backend (`POST /api/ad-tip`) |
 | `alfa_page` | Qwen3-VL 30B | `page`, `text?`, `images?` | тезисы страницы PDF | `python -m analytics.alfa` |
 | `synthesis` | Gemma 4 26B A4B | `sphere`, `materials` | один вывод по нескольким новостям для сферы | analytics |
 | `synthesis_decision` | DeepSeek | `sphere`, `conclusion`, `facts`, `role`, `moves` | одно действие для компании по этому выводу | analytics |

@@ -45,6 +45,7 @@ def test_every_agent_builds_a_prompt_from_minimal_input():
         "synthesis_decision": {"sphere": "ОКВЭД 49.41 (Перевозки), регион Тверь", "conclusion": "долг дорогой",
                                "facts": "выручка 1 млрд", "role": {"title": "CFO", "authority": "бюджет", "playbook": "правила"},
                                "moves": {}},
+        "ad_tip": {"company": "компания, ОКВЭД 49.41", "role": "Финансовый директор", "status": "не клиент банка", "goal": "стать клиентом Альфа-Бизнеса"},
     }
     assert set(inputs) == set(agents_app.AGENTS)
     for name, data in inputs.items():
