@@ -40,6 +40,7 @@ def test_every_agent_builds_a_prompt_from_minimal_input():
         "verify": {"claims": [{"text": "вывод", "quote": "цитата"}]},
         "reply": {"question": "Почему?", "title": "Заголовок", "text": "Текст"},
         "alfa_page": {"page": 3, "text": "текст страницы"},
+        "ad_tip": {"company": "компания, ОКВЭД 49.41", "role": "Финансовый директор", "status": "не клиент банка", "goal": "стать клиентом Альфа-Бизнеса"},
     }
     assert set(inputs) == set(agents_app.AGENTS)
     for name, data in inputs.items():
