@@ -1,0 +1,9 @@
+INFO:     Started server process [17166]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
+INFO:     127.0.0.1:52644 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52646 - "GET /health HTTP/1.1" 200 OK
+W1026 02:53:32.227000 17166 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/391 [00:00<?, ?it/s]Loading weights: 100%|██████████| 391/391 [00:00<00:00, 14944.30it/s]
+INFO:     127.0.0.1:53138 - "POST /search HTTP/1.1" 200 OK

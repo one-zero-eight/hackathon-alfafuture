@@ -1,0 +1,283 @@
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:46986 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40628 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57750 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58922 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60800 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35780 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.31.0.1:63480 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42502 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35098 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55984 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34702 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53268 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55902 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36864 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40306 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33254 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35770 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38900 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54624 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39218 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50898 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48732 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40024 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43224 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56798 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59744 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39738 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60344 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60300 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36536 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57518 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40654 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35006 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46390 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56046 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53944 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34994 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44396 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44322 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57134 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34508 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60168 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38790 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43300 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35622 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45406 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35854 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39966 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52152 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34686 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40500 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43610 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40402 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58994 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34274 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55374 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57690 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39694 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43946 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43318 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54234 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36558 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38688 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47256 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51000 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49550 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42864 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41264 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43318 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41336 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52368 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46256 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53930 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41296 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59246 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59250 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43424 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57832 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41632 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54300 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45714 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51850 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48204 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47154 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38218 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49350 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40808 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50890 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40552 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44244 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55428 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54842 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52800 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49768 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36074 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42574 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43074 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33392 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55828 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58362 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43086 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59398 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46120 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33556 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45438 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58528 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50980 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58750 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52694 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34144 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57900 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35610 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54250 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54202 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33366 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50620 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51396 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46436 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51738 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37534 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58378 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55348 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52232 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51142 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43990 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45274 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32962 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44322 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39292 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48316 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54502 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36756 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54444 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45630 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34926 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55346 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55354 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58378 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57466 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55362 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50882 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46352 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:analytics:1/10 N20028 Китай резко нарастил поставки шин и автозапчастей в Россию
+INFO:analytics:2/10 N73777 ЕАЭС повышает импортные пошлины: какие товары подорожают
+INFO:analytics:3/10 N49357 В ЕАЭС вырастут ввозные пошлины на импортную электронику и легпром
+INFO:analytics:4/10 N75189 В ЕАЭС подорожает импортная одежда и некоторые виды электроники
+INFO:analytics:5/10 N64588 Торговые сети поборются с дилерами за ремонт авто: что будет с ценами?
+INFO:analytics:6/10 N32013 Бензин на автозаправках внутри России может подорожать из-за затрат на
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:54672 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48232 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50808 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:analytics:7/10 N63902 Цены на транспортировку нефти резко выросли
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:46046 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39330 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47702 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:40004 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:36562 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39506 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/decision "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:analytics:8/10 N59389 Китайцы пересели на вторичку — но речь не о водителях: в России резко 
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/decision "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:analytics:9/10 N65982 Россию накрыл логистический кризис: транспортные проблемы сказываются 
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/decision "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:analytics:10/10 N70766 Новые машины россияне везут из Китая, а подержанные — из Японии: почем
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:46266 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/decision "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:42232 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:54114 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:45536 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45858 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34170 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/decision "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/analytics_step "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:59786 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/decision "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:43770 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60524 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59944 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35152 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/decision "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:46208 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/decision "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:51442 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49226 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59554 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/decision "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:51496 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52026 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58122 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38060 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/verify "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/verify "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/verify "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:38008 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41784 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46078 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44182 - "GET /health HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://agents:8000/agents/verify "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     172.31.0.4:54252 - "POST /page HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST http://backend:8000/internal/trace/runs/8373a12669174112a03831c1e49f9477/events "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:46888 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54690 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34194 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54532 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43356 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48568 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44204 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39026 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54938 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57022 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38236 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56884 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59318 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33700 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51026 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46110 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38752 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43976 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36660 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39632 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49162 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39292 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52556 - "GET /health HTTP/1.1" 200 OK
